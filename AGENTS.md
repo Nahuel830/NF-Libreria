@@ -14,6 +14,10 @@
 - Vistas Blade + Bootstrap 5 guardado en public/vendor/. JavaScript simple (vanilla) en public/js/. Sin Node, npm ni Vite.
 - Tests con PHPUnit sobre la base libreria_test.
 - Desarrollo en Windows (PowerShell).
+- Servidor de desarrollo: php artisan serve
+- Migrar: php artisan migrate
+- Reconstruir BD de desarrollo con datos de prueba: php artisan migrate:fresh --seed
+- Tests: php artisan test
 
 ## Forma de trabajo
 - Haz SOLO la tarea pedida. No adelantes trabajo de otras tareas ni modifiques archivos fuera del alcance.
