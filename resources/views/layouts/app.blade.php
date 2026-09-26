@@ -66,13 +66,13 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     @can('gestionar-usuarios')
-                                        <li><a class="dropdown-item" href="#">Usuarios</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('usuarios.index') }}">Usuarios</a></li>
                                     @endcan
                                     @can('gestionar-configuracion')
-                                        <li><a class="dropdown-item" href="#">Configuración</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('configuracion.editar') }}">Configuración</a></li>
                                     @endcan
                                     @can('ver-auditoria')
-                                        <li><a class="dropdown-item" href="#">Auditoría</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('auditoria.index') }}">Auditoría</a></li>
                                     @endcan
                                 </ul>
                             </li>

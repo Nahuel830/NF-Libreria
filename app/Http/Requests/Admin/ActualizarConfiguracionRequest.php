@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Http\Requests\Admin;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ActualizarConfiguracionRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()->can('gestionar-configuracion');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'nombre_negocio' => ['required', 'string', 'max:100'],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:50'],
+            'mensaje_ticket' => ['required', 'string', 'max:255'],
+            'permitir_stock_negativo' => ['nullable', 'boolean'],
+            'minutos_inactividad' => ['required', 'integer', 'min:5', 'max:480'],
+        ];
+    }
+}

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\ConfiguracionService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useBootstrapFive();
+
         $soloAdmin = fn (User $user) => $user->rol === Rol::Admin;
         $adminOEncargado = fn (User $user) => in_array($user->rol, [Rol::Admin, Rol::Encargado], true);
         $todos = fn (User $user) => in_array($user->rol, [Rol::Admin, Rol::Encargado, Rol::Cajero], true);
