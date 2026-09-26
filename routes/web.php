@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\AjusteStockController;
 use App\Http\Controllers\EntradaController;
+use App\Http\Controllers\ImportacionController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
@@ -65,6 +66,10 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/crear', [ProductoController::class, 'crear'])->name('crear');
         Route::post('/', [ProductoController::class, 'guardar'])->name('guardar');
         Route::get('/sugerir-codigo', [ProductoController::class, 'sugerirCodigo'])->name('sugerir-codigo');
+        Route::get('/importar', [ImportacionController::class, 'importar'])->name('importar');
+        Route::get('/importar/plantilla', [ImportacionController::class, 'plantilla'])->name('importar.plantilla');
+        Route::post('/importar/vista-previa', [ImportacionController::class, 'vistaPrevia'])->name('importar.vista-previa');
+        Route::post('/importar/confirmar', [ImportacionController::class, 'confirmar'])->name('importar.confirmar');
         Route::get('/{producto}/editar', [ProductoController::class, 'editar'])->name('editar');
         Route::put('/{producto}', [ProductoController::class, 'actualizar'])->name('actualizar');
         Route::patch('/{producto}/estado', [ProductoController::class, 'estado'])->name('estado');

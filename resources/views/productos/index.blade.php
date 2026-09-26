@@ -6,7 +6,10 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>Productos</h1>
         @can('gestionar-productos')
-            <a href="{{ route('productos.crear') }}" class="btn btn-primary">Nuevo producto</a>
+            <div>
+                <a href="{{ route('productos.importar') }}" class="btn btn-outline-secondary">Importar desde Excel/CSV</a>
+                <a href="{{ route('productos.crear') }}" class="btn btn-primary">Nuevo producto</a>
+            </div>
         @endcan
     </div>
 

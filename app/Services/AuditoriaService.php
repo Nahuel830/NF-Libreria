@@ -23,15 +23,15 @@ class AuditoriaService
     public function registrar(
         string $accion,
         string $descripcion,
-        ?Model $entidad = null,
+        Model|string|null $entidad = null,
         ?array $antes = null,
         ?array $despues = null
     ): Auditoria {
         return Auditoria::create([
             'user_id' => auth()->id(),
             'accion' => $accion,
-            'entidad' => $entidad ? $entidad->getTable() : null,
-            'entidad_id' => $entidad?->getKey(),
+            'entidad' => $entidad instanceof Model ? $entidad->getTable() : $entidad,
+            'entidad_id' => $entidad instanceof Model ? $entidad->getKey() : null,
             'descripcion' => $descripcion,
             'datos_anteriores' => $this->limpiar($antes),
             'datos_nuevos' => $this->limpiar($despues),
