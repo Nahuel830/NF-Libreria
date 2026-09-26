@@ -6,6 +6,14 @@
     @if ($esAdmin)
         <h1>Panel de inicio</h1>
 
+        @if ($alertaBackup)
+            <div class="alert alert-warning" role="alert">
+                Atención: el último backup tiene más de 24 horas o el último resultado fue error. Revisa las copias de seguridad.
+            </div>
+        @endif
+
+        <p class="text-muted">Último backup: {{ $ultimoBackupFecha ?? 'nunca' }}{{ $ultimoBackupResultado ? ' — '.$ultimoBackupResultado : '' }}</p>
+
         <div class="row mb-3">
             <div class="col-md-3">
                 <div class="card"><div class="card-body">Vendido hoy: <strong>{{ bs($totalHoy) }}</strong></div></div>

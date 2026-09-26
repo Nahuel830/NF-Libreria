@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Producto;
 use App\Models\Venta;
+use App\Services\ConfiguracionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class InicioController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, ConfiguracionService $configuracion): View
     {
         $usuario = $request->user();
 
         if ($usuario->can('ver-reportes')) {
-            return view('inicio', $this->panelAdmin());
+            return view('inicio', $this->panelAdmin($configuracion));
         }
 
         $hoy = today()->toDateString();
@@ -36,9 +37,16 @@ class InicioController extends Controller
     /**
      * @return array<string, mixed>
      */
-    protected function panelAdmin(): array
+    protected function panelAdmin(ConfiguracionService $configuracion): array
     {
         $hoy = today()->toDateString();
+
+        $ultimoBackupFecha = $configuracion->get('ultimo_backup_fecha');
+        $ultimoBackupResultado = $configuracion->get('ultimo_backup_resultado');
+
+        $alertaBackup = $ultimoBackupFecha === null
+            || abs(now()->diffInHours($ultimoBackupFecha)) > 24
+            || str_starts_with((string) $ultimoBackupResultado, 'error');
 
         $ventasHoy = Venta::where('estado', 'COMPLETADA')->whereDate('fecha', $hoy);
         $totalHoy = (clone $ventasHoy)->sum('total');
@@ -70,6 +78,9 @@ class InicioController extends Controller
             'cantidadHoy' => $cantidadHoy,
             'ticketPromedio' => $cantidadHoy > 0 ? $totalHoy / $cantidadHoy : 0,
             'anuladasHoy' => Venta::where('estado', 'ANULADA')->whereDate('fecha', $hoy)->count(),
+            'alertaBackup' => $alertaBackup,
+            'ultimoBackupFecha' => $ultimoBackupFecha,
+            'ultimoBackupResultado' => $ultimoBackupResultado,
             'porMetodo' => $porMetodo,
             'graficoEtiquetas' => $etiquetas,
             'graficoValores' => $valores,

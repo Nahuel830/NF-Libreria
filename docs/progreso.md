@@ -15,7 +15,7 @@
 - [x] PROMPT 10 — Caja y ticket (`feat: pantalla de venta y ticket`): buscador ampliado (incluye sin control de stock, devuelve precio_venta), `/ventas/nueva` (token UUID servidor, carrito con teclado F2/F9/Esc, descuento solo con permiso, efectivo con cambio y billetes, POST por fetch+JSON con fallback a formulario), ticket 80mm sin menú con "Documento sin valor fiscal" y "*** ANULADA ***", `imprimir_automatico` en configuración, botón Vender, `docs/impresion-tickets.md`. Tests: 89/89 en verde (359 aserciones).
 - [x] PROMPT 11 — Historial (`feat: historial y anulación de ventas`): `/ventas` (cajero solo propias del día forzado en servidor; filtros y resumen solo-COMPLETADA para admin/encargado; 30 por página), detalle con reimprimir y anular por modal, anulación vía `VentaService` con `can:anular-ventas`, kardex enlaza ventas, menú Ventas con Nueva + Historial. Tests: 94/94 en verde (381 aserciones).
 - [x] PROMPT 12 — Panel y reportes (`feat: panel de inicio y reportes`): panel admin (tarjetas, métodos hoy, gráfico 7 días con Chart.js 4.4.7 local, stock bajo top 10, últimas 10) y cajero (sus ventas + últimas 5); 8 reportes con agregaciones SQL solo-COMPLETADA y CSV con BOM; cierre imprimible A4/80mm; menú Reportes. `VentasDemoSeeder` (60 ventas 10 días, 3 anuladas, vía VentaService). Tests: 99/99 en verde (395 aserciones). Decisión: CSV como respuesta en memoria (testeable) en vez de stream.
-- [ ] PROMPT 13 — Backups y restauración.
+- [x] PROMPT 13 — Backups (`feat: backups automáticos y restauración`): `backup.ps1` (pg_dump -Fc, valida con pg_restore --list, copia externa opcional, retención 30 días, log + `backup:registrar-resultado`), `instalar-tarea-backup.ps1` (diaria 13:00/20:30), `probar-restauracion.ps1` (temporal + conteos + RESTAURACIÓN OK/ERROR), `restaurar.ps1` (confirmación + backup previo), alerta en panel (>24h o error), `docs/backups.md` + `docs/restauracion.md`. Ejecutado: backup.ps1 OK real (0.06 MB, validado, registrado). Tests: 102/102 en verde (405 aserciones). Decisión: sin pgpass.conf en esta PC, las pruebas usaron `PGPASSWORD` de entorno; no se guardó ninguna contraseña.
 
 ## Decisiones para revisar
 
@@ -23,4 +23,6 @@
 
 ## Acciones manuales pendientes
 
-(nada por ahora)
+1. **Dar permiso CREATEDB a `libreria_dev`** (para `probar-restauracion.ps1`): como superusuario postgres en pgAdmin/psql: `ALTER USER libreria_dev CREATEDB;`. Luego ejecutar `.\scripts\probar-restauracion.ps1` y esperar RESTAURACIÓN OK.
+2. **Crear `pgpass.conf`** según `docs/backups.md` para no depender de `PGPASSWORD`.
+3. **Instalar la tarea programada** con PowerShell como administrador: `.\scripts\instalar-tarea-backup.ps1`.
