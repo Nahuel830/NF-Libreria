@@ -24,8 +24,14 @@
                 <div class="collapse navbar-collapse" id="menuPrincipal">
                     <ul class="navbar-nav me-auto">
                         @can('realizar-ventas')
-                            <li class="nav-item">
-                                <a class="btn btn-success btn-sm mt-1" href="{{ route('ventas.nueva') }}">Vender</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Ventas
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('ventas.nueva') }}">Nueva venta</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('ventas.index') }}">Historial de ventas</a></li>
+                                </ul>
                             </li>
                         @endcan
 

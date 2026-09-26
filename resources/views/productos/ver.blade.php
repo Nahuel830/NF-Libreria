@@ -81,7 +81,11 @@
                         <td>{{ $movimiento->usuario?->usuario ?? '—' }}</td>
                         <td>
                             @if ($movimiento->referencia_tipo === 'venta')
-                                Venta #{{ str_pad($movimiento->referencia_id, 6, '0', STR_PAD_LEFT) }}
+                                @can('ver-todas-las-ventas')
+                                    <a href="{{ route('ventas.ver', $movimiento->referencia_id) }}">Venta #{{ str_pad($movimiento->referencia_id, 6, '0', STR_PAD_LEFT) }}</a>
+                                @else
+                                    Venta #{{ str_pad($movimiento->referencia_id, 6, '0', STR_PAD_LEFT) }}
+                                @endcan
                             @elseif ($movimiento->referencia_tipo === 'entrada')
                                 @can('registrar-entradas')
                                     <a href="{{ route('entradas.ver', $movimiento->referencia_id) }}">Entrada #{{ str_pad($movimiento->referencia_id, 6, '0', STR_PAD_LEFT) }}</a>

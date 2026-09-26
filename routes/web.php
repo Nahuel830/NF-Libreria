@@ -97,6 +97,9 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('can:realizar-ventas')->prefix('ventas')->name('ventas.')->group(function (): void {
         Route::get('/nueva', [VentaController::class, 'nueva'])->name('nueva');
         Route::post('/', [VentaController::class, 'cobrar'])->name('cobrar');
-        Route::get('/{venta}/ticket', [VentaController::class, 'ticket'])->name('ticket');
+        Route::get('/', [VentaController::class, 'index'])->name('index');
+        Route::get('/{venta}', [VentaController::class, 'ver'])->name('ver')->whereNumber('venta');
+        Route::get('/{venta}/ticket', [VentaController::class, 'ticket'])->name('ticket')->whereNumber('venta');
+        Route::post('/{venta}/anular', [VentaController::class, 'anular'])->name('anular')->middleware('can:anular-ventas');
     });
 });

@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\MetodoPago;
+use App\Http\Requests\AnularVentaRequest;
 use App\Http\Requests\VentaRequest;
+use App\Models\User;
 use App\Models\Venta;
 use App\Services\ConfiguracionService;
 use App\Services\VentaService;
 use DomainException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -63,11 +66,7 @@ class VentaController extends Controller
 
     public function ticket(Venta $venta, ConfiguracionService $configuracion): View
     {
-        $usuario = request()->user();
-
-        if (! $usuario->can('ver-todas-las-ventas') && $venta->user_id !== $usuario->id) {
-            abort(403);
-        }
+        $this->autorizarVerVenta($venta);
 
         $venta->load(['detalles', 'usuario']);
 
@@ -79,5 +78,77 @@ class VentaController extends Controller
             'mensajeTicket' => $configuracion->get('mensaje_ticket', ''),
             'imprimirAutomatico' => $configuracion->get('imprimir_automatico', '0') === '1',
         ]);
+    }
+
+    public function index(Request $request): View
+    {
+        $usuario = $request->user();
+        $esCajero = ! $usuario->can('ver-todas-las-ventas');
+
+        $base = function () use ($request, $usuario, $esCajero) {
+            $consulta = Venta::query();
+
+            if ($esCajero) {
+                $consulta->where('user_id', $usuario->id)->whereDate('fecha', today());
+            } else {
+                $consulta
+                    ->when($request->input('desde', today()->toDateString()), fn ($c, $desde) => $c->whereDate('fecha', '>=', $desde))
+                    ->when($request->input('hasta', today()->toDateString()), fn ($c, $hasta) => $c->whereDate('fecha', '<=', $hasta))
+                    ->when($request->input('cajero_id'), fn ($c, $id) => $c->where('user_id', $id))
+                    ->when($request->input('metodo_pago'), fn ($c, $m) => $c->where('metodo_pago', $m))
+                    ->when($request->input('estado'), fn ($c, $e) => $c->where('estado', $e))
+                    ->when($request->input('numero'), function ($c, $numero): void {
+                        $c->where('id', (int) ltrim($numero, '#'));
+                    });
+            }
+
+            return $consulta;
+        };
+
+        $ventas = $base()->with('usuario')->withCount('detalles')->orderByDesc('id')->paginate(30)->withQueryString();
+
+        $resumen = [
+            'completadas' => $base()->where('estado', 'COMPLETADA')->count(),
+            'total' => $base()->where('estado', 'COMPLETADA')->sum('total'),
+            'anuladas' => $base()->where('estado', 'ANULADA')->count(),
+        ];
+
+        return view('ventas.index', [
+            'ventas' => $ventas,
+            'resumen' => $resumen,
+            'esCajero' => $esCajero,
+            'cajeros' => $esCajero ? [] : User::orderBy('nombre')->get(['id', 'nombre', 'usuario']),
+            'metodos' => MetodoPago::cases(),
+        ]);
+    }
+
+    public function ver(Venta $venta): View
+    {
+        $this->autorizarVerVenta($venta);
+
+        $venta->load(['detalles', 'usuario', 'anuladaPor']);
+
+        return view('ventas.ver', ['venta' => $venta]);
+    }
+
+    public function anular(AnularVentaRequest $request, Venta $venta, VentaService $servicio): RedirectResponse
+    {
+        try {
+            $servicio->anular($venta, $request->input('motivo'), $request->user());
+        } catch (DomainException $e) {
+            return back()->withErrors(['motivo' => $e->getMessage()]);
+        }
+
+        return redirect()->route('ventas.ver', $venta)
+            ->with('success', "Venta {$venta->numero()} anulada y stock devuelto.");
+    }
+
+    protected function autorizarVerVenta(Venta $venta): void
+    {
+        $usuario = request()->user();
+
+        if (! $usuario->can('ver-todas-las-ventas') && $venta->user_id !== $usuario->id) {
+            abort(403);
+        }
     }
 }
