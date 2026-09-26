@@ -4,7 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\Categoria;
 use App\Models\Producto;
+use App\Models\User;
+use App\Services\StockService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProductosDemoSeeder extends Seeder
 {
@@ -50,8 +54,10 @@ class ProductosDemoSeeder extends Seeder
     {
         $categorias = Categoria::pluck('id', 'nombre');
 
+        $creados = [];
+
         foreach ($this->productos as [$codigo, $nombre, $categoria, $marca, $unidad, $compra, $venta, $minimo, $controla]) {
-            Producto::firstOrCreate(
+            $creados[] = Producto::firstOrCreate(
                 ['codigo' => $codigo],
                 [
                     'nombre' => $nombre,
@@ -65,5 +71,29 @@ class ProductosDemoSeeder extends Seeder
                 ]
             );
         }
+
+        $admin = User::where('usuario', 'admin')->first();
+
+        if (! $admin) {
+            return;
+        }
+
+        Auth::login($admin);
+
+        DB::transaction(function () use ($creados): void {
+            $stock = app(StockService::class);
+
+            foreach ($creados as $producto) {
+                if (! $producto->controla_stock) {
+                    continue;
+                }
+
+                $inicial = random_int(0, 80);
+
+                if ($inicial > 0) {
+                    $stock->mover($producto->id, $inicial, 'INICIAL', 'Carga inicial');
+                }
+            }
+        });
     }
 }

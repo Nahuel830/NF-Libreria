@@ -5,9 +5,14 @@
 @section('contenido')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>{{ $producto->codigo }} — {{ $producto->nombre }}</h1>
-        @can('gestionar-productos')
-            <a href="{{ route('productos.editar', $producto) }}" class="btn btn-primary">Editar</a>
-        @endcan
+        <div>
+            @can('gestionar-stock')
+                <a href="{{ route('productos.ajustar', $producto) }}" class="btn btn-warning">Ajustar stock</a>
+            @endcan
+            @can('gestionar-productos')
+                <a href="{{ route('productos.editar', $producto) }}" class="btn btn-primary">Editar</a>
+            @endcan
+        </div>
     </div>
 
     <dl class="row">
@@ -48,7 +53,53 @@
     </dl>
 
     <h2 class="h5 mt-4">Movimientos de stock</h2>
-    <p class="text-muted">El kardex de este producto estará disponible próximamente.</p>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Fecha y hora</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Stock anterior</th>
+                    <th>Stock nuevo</th>
+                    <th>Usuario</th>
+                    <th>Referencia</th>
+                    <th>Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($movimientos as $movimiento)
+                    <tr>
+                        <td>{{ $movimiento->created_at->format('d/m/Y H:i') }}</td>
+                        <td>
+                            <span class="badge bg-{{ $movimiento->cantidad > 0 ? 'success' : 'danger' }}">{{ $movimiento->tipo }}</span>
+                        </td>
+                        <td>{{ $movimiento->cantidad > 0 ? '+'.$movimiento->cantidad : $movimiento->cantidad }}</td>
+                        <td>{{ $movimiento->stock_anterior }}</td>
+                        <td>{{ $movimiento->stock_nuevo }}</td>
+                        <td>{{ $movimiento->usuario?->usuario ?? '—' }}</td>
+                        <td>
+                            @if ($movimiento->referencia_tipo === 'venta')
+                                Venta #{{ str_pad($movimiento->referencia_id, 6, '0', STR_PAD_LEFT) }}
+                            @elseif ($movimiento->referencia_tipo === 'entrada')
+                                Entrada #{{ str_pad($movimiento->referencia_id, 6, '0', STR_PAD_LEFT) }}
+                            @else
+                                {{ $movimiento->referencia_tipo ? $movimiento->referencia_tipo.' #'.$movimiento->referencia_id : '—' }}
+                            @endif
+                        </td>
+                        <td>{{ $movimiento->motivo ?? '—' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" class="text-center">Sin movimientos.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    {{ $movimientos->links() }}
 
     <a href="{{ route('productos.index') }}" class="btn btn-secondary">Volver</a>
 @endsection

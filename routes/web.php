@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\AjusteStockController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
@@ -66,5 +67,11 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/{producto}/editar', [ProductoController::class, 'editar'])->name('editar');
         Route::put('/{producto}', [ProductoController::class, 'actualizar'])->name('actualizar');
         Route::patch('/{producto}/estado', [ProductoController::class, 'estado'])->name('estado');
+    });
+
+    Route::middleware('can:gestionar-stock')->group(function (): void {
+        Route::get('/productos/{producto}/ajustar', [AjusteStockController::class, 'editar'])->name('productos.ajustar');
+        Route::put('/productos/{producto}/ajustar', [AjusteStockController::class, 'actualizar'])->name('productos.ajustar.actualizar');
+        Route::get('/inventario/stock-bajo', [ProductoController::class, 'stockBajo'])->name('inventario.stock-bajo');
     });
 });

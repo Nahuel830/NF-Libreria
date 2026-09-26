@@ -40,6 +40,7 @@ class ProductoRequest extends FormRequest
             'precio_venta' => ['required', 'numeric', 'min:0'],
             'stock_minimo' => ['nullable', 'integer', 'min:0'],
             'controla_stock' => ['nullable', 'boolean'],
+            'stock_inicial' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

@@ -43,6 +43,9 @@
                                     @can('registrar-entradas')
                                         <li><a class="dropdown-item" href="#">Entradas de mercadería</a></li>
                                     @endcan
+                                    @can('gestionar-stock')
+                                        <li><a class="dropdown-item" href="{{ route('inventario.stock-bajo') }}">Stock bajo</a></li>
+                                    @endcan
                                 </ul>
                             </li>
                         @endcanany

@@ -42,4 +42,9 @@ class Producto extends Model
     {
         return $this->belongsTo(Categoria::class, 'categoria_id');
     }
+
+    public function movimientos()
+    {
+        return $this->hasMany(MovimientoStock::class, 'producto_id');
+    }
 }

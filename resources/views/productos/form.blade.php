@@ -82,6 +82,13 @@
             <label class="form-check-label" for="controla_stock">Controla stock (desactivar para servicios como fotocopias)</label>
         </div>
 
+        @if (! isset($producto))
+            <div class="mb-3">
+                <label for="stock_inicial" class="form-label">Stock inicial (opcional, solo si controla stock)</label>
+                <input type="number" step="1" min="0" class="form-control" id="stock_inicial" name="stock_inicial" value="{{ old('stock_inicial', 0) }}">
+            </div>
+        @endif
+
         <button type="submit" class="btn btn-primary">Guardar</button>
         <a href="{{ route('productos.index') }}" class="btn btn-secondary">Volver</a>
     </form>

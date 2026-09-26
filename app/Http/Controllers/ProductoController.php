@@ -6,9 +6,11 @@ use App\Http\Requests\ProductoRequest;
 use App\Models\Categoria;
 use App\Models\Producto;
 use App\Services\AuditoriaService;
+use App\Services\StockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -47,15 +49,26 @@ class ProductoController extends Controller
         ]);
     }
 
-    public function guardar(ProductoRequest $request, AuditoriaService $auditoria): RedirectResponse
+    public function guardar(ProductoRequest $request, AuditoriaService $auditoria, StockService $stock): RedirectResponse
     {
         if ($this->requiereConfirmacionPrecio($request)) {
             return back()->withInput()->with('warning', 'Advertencia: el precio de venta es menor al precio de compra. Revisa los valores y pulsa Guardar de nuevo para confirmar.');
         }
 
-        $producto = Producto::create($this->datos($request));
+        $producto = DB::transaction(function () use ($request, $auditoria, $stock) {
+            $producto = Producto::create($this->datos($request));
 
-        $auditoria->registrar('CREAR', "Se creó el producto '{$producto->codigo} - {$producto->nombre}'.", $producto, null, $producto->toArray());
+            $inicial = (int) $request->input('stock_inicial', 0);
+
+            if ($inicial > 0) {
+                $stock->mover($producto->id, $inicial, 'INICIAL', 'Stock inicial');
+                $producto->refresh();
+            }
+
+            $auditoria->registrar('CREAR', "Se creó el producto '{$producto->codigo} - {$producto->nombre}'.", $producto, null, $producto->toArray());
+
+            return $producto;
+        });
 
         return redirect()->route('productos.index')->with('success', "Producto '{$producto->codigo}' creado.");
     }
@@ -64,7 +77,9 @@ class ProductoController extends Controller
     {
         $producto->load('categoria');
 
-        return view('productos.ver', ['producto' => $producto]);
+        $movimientos = $producto->movimientos()->with('usuario')->orderByDesc('id')->paginate(20);
+
+        return view('productos.ver', ['producto' => $producto, 'movimientos' => $movimientos]);
     }
 
     public function editar(Producto $producto): View
@@ -119,6 +134,19 @@ class ProductoController extends Controller
 
         return redirect()->route('productos.index')
             ->with('success', "Producto '{$producto->codigo}' ".($producto->activo ? 'activado' : 'desactivado').'.');
+    }
+
+    public function stockBajo(): View
+    {
+        $productos = Producto::query()
+            ->with('categoria')
+            ->where('activo', true)
+            ->where('controla_stock', true)
+            ->whereColumn('stock', '<=', 'stock_minimo')
+            ->orderByRaw('(stock - stock_minimo) ASC')
+            ->paginate(25);
+
+        return view('inventario.stock-bajo', ['productos' => $productos]);
     }
 
     public function sugerirCodigo(Request $request): JsonResponse
