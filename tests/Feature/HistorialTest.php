@@ -110,4 +110,15 @@ class HistorialTest extends TestCase
 
         $this->assertSame('COMPLETADA', $venta->fresh()->estado);
     }
+
+    public function test_cajero_no_ve_boton_anular_en_el_detalle(): void
+    {
+        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        $producto = Producto::factory()->create(['precio_venta' => '10.00']);
+        $venta = $this->vender($cajero, $producto);
+
+        $this->actingAs($cajero)->get("/ventas/{$venta->id}")
+            ->assertOk()
+            ->assertDontSee('Anular venta');
+    }
 }

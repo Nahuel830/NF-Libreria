@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pintarResultados();
     };
 
-    buscador.addEventListener('keydown', (e) => {
+    buscador.addEventListener('keydown', async (e) => {
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             e.preventDefault();
 
@@ -190,13 +190,43 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             const texto = buscador.value.trim();
+
+            if (texto === '') {
+                return;
+            }
+
             const exacto = resultadosActuales.find((p) => p.codigo.toUpperCase() === texto.toUpperCase());
 
             if (exacto) {
                 agregar(exacto);
-            } else if (indiceActivo >= 0 && resultadosActuales[indiceActivo]) {
-                agregar(resultadosActuales[indiceActivo]);
+                return;
             }
+
+            if (indiceActivo >= 0 && resultadosActuales[indiceActivo]) {
+                agregar(resultadosActuales[indiceActivo]);
+                return;
+            }
+
+            // Sin resultados cargados (p. ej. escaneo rápido): buscar ya.
+            const respuesta = await fetch(`/api-interna/productos/buscar?q=${encodeURIComponent(texto)}`, {
+                headers: { Accept: 'application/json' },
+            });
+
+            if (!respuesta.ok) {
+                return;
+            }
+
+            const productos = await respuesta.json();
+            const directo = productos.find((p) => p.codigo.toUpperCase() === texto.toUpperCase());
+
+            if (directo) {
+                agregar(directo);
+                return;
+            }
+
+            resultadosActuales = productos;
+            indiceActivo = -1;
+            pintarResultados();
         }
     });
 
@@ -259,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mensaje: '¿Cancelar la venta y vaciar el carrito?',
             textoBoton: 'Vaciar carrito',
             color: 'danger',
-            alConfirmar: () => {
+            callback: () => {
                 carritoItems.clear();
                 dibujar();
                 buscador.focus();

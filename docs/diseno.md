@@ -49,7 +49,7 @@ títulos en peso 600.
   llevan `data-confirm="mensaje"` (más `data-motivo` para pedir motivo mín. 5,
   `data-titulo-confirm`, `data-texto-confirm`, `data-color-confirm`) y
   `public/js/app.js` lo muestra. Para acciones JS puras:
-  `window.pedirConfirmacion({titulo, mensaje, textoBoton, color, alConfirmar})`.
+  `window.pedirConfirmacion({titulo, mensaje, textoBoton, color, callback})`.
 - `x-alertas`: toasts arriba a la derecha (éxito/info se cierran a los 4 s).
 - `x-filtros`: `accion` + campos; colapsable en pantallas chicas.
 - Tablas: clase `tabla-nf` (encabezado gris, hover, `.monto` a la derecha),

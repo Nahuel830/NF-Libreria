@@ -214,4 +214,55 @@ class AutenticacionTest extends TestCase
             $this->assertStringNotContainsString('nueva-clave-789', $texto);
         }
     }
+
+    public function test_login_acepta_usuario_en_mayusculas(): void
+    {
+        $user = User::factory()->create([
+            'usuario' => 'cajero-mayus',
+            'password' => 'secreta123',
+        ]);
+
+        $this->post('/login', [
+            'usuario' => 'CAJERO-MAYUS',
+            'password' => 'secreta123',
+        ])->assertRedirect('/');
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_sesion_se_cierra_por_inactividad(): void
+    {
+        $user = User::factory()->create();
+        app(\App\Services\ConfiguracionService::class)->set('minutos_inactividad', '5');
+
+        $this->actingAs($user)->get('/')->assertOk();
+
+        $this->withSession(['ultima_actividad' => now()->subMinutes(6)->timestamp])
+            ->get('/')
+            ->assertRedirect('/login');
+
+        $this->assertGuest();
+    }
+
+    public function test_pagina_inexistente_muestra_404_en_espanol(): void
+    {
+        $this->get('/no-existe-esta-ruta')->assertNotFound()->assertSee('La página que buscas no existe');
+    }
+
+    public function test_cambiar_password_exige_minimo_y_confirmacion(): void
+    {
+        $user = User::factory()->create(['password' => 'actual123']);
+
+        $this->actingAs($user)->put('/cambiar-password', [
+            'actual' => 'actual123',
+            'nueva' => 'corta',
+            'nueva_confirmation' => 'corta',
+        ])->assertSessionHasErrors('nueva');
+
+        $this->actingAs($user)->put('/cambiar-password', [
+            'actual' => 'actual123',
+            'nueva' => 'nueva12345',
+            'nueva_confirmation' => 'distinta123',
+        ])->assertSessionHasErrors('nueva');
+    }
 }

@@ -97,4 +97,29 @@ class ReporteTest extends TestCase
             ->assertSee('Bs. 50,00')
             ->assertSee('Bs. 75,00');
     }
+
+    public function test_cierre_muestra_totales_y_anuladas_con_motivo(): void
+    {
+        $encargado = User::factory()->create(['rol' => Rol::Encargado]);
+        $producto = Producto::factory()->create(['precio_venta' => '10.00']);
+
+        $this->vender($encargado, $producto, 1);
+        $anulada = $this->vender($encargado, $producto, 1);
+        app(\App\Services\VentaService::class)->anular($anulada, 'Cierre prueba', $encargado);
+
+        $respuesta = $this->actingAs($encargado)->get('/reportes/cierre?fecha='.today()->toDateString());
+
+        $respuesta->assertOk()
+            ->assertSee('Bs. 10,00')
+            ->assertSee('Cierre prueba')
+            ->assertSee($anulada->numero());
+    }
+
+    public function test_estilos_no_accesible_fuera_de_local(): void
+    {
+        $admin = User::factory()->create(['rol' => Rol::Admin]);
+
+        // En testing (no local) responde 404 aunque sea admin.
+        $this->actingAs($admin)->get('/estilos')->assertNotFound();
+    }
 }

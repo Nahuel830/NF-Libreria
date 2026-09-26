@@ -37,6 +37,7 @@
 }
 
 :root {
+    scroll-behavior: auto;
     --nf-principal: #1F4E79;
     --nf-principal-oscuro: #163A5C;
     --nf-acento: #E0A526;

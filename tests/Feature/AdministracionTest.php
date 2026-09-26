@@ -275,4 +275,49 @@ class AdministracionTest extends TestCase
         $this->assertSame('', \App\Models\Configuracion::where('clave', 'logo_negocio')->value('valor'));
         \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($ruta);
     }
+
+    public function test_minutos_inactividad_fuera_de_rango_se_rechaza(): void
+    {
+        $this->actingAs($this->admin())->put('/configuracion', [
+            'nombre_negocio' => 'NF Librería',
+            'mensaje_ticket' => '¡Gracias!',
+            'minutos_inactividad' => '1',
+        ])->assertSessionHasErrors('minutos_inactividad');
+
+        $this->actingAs($this->admin())->put('/configuracion', [
+            'nombre_negocio' => 'NF Librería',
+            'mensaje_ticket' => '¡Gracias!',
+            'minutos_inactividad' => '1000',
+        ])->assertSessionHasErrors('minutos_inactividad');
+    }
+
+    public function test_usuarios_no_tiene_boton_eliminar_y_auditoria_sin_edicion(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->get('/usuarios')->assertOk()->assertDontSee('Eliminar');
+        $this->actingAs($admin)->get('/auditoria')->assertOk()->assertDontSee('Editar');
+    }
+
+    public function test_auditoria_filtra_por_accion_y_usuario(): void
+    {
+        $admin = $this->admin();
+        $otro = User::factory()->create();
+
+        $this->actingAs($admin)->post('/usuarios', [
+            'nombre' => 'Filtro',
+            'usuario' => 'filtro.test',
+            'rol' => 'cajero',
+            'password' => 'temporal123',
+            'password_confirmation' => 'temporal123',
+        ]);
+
+        $this->actingAs($admin)->get('/auditoria?accion=CREAR')
+            ->assertOk()
+            ->assertSee('filtro.test');
+
+        $this->actingAs($admin)->get('/auditoria?usuario_id='.$otro->id)
+            ->assertOk()
+            ->assertSee('No hay registros de auditoría.');
+    }
 }

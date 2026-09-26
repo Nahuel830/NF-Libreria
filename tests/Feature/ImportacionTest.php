@@ -145,4 +145,28 @@ class ImportacionTest extends TestCase
         $this->actingAs($cajero)->get('/productos/importar/plantilla')->assertForbidden();
         $this->actingAs($cajero)->post('/productos/importar/vista-previa', [])->assertForbidden();
     }
+
+    public function test_archivo_que_no_es_csv_se_rechaza(): void
+    {
+        $this->actingAs($this->admin())->post('/productos/importar/vista-previa', [
+            'archivo' => \Illuminate\Http\UploadedFile::fake()->createWithContent('foto.png', "\x89PNGcontenido"),
+            'si_existe' => 'omitir',
+        ])->assertSessionHasErrors('archivo');
+    }
+
+    public function test_csv_no_utf8_convierte_tildes(): void
+    {
+        $contenido = mb_convert_encoding(
+            "codigo;nombre;categoria;marca;unidad;precio_compra;precio_venta;stock_inicial;stock_minimo;controla_stock\n"
+            ."TIL-001;Lápiz ótimo;Accesorios;;unidad;1;2;0;0;si\n",
+            'Windows-1252', 'UTF-8'
+        );
+
+        $token = $this->tokenDesdeVistaPrevia($contenido);
+
+        $this->actingAs($this->admin())->post('/productos/importar/confirmar', ['token' => $token])->assertOk();
+
+        $this->assertNotNull(Producto::where('codigo', 'TIL-001')->first());
+        $this->assertSame('Lápiz ótimo', Producto::where('codigo', 'TIL-001')->first()->nombre);
+    }
 }

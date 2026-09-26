@@ -163,4 +163,43 @@ class ProductoTest extends TestCase
 
         $respuesta->assertOk()->assertJson(['codigo' => 'CUA-003']);
     }
+
+    public function test_nombre_con_html_se_muestra_como_texto_literal(): void
+    {
+        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        Producto::factory()->create(['nombre' => '<b>Prueba</b>', 'codigo' => 'XSS-001']);
+
+        $respuesta = $this->actingAs($cajero)->get('/productos?q=xss');
+
+        $respuesta->assertOk()->assertSee('&lt;b&gt;Prueba&lt;/b&gt;', false);
+    }
+
+    public function test_crear_servicio_sin_control_de_stock(): void
+    {
+        $admin = User::factory()->create(['rol' => Rol::Admin]);
+
+        $this->actingAs($admin)->post('/productos', array_merge($this->datosValidos(), [
+            'codigo' => 'SRV-001',
+            'nombre' => 'Servicio de prueba',
+        ], ['controla_stock' => '0']))
+            ->assertRedirect(route('productos.index'));
+
+        $producto = Producto::where('codigo', 'SRV-001')->first();
+        $this->assertFalse($producto->controla_stock);
+    }
+
+    public function test_buscadores_no_muestran_productos_inactivos(): void
+    {
+        $admin = User::factory()->create(['rol' => Rol::Admin]);
+        Producto::factory()->create(['codigo' => 'INA-001', 'nombre' => 'Inactivo Unico', 'activo' => false]);
+
+        // El listado sí los muestra (con badge INACTIVO); los buscadores no.
+        $this->actingAs($admin)->get('/productos?q=Inactivo+Unico')
+            ->assertOk()
+            ->assertSee('INACTIVO');
+
+        $this->actingAs($admin)->getJson('/api-interna/productos/buscar?q=Inactivo+Unico')
+            ->assertOk()
+            ->assertJsonMissing(['codigo' => 'INA-001']);
+    }
 }

@@ -115,4 +115,63 @@ class CajaTest extends TestCase
             ->assertOk()
             ->assertSee('ANULADA');
     }
+
+    public function test_ticket_imprime_solo_si_esta_configurado(): void
+    {
+        $encargado = User::factory()->create(['rol' => Rol::Encargado]);
+        $a = Producto::factory()->create(['precio_venta' => '10.00']);
+
+        $this->actingAs($encargado);
+        $venta = app(\App\Services\VentaService::class)->registrar(
+            [['producto_id' => $a->id, 'cantidad' => 1]],
+            ['token' => (string) \Illuminate\Support\Str::uuid(), 'metodo_pago' => 'QR'],
+            $encargado
+        );
+
+        $this->actingAs($encargado)->get("/ventas/{$venta->id}/ticket")
+            ->assertOk()
+            ->assertDontSee("window.addEventListener('load', () => window.print());", false);
+
+        app(\App\Services\ConfiguracionService::class)->set('imprimir_automatico', '1');
+
+        $this->actingAs($encargado)->get("/ventas/{$venta->id}/ticket")
+            ->assertOk()
+            ->assertSee("window.addEventListener('load', () => window.print());", false);
+    }
+
+    public function test_efectivo_con_recibido_menor_da_error_claro(): void
+    {
+        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        $a = Producto::factory()->create(['precio_venta' => '10.00']);
+
+        $this->actingAs($cajero)->post('/ventas', [
+            'token' => (string) \Illuminate\Support\Str::uuid(),
+            'metodo_pago' => 'EFECTIVO',
+            'monto_recibido' => '5.00',
+            'items' => [['producto_id' => $a->id, 'cantidad' => 1]],
+        ])->assertSessionHasErrors('venta');
+
+        $this->assertSame(0, \App\Models\Venta::count());
+    }
+
+    public function test_ticket_muestra_datos_completos(): void
+    {
+        $encargado = User::factory()->create(['rol' => Rol::Encargado]);
+        $a = Producto::factory()->create(['precio_venta' => '10.00']);
+
+        $this->actingAs($encargado);
+        $venta = app(\App\Services\VentaService::class)->registrar(
+            [['producto_id' => $a->id, 'cantidad' => 2]],
+            ['token' => (string) \Illuminate\Support\Str::uuid(), 'metodo_pago' => 'EFECTIVO', 'monto_recibido' => '25.00', 'cliente_nombre' => 'Juan'],
+            $encargado
+        );
+
+        $this->actingAs($encargado)->get("/ventas/{$venta->id}/ticket")
+            ->assertOk()
+            ->assertSee($venta->numero())
+            ->assertSee('EFECTIVO')
+            ->assertSee('Juan')
+            ->assertSee('Bs. 20,00')
+            ->assertSee('Bs. 5,00');
+    }
 }

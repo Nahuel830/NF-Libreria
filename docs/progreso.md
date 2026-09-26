@@ -7,6 +7,7 @@
 > PROMPT MAESTRO en curso (fases 0–7). Prevalece sobre AGENTS.md en caso de contradicción.
 
 - [x] FASE 0 — Entorno Dusk (`test: entorno de pruebas de navegador con Dusk`): `laravel/dusk` solo dev, `DuskTestCase` con Edge headless vía `msedgedriver` (winget, v154), base `libreria_dusk`, `.env.dusk.local` (gitignoreado) + ejemplo, smoke `LoginTest` en verde, docs/desarrollo.md. Tests PHPUnit: 103/103. Decisión: sin Chrome en la PC se usa Edge; endpoints viejos de msedgedriver están muertos, el que funciona es el paquete winget `Microsoft.EdgeDriver`.
+- [x] FASE 1 — Verificación (`test: verificación automatizada del plan de pruebas`): 121 PHPUnit + 21 Dusk en verde; X-01 con 2 procesos reales (B esperó 4,3 s el lock y falló limpio); X-02 flujo completo verificado en BD (stock final 48); B-06 RESTAURACIÓN OK real (conteos iguales); `docs/informe-pruebas.md` con todos los códigos. Correcciones: bug `callback` en pedirConfirmacion, fallback Enter en ventas.js, scroll auto, CSV en memoria, abs() en backup, PS5.1 en scripts.
 
 - [x] PROMPT 0–2: commiteados (`e790a5f`, `b987fc5`, `cc365e8`, `87b27b1`).
 - [x] PROMPT 3: commiteado local (`ede4fcf`, sin push).
