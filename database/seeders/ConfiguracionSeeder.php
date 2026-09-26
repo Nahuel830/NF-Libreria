@@ -1,0 +1,30 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Services\ConfiguracionService;
+use Illuminate\Database\Seeder;
+
+class ConfiguracionSeeder extends Seeder
+{
+    /**
+     * @var array<string, string>
+     */
+    protected array $valores = [
+        'nombre_negocio' => 'NF Librería',
+        'direccion' => '',
+        'telefono' => '',
+        'mensaje_ticket' => '¡Gracias por su compra!',
+        'permitir_stock_negativo' => '1',
+        'minutos_inactividad' => '60',
+    ];
+
+    public function run(): void
+    {
+        $servicio = app(ConfiguracionService::class);
+
+        foreach ($this->valores as $clave => $valor) {
+            $servicio->set($clave, $valor);
+        }
+    }
+}

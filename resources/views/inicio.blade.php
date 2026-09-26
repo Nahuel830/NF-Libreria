@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('titulo', 'NF Librería')
+@section('titulo', 'Inicio')
 
 @section('contenido')
-    <h1>NF Librería — sistema en desarrollo</h1>
-    <p>Fecha y hora del servidor: {{ now()->format('d/m/Y H:i') }}</p>
+    <h1>Bienvenido, {{ auth()->user()->nombre }}</h1>
+    <p>Tu rol es: {{ auth()->user()->rol->etiqueta() }}</p>
 @endsection
