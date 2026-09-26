@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\AjusteStockController;
 use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ImportacionController;
+use App\Http\Controllers\InicioController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
@@ -24,9 +26,19 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/cambiar-password', [PasswordController::class, 'editar'])->name('password.editar');
     Route::put('/cambiar-password', [PasswordController::class, 'actualizar'])->name('password.actualizar');
 
-    Route::get('/', function () {
-        return view('inicio');
-    })->name('inicio');
+    Route::get('/', [InicioController::class, 'index'])->name('inicio');
+
+    Route::middleware('can:ver-reportes')->prefix('reportes')->name('reportes.')->group(function (): void {
+        Route::get('/', [ReporteController::class, 'index'])->name('index');
+        Route::get('/resumen', [ReporteController::class, 'resumen'])->name('resumen');
+        Route::get('/cajeros', [ReporteController::class, 'cajeros'])->name('cajeros');
+        Route::get('/metodos', [ReporteController::class, 'metodos'])->name('metodos');
+        Route::get('/productos', [ReporteController::class, 'productos'])->name('productos');
+        Route::get('/categorias', [ReporteController::class, 'categorias'])->name('categorias');
+        Route::get('/cierre', [ReporteController::class, 'cierre'])->name('cierre');
+        Route::get('/inventario', [ReporteController::class, 'inventario'])->name('inventario');
+        Route::get('/movimientos', [ReporteController::class, 'movimientos'])->name('movimientos');
+    });
 
     Route::middleware('can:gestionar-usuarios')->prefix('usuarios')->name('usuarios.')->group(function (): void {
         Route::get('/', [UsuarioController::class, 'index'])->name('index');

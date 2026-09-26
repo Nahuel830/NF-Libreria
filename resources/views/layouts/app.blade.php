@@ -57,15 +57,9 @@
                             </li>
                         @endcanany
 
-                        @can('ver-todas-las-ventas')
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Ventas</a>
-                            </li>
-                        @endcan
-
                         @can('ver-reportes')
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Reportes</a>
+                                <a class="nav-link" href="{{ route('reportes.index') }}">Reportes</a>
                             </li>
                         @endcan
 
