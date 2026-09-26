@@ -7,7 +7,8 @@
 > - **Sin facturación electrónica por ahora**, pero sin diseñar nada que impida agregarla más adelante.
 > - **MVP primero:** usuarios y roles, categorías, productos, entradas de stock, ventas con descuento de stock, anulación, auditoría básica y backup diario. Caja, reportes avanzados, proveedores y clientes vienen después.
 > - **Reglas técnicas:** dinero en NUMERIC(12,2); ventas bloquean stock con SELECT ... FOR UPDATE dentro de transacciones; detalle de venta guarda nombre y precio del momento; stock negativo configurable (por defecto permitido con advertencia); productos, categorías y usuarios se desactivan, no se borran.
-> - **Pendientes a considerar:** impresión de tickets en impresora térmica, lector de código de barras, venta rápida sin código, importación inicial de productos desde Excel/CSV, cierre de sesión automático, copia de backups fuera del local (nube cifrada).
+> - **Código de barras:** fuera del alcance por ahora; los productos se identifican por código interno y nombre. Se podrá agregar más adelante.
+> - **Pendientes a considerar:** impresión de tickets en impresora térmica, venta rápida sin código, importación inicial de productos desde Excel/CSV, cierre de sesión automático, copia de backups fuera del local (nube cifrada).
 
 # Propuesta de implementación — Sistema de gestión y ventas para librería
 
@@ -240,7 +241,6 @@ El sistema deberá permitir administrar los productos de la librería.
 Información posible:
 
 * Código.
-* Código de barras, si corresponde.
 * Nombre.
 * Descripción.
 * Categoría.
