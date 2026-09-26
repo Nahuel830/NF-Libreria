@@ -4,6 +4,10 @@
 
 ## Estado
 
+> PROMPT MAESTRO en curso (fases 0–7). Prevalece sobre AGENTS.md en caso de contradicción.
+
+- [x] FASE 0 — Entorno Dusk (`test: entorno de pruebas de navegador con Dusk`): `laravel/dusk` solo dev, `DuskTestCase` con Edge headless vía `msedgedriver` (winget, v154), base `libreria_dusk`, `.env.dusk.local` (gitignoreado) + ejemplo, smoke `LoginTest` en verde, docs/desarrollo.md. Tests PHPUnit: 103/103. Decisión: sin Chrome en la PC se usa Edge; endpoints viejos de msedgedriver están muertos, el que funciona es el paquete winget `Microsoft.EdgeDriver`.
+
 - [x] PROMPT 0–2: commiteados (`e790a5f`, `b987fc5`, `cc365e8`, `87b27b1`).
 - [x] PROMPT 3: commiteado local (`ede4fcf`, sin push).
 - [x] PROMPT 4 — Categorías (`4b083ae`): tabla `categorias` (unique + índice único en `lower(nombre)`), CRUD sin eliminar, auditoría CREAR/EDITAR/ACTIVAR/DESACTIVAR, menú Inventario, `CategoriasSeeder` (11 categorías, todos los entornos), `CategoriaFactory`. Tests: 34/34 en verde (145 aserciones). Decisión: unicidad insensible a mayúsculas validada en Form Request + índice DB; conteo de productos fijo en 0 hasta el PROMPT 5 (relación `productos()` preparada).
@@ -20,6 +24,12 @@
 ## Decisiones para revisar
 
 (nada por ahora)
+
+## Pruebas manuales para el usuario
+
+1. **Dar CREATEDB a `libreria_dev`** (lo necesitan `probar-restauracion.ps1` y futuros tests de concurrencia): como superusuario postgres: `ALTER USER libreria_dev CREATEDB;`. Verificado: el usuario NO lo tiene.
+2. **Crear `%APPDATA%\postgresql\pgpass.conf`** con `localhost:5432:libreria_dev:libreria_dev:TU_CONTRASEÑA` (ver `docs/backups.md`). Verificado: no existe.
+3. **Instalar la tarea programada de backup** (PowerShell como administrador). Ver `docs/backups.md`.
 
 ## Acciones manuales pendientes
 

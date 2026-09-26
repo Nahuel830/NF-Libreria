@@ -32,3 +32,15 @@
 
 - `php artisan test`: todo en verde (usa la base `libreria_test`).
 - Desconectar Internet y recargar la página: debe verse igual (no se usa CDN).
+
+## Pruebas de navegador (Dusk)
+
+Solo desarrollo. Requieren Microsoft Edge y su driver:
+
+1. Crear la base `libreria_dusk` (dueña `libreria_dev`).
+2. Copiar `.env.dusk.local.example` a `.env.dusk.local` y completar
+   `DB_PASSWORD` y `ADMIN_PASSWORD_INICIAL`.
+3. Instalar el driver: `winget install --id Microsoft.EdgeDriver`
+   (debe coincidir con la versión de Edge).
+4. En una terminal: `php artisan serve --port=8001 --env=dusk.local`.
+5. En otra terminal: `php artisan dusk` (usa la base `libreria_dusk`).
