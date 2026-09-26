@@ -35,7 +35,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     @can('gestionar-categorias')
-                                        <li><a class="dropdown-item" href="#">Categorías</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('categorias.index') }}">Categorías</a></li>
                                     @endcan
                                     @can('ver-productos')
                                         <li><a class="dropdown-item" href="#">Productos</a></li>

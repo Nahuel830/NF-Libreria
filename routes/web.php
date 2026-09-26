@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditoriaController;
+use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\LoginController;
@@ -41,5 +42,14 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('can:ver-auditoria')->prefix('auditoria')->name('auditoria.')->group(function (): void {
         Route::get('/', [AuditoriaController::class, 'index'])->name('index');
         Route::get('/{registro}', [AuditoriaController::class, 'ver'])->name('ver');
+    });
+
+    Route::middleware('can:gestionar-categorias')->prefix('categorias')->name('categorias.')->group(function (): void {
+        Route::get('/', [CategoriaController::class, 'index'])->name('index');
+        Route::get('/crear', [CategoriaController::class, 'crear'])->name('crear');
+        Route::post('/', [CategoriaController::class, 'guardar'])->name('guardar');
+        Route::get('/{categoria}/editar', [CategoriaController::class, 'editar'])->name('editar');
+        Route::put('/{categoria}', [CategoriaController::class, 'actualizar'])->name('actualizar');
+        Route::patch('/{categoria}/estado', [CategoriaController::class, 'estado'])->name('estado');
     });
 });

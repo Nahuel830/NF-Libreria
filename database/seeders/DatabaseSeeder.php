@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ConfiguracionSeeder::class,
             UsuarioAdminSeeder::class,
+            CategoriasSeeder::class,
         ]);
 
         if (app()->environment('local')) {
