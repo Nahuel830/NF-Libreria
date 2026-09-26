@@ -38,7 +38,7 @@
                                         <li><a class="dropdown-item" href="{{ route('categorias.index') }}">Categorías</a></li>
                                     @endcan
                                     @can('ver-productos')
-                                        <li><a class="dropdown-item" href="#">Productos</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('productos.index') }}">Productos</a></li>
                                     @endcan
                                     @can('registrar-entradas')
                                         <li><a class="dropdown-item" href="#">Entradas de mercadería</a></li>

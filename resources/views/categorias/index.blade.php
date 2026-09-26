@@ -40,7 +40,7 @@
                     <tr>
                         <td>{{ $categoria->nombre }}</td>
                         <td>{{ $categoria->descripcion ?? '—' }}</td>
-                        <td>0</td>
+                        <td>{{ $categoria->productos_count }}</td>
                         <td>
                             @if ($categoria->activo)
                                 <span class="badge bg-success">Activo</span>

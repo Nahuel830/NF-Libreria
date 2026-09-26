@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\LoginController;
@@ -51,5 +52,19 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/{categoria}/editar', [CategoriaController::class, 'editar'])->name('editar');
         Route::put('/{categoria}', [CategoriaController::class, 'actualizar'])->name('actualizar');
         Route::patch('/{categoria}/estado', [CategoriaController::class, 'estado'])->name('estado');
+    });
+
+    Route::middleware('can:ver-productos')->prefix('productos')->name('productos.')->group(function (): void {
+        Route::get('/', [ProductoController::class, 'index'])->name('index');
+        Route::get('/{producto}', [ProductoController::class, 'ver'])->name('ver')->whereNumber('producto');
+    });
+
+    Route::middleware('can:gestionar-productos')->prefix('productos')->name('productos.')->group(function (): void {
+        Route::get('/crear', [ProductoController::class, 'crear'])->name('crear');
+        Route::post('/', [ProductoController::class, 'guardar'])->name('guardar');
+        Route::get('/sugerir-codigo', [ProductoController::class, 'sugerirCodigo'])->name('sugerir-codigo');
+        Route::get('/{producto}/editar', [ProductoController::class, 'editar'])->name('editar');
+        Route::put('/{producto}', [ProductoController::class, 'actualizar'])->name('actualizar');
+        Route::patch('/{producto}/estado', [ProductoController::class, 'estado'])->name('estado');
     });
 });

@@ -15,6 +15,7 @@ class CategoriaController extends Controller
     public function index(Request $request): View
     {
         $categorias = Categoria::query()
+            ->withCount('productos')
             ->when($request->input('q'), fn ($consulta, $q) => $consulta->where('nombre', 'ilike', "%{$q}%"))
             ->when($request->input('estado') !== null && $request->input('estado') !== '', fn ($consulta) => $consulta->where('activo', $request->boolean('estado')))
             ->orderBy('nombre')

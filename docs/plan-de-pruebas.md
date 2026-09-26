@@ -312,6 +312,28 @@ Hacer estas pruebas como **cajero1** salvo que se indique otra cosa.
 
 ---
 
+## 17. Diseño y apariencia
+
+- [ ] **DS-01** Login con el logo, colores de la marca y diseño centrado y limpio.
+- [ ] **DS-02** Barra superior en el color principal, con el logo, y la opción del menú actual resaltada.
+- [ ] **DS-03** Todas las pantallas tienen el mismo encabezado (título + botones de acción a la derecha) y ruta de navegación (ej: Inventario › Productos › Editar).
+- [ ] **DS-04** Botones, tablas, formularios y badges con el mismo estilo en todas las pantallas (recorrer al menos: usuarios, categorías, productos, entradas, ventas, reportes).
+- [ ] **DS-05** Estados con colores consistentes: Activo/COMPLETADA verde, Inactivo gris, ANULADA rojo, stock bajo naranja/rojo.
+- [ ] **DS-06** Montos alineados a la derecha y siempre con formato "Bs. 1.234,50".
+- [ ] **DS-07** Listas vacías muestran un mensaje amable con ícono (ej: "Todavía no hay entradas registradas" + botón para crear).
+- [ ] **DS-08** Las confirmaciones (desactivar, anular, cancelar venta) usan una ventana del sistema con el mismo estilo, no el cuadro gris del navegador.
+- [ ] **DS-09** Los mensajes de éxito/error aparecen con el mismo estilo y se cierran solos (los de error no).
+- [ ] **DS-10** Pantalla de venta: total muy grande y legible, botones de pago grandes, alto contraste; usable sin mirar el mouse.
+- [ ] **DS-11** Ticket y reportes impresos en blanco y negro, legibles, sin colores de fondo.
+- [ ] **DS-12** Pantalla 1366×768: nada cortado ni con scroll horizontal. Celular: el menú se colapsa en botón ☰ y las tablas se desplazan dentro de su caja.
+- [ ] **DS-13** Pestaña del navegador con ícono (favicon) y título "Página — NF Librería".
+- [ ] **DS-14** En Configuración el admin puede subir el logo del negocio (PNG/JPG) y se ve en el login, la barra y el ticket; sin logo se usa el logo por defecto.
+- [ ] **DS-15** Sin Internet la fuente y los íconos se ven igual (todo local).
+- [ ] **DS-16** Navegando con la tecla Tab se ve claramente qué elemento tiene el foco.
+- [ ] **DS-17** Página /estilos (solo admin, solo en desarrollo) muestra todos los componentes para revisarlos juntos.
+
+---
+
 ## Registro de fallos
 
 Anota aquí cada prueba que falle. Después copia toda esta sección y pégala en OpenCode con el mensaje que está abajo.
