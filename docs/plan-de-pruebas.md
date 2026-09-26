@@ -54,7 +54,7 @@ Probar entrando con cada usuario y escribiendo la dirección directamente en la 
 | /categorias | ✅ | ✅ | ❌ 403 |
 | /productos | ✅ | ✅ | ✅ solo consulta |
 | /productos/crear | ✅ | ✅ | ❌ 403 |
-| /inventario/stock-bajo | ✅ | ✅ | anotar |
+| /inventario/stock-bajo | ✅ | ✅ | ❌ 403 |
 | /entradas | ✅ | ✅ | ❌ 403 |
 | /productos/importar | ✅ | ✅ | ❌ 403 |
 | /ventas/nueva | ✅ | ✅ | ✅ |
@@ -201,7 +201,7 @@ Probar entrando con cada usuario y escribiendo la dirección directamente en la 
 
 Hacer estas pruebas como **cajero1** salvo que se indique otra cosa.
 
-- [ ] **V-01** Botón "Vender" visible en la barra superior.
+- [ ] **V-01** Menú "Ventas" visible en la barra superior, con "Nueva venta" e "Historial de ventas".
 - [ ] **V-02** Al abrir, el cursor ya está en el buscador.
 - [ ] **V-03** Escribir parte del nombre → aparecen resultados con código, nombre, precio y stock.
 - [ ] **V-04** Navegar resultados con flechas ↑ ↓ y agregar con Enter.
@@ -313,6 +313,10 @@ Hacer estas pruebas como **cajero1** salvo que se indique otra cosa.
 ---
 
 ## 17. Diseño y apariencia
+
+> Alcance: estos puntos NO estaban en los PROMPTS 2–13 (que cubren funcionalidad
+> con el estilo base de Bootstrap). Están pendientes de implementar como mejora
+> de diseño; márcalos solo cuando esa mejora exista.
 
 - [ ] **DS-01** Login con el logo, colores de la marca y diseño centrado y limpio.
 - [ ] **DS-02** Barra superior en el color principal, con el logo, y la opción del menú actual resaltada.

@@ -74,8 +74,8 @@
         </div>
 
         <div class="text-center mt-3 no-imprimir">
-            <button type="button" class="btn btn-primary" onclick="window.print();" autofocus>Imprimir</button>
-            <a href="{{ route('ventas.nueva') }}" class="btn btn-success" id="btn-nueva">Nueva venta</a>
+            <button type="button" class="btn btn-primary" onclick="window.print();">Imprimir</button>
+            <a href="{{ route('ventas.nueva') }}" class="btn btn-success" id="btn-nueva" autofocus>Nueva venta</a>
         </div>
     </div>
 
