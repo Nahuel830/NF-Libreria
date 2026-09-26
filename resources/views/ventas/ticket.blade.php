@@ -3,19 +3,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Venta {{ $venta->numero() }}</title>
+    <title>Venta {{ $venta->numero() }} — {{ $nombreNegocio }}</title>
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}">
     <style>
         .ticket {
             font-family: ui-monospace, monospace;
             max-width: 80mm;
             margin: 0 auto;
+            color: #000;
         }
+        .ticket img.logo { height: 48px; filter: grayscale(1); }
         @media print {
             @page { size: 80mm auto; margin: 0; }
             body { margin: 0; }
             .no-imprimir { display: none !important; }
             .ticket { max-width: 100%; }
+            .ticket .btn, .ticket a { display: none !important; }
         }
     </style>
     @if ($imprimirAutomatico)
@@ -36,6 +39,7 @@
         @endif
 
         <div class="ticket">
+            <p class="text-center mb-1"><img class="logo" src="{{ asset('img/logo-bn.svg') }}" alt="Logo"></p>
             <p class="text-center mb-1"><strong>{{ $nombreNegocio }}</strong></p>
             @if ($direccion !== '')
                 <p class="text-center mb-1">{{ $direccion }}</p>
@@ -49,12 +53,12 @@
             @if ($venta->cliente_nombre)
                 <p class="mb-1">Cliente: {{ $venta->cliente_nombre }}</p>
             @endif
-            <hr>
+            <p class="mb-1">--------------------------------</p>
             @foreach ($venta->detalles as $detalle)
                 <p class="mb-1">{{ $detalle->cantidad }} x {{ $detalle->nombre_producto }}<br>
                 {{ bs($detalle->precio_unitario) }} c/u — {{ bs($detalle->subtotal) }}</p>
             @endforeach
-            <hr>
+            <p class="mb-1">--------------------------------</p>
             <p class="mb-1">Subtotal: {{ bs($venta->subtotal) }}</p>
             @if ((float) $venta->descuento > 0)
                 <p class="mb-1">Descuento: {{ bs($venta->descuento) }}</p>
@@ -65,7 +69,7 @@
                 <p class="mb-1">Recibido: {{ bs($venta->monto_recibido) }}</p>
                 <p class="mb-1">Cambio: {{ bs($venta->cambio) }}</p>
             @endif
-            <hr>
+            <p class="mb-1">--------------------------------</p>
             <p class="text-center mb-1">{{ $mensajeTicket }}</p>
             <p class="text-center mb-1">Documento sin valor fiscal</p>
             @if ($venta->estado === 'ANULADA')

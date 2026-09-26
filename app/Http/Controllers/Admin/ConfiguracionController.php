@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\ActualizarConfiguracionRequest;
 use App\Services\AuditoriaService;
 use App\Services\ConfiguracionService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ConfiguracionController extends Controller
@@ -22,6 +23,7 @@ class ConfiguracionController extends Controller
         'permitir_stock_negativo',
         'minutos_inactividad',
         'imprimir_automatico',
+        'logo_negocio',
     ];
 
     public function editar(ConfiguracionService $configuracion): View
@@ -50,8 +52,30 @@ class ConfiguracionController extends Controller
         $datos['permitir_stock_negativo'] = $request->boolean('permitir_stock_negativo') ? '1' : '0';
         $datos['imprimir_automatico'] = $request->boolean('imprimir_automatico') ? '1' : '0';
 
+        if ($request->boolean('quitar_logo')) {
+            $anterior = $configuracion->get('logo_negocio');
+
+            if (is_string($anterior) && $anterior !== '') {
+                Storage::disk('public')->delete($anterior);
+            }
+
+            $datos['logo_negocio'] = '';
+        } elseif ($request->hasFile('logo')) {
+            $anterior = $configuracion->get('logo_negocio');
+
+            if (is_string($anterior) && $anterior !== '') {
+                Storage::disk('public')->delete($anterior);
+            }
+
+            $datos['logo_negocio'] = $request->file('logo')->store('logo', 'public');
+        } else {
+            unset($datos['logo_negocio']);
+        }
+
         foreach ($this->claves as $clave) {
-            $configuracion->set($clave, $datos[$clave]);
+            if (array_key_exists($clave, $datos)) {
+                $configuracion->set($clave, $datos[$clave]);
+            }
         }
 
         $despues = [];

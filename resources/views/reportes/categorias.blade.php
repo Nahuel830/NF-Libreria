@@ -3,12 +3,12 @@
 @section('titulo', 'Ventas por categoría')
 
 @section('contenido')
-    <h1>Ventas por categoría</h1>
+    <x-page-header titulo="Ventas por categoría" :migas="['Reportes' => route('reportes.index'), 'Por categoría' => null]" />
 
     @include('reportes._filtro', ['accion' => route('reportes.categorias')])
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr><th>Categoría</th><th>Cantidad</th><th>Total</th></tr>
             </thead>

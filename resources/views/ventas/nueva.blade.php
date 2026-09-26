@@ -3,7 +3,7 @@
 @section('titulo', 'Nueva venta')
 
 @section('contenido')
-    <h1>Nueva venta</h1>
+    <x-page-header titulo="Nueva venta" :migas="['Ventas' => null, 'Nueva' => null]" />
 
     <div id="mensaje-venta" class="alert alert-danger d-none" role="alert"></div>
 
@@ -15,19 +15,19 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="mb-3">
-                    <label for="buscador" class="form-label">Buscar producto (F2)</label>
-                    <input type="text" class="form-control form-control-lg" id="buscador" autocomplete="off" placeholder="Código o nombre, Enter para agregar">
+                    <label for="buscador" class="form-label">Buscar producto <span class="badge bg-secondary">F2</span></label>
+                    <input type="text" class="form-control buscador-venta" id="buscador" autocomplete="off" placeholder="Código o nombre, Enter para agregar">
                     <div id="resultados" class="list-group mt-1"></div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-striped">
+                <div class="table-responsive" style="max-height: 46vh; overflow-y: auto;">
+                    <table class="table table-striped tabla-nf align-middle">
                         <thead>
                             <tr>
                                 <th>Producto</th>
-                                <th>Precio</th>
+                                <th class="monto">Precio</th>
                                 <th>Cantidad</th>
-                                <th>Subtotal</th>
+                                <th class="monto">Subtotal</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -37,57 +37,61 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <p class="mb-1">Subtotal: <strong id="subtotal">Bs. 0,00</strong></p>
+                <x-card>
+                    <p class="mb-1">Subtotal: <strong id="subtotal">Bs. 0,00</strong></p>
 
-                        @can('aplicar-descuentos')
-                            <div class="mb-2">
-                                <label for="descuento" class="form-label">Descuento (Bs.)</label>
-                                <input type="number" min="0" step="0.01" class="form-control" id="descuento" name="descuento" value="0">
-                            </div>
-                        @endcan
+                    @can('aplicar-descuentos')
+                        <div class="mb-2">
+                            <label for="descuento" class="form-label">Descuento (Bs.)</label>
+                            <input type="number" min="0" step="0.01" class="form-control form-control-lg" id="descuento" name="descuento" value="0">
+                        </div>
+                    @endcan
 
-                        <p class="fs-3">TOTAL: <strong id="total" data-valor="0.00">Bs. 0,00</strong></p>
-                    </div>
-                </div>
+                    <p class="mb-0">TOTAL:</p>
+                    <p class="total-venta text-center"><span id="total" data-valor="0.00">Bs. 0,00</span></p>
+                </x-card>
 
-                <div class="mb-3">
-                    <span class="form-label">Método de pago</span>
+                <x-card titulo="Método de pago">
                     <div class="d-grid gap-2">
                         @foreach ($metodos as $metodo)
                             <button type="button" class="btn btn-lg {{ $metodo->value === 'EFECTIVO' ? 'btn-primary active' : 'btn-outline-primary' }}"
-                                data-metodo="{{ $metodo->value }}">{{ $metodo->etiqueta() }}</button>
+                                data-metodo="{{ $metodo->value }}">
+                                <i class="bi bi-{{ $metodo->value === 'EFECTIVO' ? 'cash' : ($metodo->value === 'QR' ? 'qr-code' : ($metodo->value === 'TRANSFERENCIA' ? 'arrow-left-right' : ($metodo->value === 'TARJETA' ? 'credit-card' : 'wallet'))) }}"></i>
+                                {{ $metodo->etiqueta() }}
+                            </button>
                         @endforeach
                     </div>
-                </div>
+                </x-card>
 
-                <div id="pago-efectivo" class="mb-3">
+                <x-card titulo="Efectivo" id="pago-efectivo">
                     <label for="recibido" class="form-label">Recibido (Bs.)</label>
-                    <input type="number" min="0" step="0.01" class="form-control" id="recibido" name="monto_recibido">
-                    <p class="mt-1">Cambio: <strong id="cambio">Bs. 0,00</strong></p>
+                    <input type="number" min="0" step="0.01" class="form-control form-control-lg" id="recibido" name="monto_recibido">
+                    <p class="mt-2 fs-5">Cambio: <strong id="cambio">Bs. 0,00</strong></p>
                     <div class="d-flex flex-wrap gap-1">
                         @foreach ([10, 20, 50, 100, 200] as $billete)
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-billete="{{ $billete }}">{{ $billete }}</button>
+                            <button type="button" class="btn btn-outline-secondary" data-billete="{{ $billete }}">{{ $billete }}</button>
                         @endforeach
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-exacto">Exacto</button>
+                        <button type="button" class="btn btn-outline-secondary" id="btn-exacto">Exacto</button>
                     </div>
-                </div>
+                </x-card>
 
-                <div class="mb-3">
-                    <label for="cliente_nombre" class="form-label">Cliente (opcional)</label>
-                    <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" maxlength="150">
-                </div>
+                <x-card>
+                    <div class="mb-3">
+                        <label for="cliente_nombre" class="form-label">Cliente (opcional)</label>
+                        <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" maxlength="150">
+                    </div>
 
-                <div class="mb-3">
-                    <label for="observaciones" class="form-label">Observaciones (opcional)</label>
-                    <input type="text" class="form-control" id="observaciones" name="observaciones">
-                </div>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">Observaciones (opcional)</label>
+                        <input type="text" class="form-control" id="observaciones" name="observaciones">
+                    </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success btn-lg" id="btn-cobrar">COBRAR (F9)</button>
-                    <button type="button" class="btn btn-outline-danger" id="btn-cancelar">Cancelar venta (Esc)</button>
-                </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg" id="btn-cobrar"><i class="bi bi-check-circle"></i> COBRAR (F9)</button>
+                        <button type="button" class="btn btn-outline-danger" id="btn-cancelar">Cancelar venta (Esc)</button>
+                    </div>
+                    <p class="text-secondary small mt-2 mb-0">Atajos: <span class="badge bg-secondary">F2</span> buscar · <span class="badge bg-secondary">F9</span> cobrar · <span class="badge bg-secondary">Esc</span> cancelar</p>
+                </x-card>
             </div>
         </div>
     </form>

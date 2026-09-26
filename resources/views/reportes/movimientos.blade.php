@@ -3,7 +3,7 @@
 @section('titulo', 'Movimientos de stock')
 
 @section('contenido')
-    <h1>Movimientos de stock</h1>
+    <x-page-header titulo="Movimientos de stock" :migas="['Reportes' => route('reportes.index'), 'Movimientos' => null]" />
 
     <form method="GET" action="{{ route('reportes.movimientos') }}" class="row g-2 mb-3">
         <div class="col-md-2">
@@ -45,7 +45,7 @@
     </form>
 
     <div class="table-responsive">
-        <table class="table table-striped table-sm">
+        <table class="table table-striped table-sm tabla-nf">
             <thead>
                 <tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Anterior</th><th>Nuevo</th><th>Usuario</th><th>Motivo</th></tr>
             </thead>

@@ -3,12 +3,11 @@
 @section('titulo', 'Entradas de mercadería')
 
 @section('contenido')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Entradas de mercadería</h1>
-        <a href="{{ route('entradas.crear') }}" class="btn btn-primary">Nueva entrada</a>
-    </div>
+    <x-page-header titulo="Entradas de mercadería" :migas="['Inventario' => null, 'Entradas' => null]">
+        <a href="{{ route('entradas.crear') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nueva entrada</a>
+    </x-page-header>
 
-    <form method="GET" action="{{ route('entradas.index') }}" class="row g-2 mb-3">
+    <x-filtros :accion="route('entradas.index')">
         <div class="col-md-2">
             <input type="date" class="form-control" name="desde" value="{{ request('desde') }}" aria-label="Desde">
         </div>
@@ -16,22 +15,22 @@
             <input type="date" class="form-control" name="hasta" value="{{ request('hasta') }}" aria-label="Hasta">
         </div>
         <div class="col-md-4">
-            <input type="text" class="form-control" name="proveedor" value="{{ request('proveedor') }}" placeholder="Proveedor">
+            <input type="text" class="form-control" name="proveedor" value="{{ request('proveedor') }}" placeholder="Proveedor" aria-label="Proveedor">
         </div>
         <div class="col-md-2">
-            <select class="form-select" name="estado">
+            <select class="form-select" name="estado" aria-label="Estado">
                 <option value="">Todos</option>
                 <option value="REGISTRADA" @selected(request('estado') === 'REGISTRADA')>Registrada</option>
                 <option value="ANULADA" @selected(request('estado') === 'ANULADA')>Anulada</option>
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-secondary w-100">Filtrar</button>
+            <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-search"></i> Filtrar</button>
         </div>
-    </form>
+    </x-filtros>
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr>
                     <th>Número</th>
@@ -39,7 +38,7 @@
                     <th>Proveedor</th>
                     <th>Documento</th>
                     <th>Ítems</th>
-                    <th>Total</th>
+                    <th class="monto">Total</th>
                     <th>Usuario</th>
                     <th>Estado</th>
                 </tr>
@@ -52,19 +51,13 @@
                         <td>{{ $entrada->proveedor ?? '—' }}</td>
                         <td>{{ $entrada->documento_referencia ?? '—' }}</td>
                         <td>{{ $entrada->detalles_count }}</td>
-                        <td>{{ bs($entrada->total) }}</td>
+                        <td class="monto"><x-dinero :monto="$entrada->total" /></td>
                         <td>{{ $entrada->usuario->usuario }}</td>
-                        <td>
-                            @if ($entrada->estado === 'REGISTRADA')
-                                <span class="badge bg-success">Registrada</span>
-                            @else
-                                <span class="badge bg-danger">Anulada</span>
-                            @endif
-                        </td>
+                        <td><x-estado :estado="$entrada->estado" /></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center">No hay entradas.</td>
+                        <td colspan="8"><x-empty-state mensaje="Todavía no hay entradas registradas." :accion-url="route('entradas.crear')" accion-texto="Nueva entrada" /></td>
                     </tr>
                 @endforelse
             </tbody>

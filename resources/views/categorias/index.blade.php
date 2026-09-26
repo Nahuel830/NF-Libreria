@@ -3,29 +3,28 @@
 @section('titulo', 'Categorías')
 
 @section('contenido')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Categorías</h1>
-        <a href="{{ route('categorias.crear') }}" class="btn btn-primary">Nueva categoría</a>
-    </div>
+    <x-page-header titulo="Categorías" :migas="['Inventario' => null, 'Categorías' => null]">
+        <a href="{{ route('categorias.crear') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nueva categoría</a>
+    </x-page-header>
 
-    <form method="GET" action="{{ route('categorias.index') }}" class="row g-2 mb-3">
+    <x-filtros :accion="route('categorias.index')">
         <div class="col-md-6">
-            <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre">
+            <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre" aria-label="Buscar">
         </div>
         <div class="col-md-4">
-            <select class="form-select" name="estado">
+            <select class="form-select" name="estado" aria-label="Estado">
                 <option value="">Todos los estados</option>
                 <option value="1" @selected(request('estado') === '1')>Activo</option>
                 <option value="0" @selected(request('estado') === '0')>Inactivo</option>
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-secondary w-100">Buscar</button>
+            <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-search"></i> Buscar</button>
         </div>
-    </form>
+    </x-filtros>
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -41,28 +40,23 @@
                         <td>{{ $categoria->nombre }}</td>
                         <td>{{ $categoria->descripcion ?? '—' }}</td>
                         <td>{{ $categoria->productos_count }}</td>
+                        <td><x-estado :estado="$categoria->activo ? 'ACTIVO' : 'INACTIVO'" /></td>
                         <td>
-                            @if ($categoria->activo)
-                                <span class="badge bg-success">Activo</span>
-                            @else
-                                <span class="badge bg-secondary">Inactivo</span>
-                            @endif
-                        </td>
-                        <td>
-                            <a href="{{ route('categorias.editar', $categoria) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                            <a href="{{ route('categorias.editar', $categoria) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                             <form method="POST" action="{{ route('categorias.estado', $categoria) }}" class="d-inline"
-                                onsubmit="return confirm('¿Confirmas que quieres {{ $categoria->activo ? 'desactivar' : 'activar' }} la categoría {{ $categoria->nombre }}?');">
+                                data-confirm="¿Confirmas que quieres {{ $categoria->activo ? 'desactivar' : 'activar' }} la categoría {{ $categoria->nombre }}?"
+                                data-texto-confirm="{{ $categoria->activo ? 'Desactivar' : 'Activar' }}">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="btn btn-sm btn-outline-{{ $categoria->activo ? 'danger' : 'success' }}">
-                                    {{ $categoria->activo ? 'Desactivar' : 'Activar' }}
+                                <button type="submit" class="btn btn-sm btn-outline-{{ $categoria->activo ? 'danger' : 'success' }}" title="{{ $categoria->activo ? 'Desactivar' : 'Activar' }}">
+                                    <i class="bi bi-{{ $categoria->activo ? 'eye-slash' : 'eye' }}"></i>
                                 </button>
                             </form>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">No hay categorías.</td>
+                        <td colspan="5"><x-empty-state mensaje="Todavía no hay categorías registradas." :accion-url="route('categorias.crear')" accion-texto="Nueva categoría" /></td>
                     </tr>
                 @endforelse
             </tbody>

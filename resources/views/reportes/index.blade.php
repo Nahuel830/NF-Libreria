@@ -3,7 +3,7 @@
 @section('titulo', 'Reportes')
 
 @section('contenido')
-    <h1>Reportes</h1>
+    <x-page-header titulo="Reportes" />
 
     <ul>
         <li><a href="{{ route('reportes.resumen') }}">Resumen de ventas por día</a></li>

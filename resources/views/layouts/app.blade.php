@@ -4,15 +4,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('titulo', 'NF Librería')</title>
+    <title>@hasSection('titulo')@yield('titulo') — @endif{{ $nombreNegocio ?? 'NF Librería' }}</title>
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <style>
+        .barra-nf { background-color: var(--nf-principal); }
+        .barra-nf .navbar-brand img { height: 32px; }
+    </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-dark barra-nf">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ auth()->check() ? route('inicio') : route('login') }}">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ auth()->check() ? route('inicio') : route('login') }}">
+                <img src="{{ logo_url() }}" alt="Logo" height="32">
                 {{ $nombreNegocio ?? 'NF Librería' }}
             </a>
 
@@ -25,33 +32,33 @@
                     <ul class="navbar-nav me-auto">
                         @can('realizar-ventas')
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Ventas
+                                <a class="nav-link dropdown-toggle {{ request()->routeIs('ventas.*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-cart"></i> Ventas
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('ventas.nueva') }}">Nueva venta</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('ventas.index') }}">Historial de ventas</a></li>
+                                    <li><a class="dropdown-item {{ request()->routeIs('ventas.nueva') ? 'active' : '' }}" href="{{ route('ventas.nueva') }}">Nueva venta</a></li>
+                                    <li><a class="dropdown-item {{ request()->routeIs('ventas.index', 'ventas.ver') ? 'active' : '' }}" href="{{ route('ventas.index') }}">Historial de ventas</a></li>
                                 </ul>
                             </li>
                         @endcan
 
                         @canany(['gestionar-categorias', 'ver-productos', 'registrar-entradas'])
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Inventario
+                                <a class="nav-link dropdown-toggle {{ request()->routeIs('categorias.*', 'productos.*', 'entradas.*', 'inventario.*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-boxes"></i> Inventario
                                 </a>
                                 <ul class="dropdown-menu">
                                     @can('gestionar-categorias')
-                                        <li><a class="dropdown-item" href="{{ route('categorias.index') }}">Categorías</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('categorias.*') ? 'active' : '' }}" href="{{ route('categorias.index') }}">Categorías</a></li>
                                     @endcan
                                     @can('ver-productos')
-                                        <li><a class="dropdown-item" href="{{ route('productos.index') }}">Productos</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('productos.*') ? 'active' : '' }}" href="{{ route('productos.index') }}">Productos</a></li>
                                     @endcan
                                     @can('registrar-entradas')
-                                        <li><a class="dropdown-item" href="{{ route('entradas.index') }}">Entradas de mercadería</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('entradas.*') ? 'active' : '' }}" href="{{ route('entradas.index') }}">Entradas de mercadería</a></li>
                                     @endcan
                                     @can('gestionar-stock')
-                                        <li><a class="dropdown-item" href="{{ route('inventario.stock-bajo') }}">Stock bajo</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('inventario.*') ? 'active' : '' }}" href="{{ route('inventario.stock-bajo') }}">Stock bajo</a></li>
                                     @endcan
                                 </ul>
                             </li>
@@ -59,24 +66,24 @@
 
                         @can('ver-reportes')
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('reportes.index') }}">Reportes</a>
+                                <a class="nav-link {{ request()->routeIs('reportes.*') ? 'active' : '' }}" href="{{ route('reportes.index') }}"><i class="bi bi-bar-chart"></i> Reportes</a>
                             </li>
                         @endcan
 
                         @canany(['gestionar-usuarios', 'gestionar-configuracion', 'ver-auditoria'])
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Administración
+                                <a class="nav-link dropdown-toggle {{ request()->routeIs('usuarios.*', 'configuracion.*', 'auditoria.*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-gear"></i> Administración
                                 </a>
                                 <ul class="dropdown-menu">
                                     @can('gestionar-usuarios')
-                                        <li><a class="dropdown-item" href="{{ route('usuarios.index') }}">Usuarios</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('usuarios.*') ? 'active' : '' }}" href="{{ route('usuarios.index') }}">Usuarios</a></li>
                                     @endcan
                                     @can('gestionar-configuracion')
-                                        <li><a class="dropdown-item" href="{{ route('configuracion.editar') }}">Configuración</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('configuracion.*') ? 'active' : '' }}" href="{{ route('configuracion.editar') }}">Configuración</a></li>
                                     @endcan
                                     @can('ver-auditoria')
-                                        <li><a class="dropdown-item" href="{{ route('auditoria.index') }}">Auditoría</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('auditoria.*') ? 'active' : '' }}" href="{{ route('auditoria.index') }}">Auditoría</a></li>
                                     @endcan
                                 </ul>
                             </li>
@@ -86,16 +93,17 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
                             <span class="navbar-text me-3">
+                                <i class="bi bi-person-circle"></i>
                                 {{ auth()->user()->nombre }} ({{ auth()->user()->rol->etiqueta() }})
                             </span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('password.editar') }}">Cambiar contraseña</a>
+                            <a class="nav-link {{ request()->routeIs('password.*') ? 'active' : '' }}" href="{{ route('password.editar') }}">Cambiar contraseña</a>
                         </li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-link nav-link">Salir</button>
+                                <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right"></i> Salir</button>
                             </form>
                         </li>
                     </ul>
@@ -104,29 +112,19 @@
         </div>
     </nav>
 
-    <main class="container py-4">
-        @foreach (['success' => 'success', 'error' => 'danger', 'warning' => 'warning'] as $clave => $tipo)
-            @if (session($clave))
-                <div class="alert alert-{{ $tipo }} alert-dismissible fade show" role="alert">
-                    {{ session($clave) }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                </div>
-            @endif
-        @endforeach
-
-        @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-            </div>
-        @endif
-
+    <main class="container py-4 flex-grow-1">
         @yield('contenido')
     </main>
+
+    <footer class="text-center text-secondary small py-3 border-top">
+        NF Librería v{{ config('app.version', '1.0.0-dev') }}
+        @auth
+            · {{ auth()->user()->usuario }}
+        @endauth
+    </footer>
+
+    <x-alertas />
+    <x-confirmar />
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>

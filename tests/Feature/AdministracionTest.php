@@ -239,4 +239,40 @@ class AdministracionTest extends TestCase
             ->assertSee('Datos anteriores')
             ->assertSee('encargado');
     }
+
+    public function test_subir_y_quitar_logo_del_negocio(): void
+    {
+        $admin = $this->admin();
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $png = "\x89PNG\r\n\x1a\n"
+            .pack('N', 13).'IHDR'.pack('NNCCCCC', 1, 1, 8, 2, 0, 0, 0)
+            .hash('crc32b', 'IHDR'.pack('NNCCCCC', 1, 1, 8, 2, 0, 0, 0), true)
+            .pack('N', 12).'IDAT'.($idat = gzcompress("\x00\xff\x00\x00"))
+            .hash('crc32b', 'IDAT'.$idat, true)
+            .pack('N', 0).'IEND'.hash('crc32b', 'IEND', true);
+
+        $archivo = \Illuminate\Http\UploadedFile::fake()->createWithContent('logo.png', $png);
+
+        $this->actingAs($admin)->put('/configuracion', [
+            'nombre_negocio' => 'NF Librería',
+            'mensaje_ticket' => '¡Gracias!',
+            'minutos_inactividad' => '60',
+            'logo' => $archivo,
+        ])->assertRedirect(route('configuracion.editar'));
+
+        $ruta = \App\Models\Configuracion::where('clave', 'logo_negocio')->value('valor');
+        $this->assertNotEmpty($ruta);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($ruta);
+
+        $this->actingAs($admin)->put('/configuracion', [
+            'nombre_negocio' => 'NF Librería',
+            'mensaje_ticket' => '¡Gracias!',
+            'minutos_inactividad' => '60',
+            'quitar_logo' => '1',
+        ])->assertRedirect(route('configuracion.editar'));
+
+        $this->assertSame('', \App\Models\Configuracion::where('clave', 'logo_negocio')->value('valor'));
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($ruta);
+    }
 }

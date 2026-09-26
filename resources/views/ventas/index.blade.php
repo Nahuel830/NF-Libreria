@@ -3,25 +3,24 @@
 @section('titulo', 'Historial de ventas')
 
 @section('contenido')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Historial de ventas</h1>
-        <a href="{{ route('ventas.nueva') }}" class="btn btn-success">Nueva venta</a>
-    </div>
+    <x-page-header titulo="Historial de ventas" :migas="['Ventas' => null, 'Historial' => null]">
+        <a href="{{ route('ventas.nueva') }}" class="btn btn-success"><i class="bi bi-cart-plus"></i> Nueva venta</a>
+    </x-page-header>
 
     <div class="row mb-3">
-        <div class="col-md-4">
-            <div class="card"><div class="card-body">Completadas: <strong>{{ $resumen['completadas'] }}</strong></div></div>
+        <div class="col-md-4 mb-2">
+            <x-card>Completadas: <strong>{{ $resumen['completadas'] }}</strong></x-card>
         </div>
-        <div class="col-md-4">
-            <div class="card"><div class="card-body">Total vendido: <strong>{{ bs($resumen['total']) }}</strong></div></div>
+        <div class="col-md-4 mb-2">
+            <x-card>Total vendido: <strong><x-dinero :monto="$resumen['total']" /></strong></x-card>
         </div>
-        <div class="col-md-4">
-            <div class="card"><div class="card-body">Anuladas: <strong>{{ $resumen['anuladas'] }}</strong></div></div>
+        <div class="col-md-4 mb-2">
+            <x-card>Anuladas: <strong>{{ $resumen['anuladas'] }}</strong></x-card>
         </div>
     </div>
 
     @if (! $esCajero)
-        <form method="GET" action="{{ route('ventas.index') }}" class="row g-2 mb-3">
+        <x-filtros :accion="route('ventas.index')">
             <div class="col-md-2">
                 <input type="date" class="form-control" name="desde" value="{{ request('desde', today()->toDateString()) }}" aria-label="Desde">
             </div>
@@ -29,7 +28,7 @@
                 <input type="date" class="form-control" name="hasta" value="{{ request('hasta', today()->toDateString()) }}" aria-label="Hasta">
             </div>
             <div class="col-md-2">
-                <select class="form-select" name="cajero_id">
+                <select class="form-select" name="cajero_id" aria-label="Cajero">
                     <option value="">Todos los cajeros</option>
                     @foreach ($cajeros as $cajero)
                         <option value="{{ $cajero->id }}" @selected((string) request('cajero_id') === (string) $cajero->id)>{{ $cajero->usuario }}</option>
@@ -37,7 +36,7 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <select class="form-select" name="metodo_pago">
+                <select class="form-select" name="metodo_pago" aria-label="Método">
                     <option value="">Todos los métodos</option>
                     @foreach ($metodos as $metodo)
                         <option value="{{ $metodo->value }}" @selected(request('metodo_pago') === $metodo->value)>{{ $metodo->etiqueta() }}</option>
@@ -45,7 +44,7 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <select class="form-select" name="estado">
+                <select class="form-select" name="estado" aria-label="Estado">
                     <option value="">Todos los estados</option>
                     <option value="COMPLETADA" @selected(request('estado') === 'COMPLETADA')>Completada</option>
                     <option value="ANULADA" @selected(request('estado') === 'ANULADA')>Anulada</option>
@@ -55,13 +54,13 @@
                 <input type="number" class="form-control" name="numero" value="{{ request('numero') }}" placeholder="Nº" aria-label="Número">
             </div>
             <div class="col-md-1">
-                <button type="submit" class="btn btn-secondary w-100">Ver</button>
+                <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-search"></i></button>
             </div>
-        </form>
+        </x-filtros>
     @endif
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr>
                     <th>Número</th>
@@ -70,7 +69,7 @@
                     <th>Cliente</th>
                     <th>Ítems</th>
                     <th>Método</th>
-                    <th>Total</th>
+                    <th class="monto">Total</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -83,18 +82,12 @@
                         <td>{{ $venta->cliente_nombre ?? '—' }}</td>
                         <td>{{ $venta->detalles_count }}</td>
                         <td>{{ $venta->metodo_pago }}</td>
-                        <td>{{ bs($venta->total) }}</td>
-                        <td>
-                            @if ($venta->estado === 'COMPLETADA')
-                                <span class="badge bg-success">Completada</span>
-                            @else
-                                <span class="badge bg-danger">Anulada</span>
-                            @endif
-                        </td>
+                        <td class="monto"><x-dinero :monto="$venta->total" /></td>
+                        <td><x-estado :estado="$venta->estado" /></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center">No hay ventas.</td>
+                        <td colspan="8"><x-empty-state mensaje="No hay ventas para mostrar." :accion-url="route('ventas.nueva')" accion-texto="Nueva venta" /></td>
                     </tr>
                 @endforelse
             </tbody>

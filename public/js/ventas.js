@@ -78,10 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td>${formatear(item.precio)}</td>
                 <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-secondary menos" data-id="${item.id}">−</button>
-                        <input type="number" min="1" step="1" value="${item.cantidad}" class="form-control cantidad" data-id="${item.id}" style="width: 70px;">
-                        <button type="button" class="btn btn-outline-secondary mas" data-id="${item.id}">+</button>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-lg btn-outline-secondary menos px-3" data-id="${item.id}">−</button>
+                        <input type="number" min="1" step="1" value="${item.cantidad}" class="form-control form-control-lg cantidad" data-id="${item.id}" style="width: 80px;">
+                        <button type="button" class="btn btn-lg btn-outline-secondary mas px-3" data-id="${item.id}">+</button>
                     </div>
                 </td>
                 <td class="subtotal">${formatear(item.cantidad * parseFloat(item.precio))}</td>
@@ -254,11 +254,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (confirm('¿Cancelar la venta y vaciar el carrito?')) {
-            carritoItems.clear();
-            dibujar();
-            buscador.focus();
-        }
+        window.pedirConfirmacion({
+            titulo: 'Cancelar venta',
+            mensaje: '¿Cancelar la venta y vaciar el carrito?',
+            textoBoton: 'Vaciar carrito',
+            color: 'danger',
+            alConfirmar: () => {
+                carritoItems.clear();
+                dibujar();
+                buscador.focus();
+            },
+        });
     });
 
     document.addEventListener('keydown', (e) => {

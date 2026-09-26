@@ -4,6 +4,7 @@
 
 @section('contenido')
     <div class="text-center mt-5">
+        <i class="bi bi-clock-history fs-1 text-secondary"></i>
         <h1>419 — Sesión expirada</h1>
         <p>La sesión expiró, vuelve a intentarlo.</p>
         <a href="{{ route('login') }}" class="btn btn-primary">Ir al inicio de sesión</a>

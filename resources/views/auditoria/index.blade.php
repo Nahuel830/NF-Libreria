@@ -3,9 +3,9 @@
 @section('titulo', 'Auditoría')
 
 @section('contenido')
-    <h1>Auditoría</h1>
+    <x-page-header titulo="Auditoría" subtitulo="Solo lectura: los registros no se editan ni se borran." :migas="['Administración' => null, 'Auditoría' => null]" />
 
-    <form method="GET" action="{{ route('auditoria.index') }}" class="row g-2 mb-3">
+    <x-filtros :accion="route('auditoria.index')">
         <div class="col-md-2">
             <input type="date" class="form-control" name="desde" value="{{ request('desde') }}" aria-label="Desde">
         </div>
@@ -13,7 +13,7 @@
             <input type="date" class="form-control" name="hasta" value="{{ request('hasta') }}" aria-label="Hasta">
         </div>
         <div class="col-md-3">
-            <select class="form-select" name="usuario_id">
+            <select class="form-select" name="usuario_id" aria-label="Usuario">
                 <option value="">Todos los usuarios</option>
                 @foreach ($usuarios as $usuario)
                     <option value="{{ $usuario->id }}" @selected((string) request('usuario_id') === (string) $usuario->id)>
@@ -23,7 +23,7 @@
             </select>
         </div>
         <div class="col-md-3">
-            <select class="form-select" name="accion">
+            <select class="form-select" name="accion" aria-label="Acción">
                 <option value="">Todas las acciones</option>
                 @foreach ($acciones as $accion)
                     <option value="{{ $accion }}" @selected(request('accion') === $accion)>{{ $accion }}</option>
@@ -31,12 +31,12 @@
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-secondary w-100">Filtrar</button>
+            <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-search"></i> Filtrar</button>
         </div>
-    </form>
+    </x-filtros>
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr>
                     <th>Fecha y hora</th>
@@ -45,7 +45,7 @@
                     <th>Entidad</th>
                     <th>Descripción</th>
                     <th>IP</th>
-                    <th></th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,12 +58,12 @@
                         <td>{{ $registro->descripcion }}</td>
                         <td>{{ $registro->ip ?? '—' }}</td>
                         <td>
-                            <a href="{{ route('auditoria.ver', $registro) }}" class="btn btn-sm btn-outline-primary">Ver detalle</a>
+                            <a href="{{ route('auditoria.ver', $registro) }}" class="btn btn-sm btn-outline-primary" title="Ver detalle"><i class="bi bi-eye"></i></a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">No hay registros.</td>
+                        <td colspan="7"><x-empty-state mensaje="No hay registros de auditoría." /></td>
                     </tr>
                 @endforelse
             </tbody>

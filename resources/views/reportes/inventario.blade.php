@@ -3,7 +3,7 @@
 @section('titulo', 'Inventario valorizado')
 
 @section('contenido')
-    <h1>Inventario valorizado</h1>
+    <x-page-header titulo="Inventario valorizado" :migas="['Reportes' => route('reportes.index'), 'Inventario' => null]" />
 
     <form method="GET" action="{{ route('reportes.inventario') }}" class="row g-2 mb-3">
         <div class="col-md-4">
@@ -23,7 +23,7 @@
     </form>
 
     <div class="table-responsive">
-        <table class="table table-striped table-sm">
+        <table class="table table-striped table-sm tabla-nf">
             <thead>
                 <tr><th>Código</th><th>Nombre</th><th>Stock</th><th>Precio compra</th><th>Valor costo</th><th>Precio venta</th><th>Valor venta</th></tr>
             </thead>

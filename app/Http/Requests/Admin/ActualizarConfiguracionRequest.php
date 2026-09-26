@@ -24,6 +24,8 @@ class ActualizarConfiguracionRequest extends FormRequest
             'permitir_stock_negativo' => ['nullable', 'boolean'],
             'minutos_inactividad' => ['required', 'integer', 'min:5', 'max:480'],
             'imprimir_automatico' => ['nullable', 'boolean'],
+            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:1024'],
+            'quitar_logo' => ['nullable', 'boolean'],
         ];
     }
 }

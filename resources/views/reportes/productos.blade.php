@@ -3,7 +3,7 @@
 @section('titulo', 'Productos más vendidos')
 
 @section('contenido')
-    <h1>Productos más vendidos (top 50)</h1>
+    <x-page-header titulo="Productos más vendidos (top 50)" :migas="['Reportes' => route('reportes.index'), 'Productos' => null]" />
 
     <form method="GET" action="{{ route('reportes.productos') }}" class="row g-2 mb-3">
         <div class="col-md-3">
@@ -27,7 +27,7 @@
     </form>
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Cantidad</th><th>Total</th></tr>
             </thead>

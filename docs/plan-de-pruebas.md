@@ -314,10 +314,6 @@ Hacer estas pruebas como **cajero1** salvo que se indique otra cosa.
 
 ## 17. Diseño y apariencia
 
-> Alcance: estos puntos NO estaban en los PROMPTS 2–13 (que cubren funcionalidad
-> con el estilo base de Bootstrap). Están pendientes de implementar como mejora
-> de diseño; márcalos solo cuando esa mejora exista.
-
 - [ ] **DS-01** Login con el logo, colores de la marca y diseño centrado y limpio.
 - [ ] **DS-02** Barra superior en el color principal, con el logo, y la opción del menú actual resaltada.
 - [ ] **DS-03** Todas las pantallas tienen el mismo encabezado (título + botones de acción a la derecha) y ruta de navegación (ej: Inventario › Productos › Editar).

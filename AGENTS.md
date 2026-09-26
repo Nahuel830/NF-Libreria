@@ -27,6 +27,7 @@
 - Si algo no está claro o hay que tomar una decisión de negocio, pregúntame antes de inventar.
 - Usa las herramientas de Laravel (migraciones, Form Requests, Gates/Policies, middleware, Eloquent, DB::transaction, factories) en lugar de reinventarlas.
 - La lógica de negocio va en clases de servicio (app/Services), no en los controladores ni en las vistas.
+- Toda pantalla nueva debe usar el layout y los componentes de resources/views/components (ver docs/diseno.md); no crear estilos sueltos en las vistas.
 
 ## Seguridad
 - Nunca subir a git: .env, contraseñas, backups, dumps de base de datos, datos reales. Usar .env.example con valores de ejemplo.

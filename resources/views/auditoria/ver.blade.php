@@ -3,33 +3,37 @@
 @section('titulo', 'Detalle de auditoría')
 
 @section('contenido')
-    <h1>Detalle de auditoría #{{ $registro->id }}</h1>
+    <x-page-header titulo="Detalle de auditoría #{{ $registro->id }}" :migas="['Administración' => null, 'Auditoría' => route('auditoria.index'), 'Detalle' => null]">
+        <a href="{{ route('auditoria.index') }}" class="btn btn-secondary">Volver</a>
+    </x-page-header>
 
-    <dl class="row">
-        <dt class="col-sm-3">Fecha y hora</dt>
-        <dd class="col-sm-9">{{ $registro->created_at->format('d/m/Y H:i') }}</dd>
+    <x-card>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Fecha y hora</dt>
+            <dd class="col-sm-9">{{ $registro->created_at->format('d/m/Y H:i') }}</dd>
 
-        <dt class="col-sm-3">Usuario</dt>
-        <dd class="col-sm-9">{{ $registro->usuario ? $registro->usuario->nombre.' ('.$registro->usuario->usuario.')' : '—' }}</dd>
+            <dt class="col-sm-3">Usuario</dt>
+            <dd class="col-sm-9">{{ $registro->usuario ? $registro->usuario->nombre.' ('.$registro->usuario->usuario.')' : '—' }}</dd>
 
-        <dt class="col-sm-3">Acción</dt>
-        <dd class="col-sm-9">{{ $registro->accion }}</dd>
+            <dt class="col-sm-3">Acción</dt>
+            <dd class="col-sm-9">{{ $registro->accion }}</dd>
 
-        <dt class="col-sm-3">Entidad</dt>
-        <dd class="col-sm-9">{{ $registro->entidad }}{{ $registro->entidad_id ? ' #'.$registro->entidad_id : '' }}</dd>
+            <dt class="col-sm-3">Entidad</dt>
+            <dd class="col-sm-9">{{ $registro->entidad }}{{ $registro->entidad_id ? ' #'.$registro->entidad_id : '' }}</dd>
 
-        <dt class="col-sm-3">Descripción</dt>
-        <dd class="col-sm-9">{{ $registro->descripcion }}</dd>
+            <dt class="col-sm-3">Descripción</dt>
+            <dd class="col-sm-9">{{ $registro->descripcion }}</dd>
 
-        <dt class="col-sm-3">IP</dt>
-        <dd class="col-sm-9">{{ $registro->ip ?? '—' }}</dd>
-    </dl>
+            <dt class="col-sm-3">IP</dt>
+            <dd class="col-sm-9">{{ $registro->ip ?? '—' }}</dd>
+        </dl>
+    </x-card>
 
-    <h2 class="h5">Datos anteriores</h2>
-    @include('auditoria._datos', ['datos' => $registro->datos_anteriores])
+    <x-card titulo="Datos anteriores">
+        @include('auditoria._datos', ['datos' => $registro->datos_anteriores])
+    </x-card>
 
-    <h2 class="h5 mt-3">Datos nuevos</h2>
-    @include('auditoria._datos', ['datos' => $registro->datos_nuevos])
-
-    <a href="{{ route('auditoria.index') }}" class="btn btn-secondary mt-3">Volver</a>
+    <x-card titulo="Datos nuevos">
+        @include('auditoria._datos', ['datos' => $registro->datos_nuevos])
+    </x-card>
 @endsection

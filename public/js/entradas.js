@@ -107,5 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     formulario.addEventListener('submit', () => {
         boton.disabled = true;
+        setTimeout(() => { boton.disabled = false; }, 3000);
     });
 });

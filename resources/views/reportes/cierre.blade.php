@@ -18,6 +18,12 @@
 </head>
 <body>
     <div class="container py-3">
+        <div class="d-none d-print-block text-center mb-3">
+            <img src="{{ logo_url() }}" alt="Logo" height="48">
+            <p class="mb-0"><strong>{{ app(\App\Services\ConfiguracionService::class)->get('nombre_negocio', 'NF Librería') }}</strong></p>
+            <p class="mb-0">Cierre del día {{ $fecha }} — impreso el {{ now()->format('d/m/Y H:i') }} por {{ auth()->user()->usuario }}</p>
+        </div>
+
         <h1>Cierre del día {{ $fecha }}</h1>
 
         <form method="GET" action="{{ route('reportes.cierre') }}" class="row g-2 mb-3 no-imprimir">

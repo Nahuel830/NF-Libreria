@@ -3,29 +3,40 @@
 @section('titulo', 'Iniciar sesión')
 
 @section('contenido')
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h1 class="card-title h4 text-center mb-4">Iniciar sesión</h1>
-
-                    <form method="POST" action="{{ route('login.entrar') }}">
-                        @csrf
-
-                        <div class="mb-3">
-                            <label for="usuario" class="form-label">Usuario</label>
-                            <input type="text" class="form-control" id="usuario" name="usuario"
-                                value="{{ old('usuario') }}" required autofocus autocomplete="username">
+    <div class="fondo-login rounded-3 py-5">
+        <div class="row justify-content-center m-0">
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-3">
+                            <img src="{{ logo_url() }}" alt="Logo" height="72">
+                            <h1 class="h4 mt-2">{{ $nombreNegocio ?? 'NF Librería' }}</h1>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" name="password"
-                                required autocomplete="current-password">
-                        </div>
+                        <form method="POST" action="{{ route('login.entrar') }}">
+                            @csrf
 
-                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
-                    </form>
+                            <div class="mb-3">
+                                <label for="usuario" class="form-label">Usuario *</label>
+                                <input type="text" class="form-control form-control-lg @error('usuario') is-invalid @enderror" id="usuario" name="usuario"
+                                    value="{{ old('usuario') }}" required autofocus autocomplete="username">
+                                @error('usuario')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña *</label>
+                                <input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" id="password" name="password"
+                                    required autocomplete="current-password">
+                                @error('password')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100">Entrar</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

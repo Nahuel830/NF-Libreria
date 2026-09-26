@@ -1,1 +1,227 @@
-/* Estilos propios de NF Librería. */
+/* NF Librería — identidad visual (todo local, sin Internet). */
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../vendor/fonts/inter/inter-latin-400-normal.woff2') format('woff2'),
+        url('../vendor/fonts/inter/inter-latin-ext-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../vendor/fonts/inter/inter-latin-500-normal.woff2') format('woff2'),
+        url('../vendor/fonts/inter/inter-latin-ext-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../vendor/fonts/inter/inter-latin-600-normal.woff2') format('woff2'),
+        url('../vendor/fonts/inter/inter-latin-ext-600-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../vendor/fonts/inter/inter-latin-700-normal.woff2') format('woff2'),
+        url('../vendor/fonts/inter/inter-latin-ext-700-normal.woff2') format('woff2');
+}
+
+:root {
+    --nf-principal: #1F4E79;
+    --nf-principal-oscuro: #163A5C;
+    --nf-acento: #E0A526;
+    --nf-exito: #2E7D32;
+    --nf-error: #C62828;
+    --nf-advertencia: #E67E22;
+    --nf-fondo: #F5F6F8;
+    --nf-superficie: #FFFFFF;
+    --nf-texto: #1F2933;
+    --nf-texto-secundario: #5B6770;
+    --nf-bordes: #DDE2E7;
+
+    --bs-primary: #1F4E79;
+    --bs-primary-rgb: 31, 78, 121;
+    --bs-success: #2E7D32;
+    --bs-success-rgb: 46, 125, 50;
+    --bs-danger: #C62828;
+    --bs-danger-rgb: 198, 40, 40;
+    --bs-warning: #E67E22;
+    --bs-warning-rgb: 230, 126, 34;
+    --bs-body-bg: #F5F6F8;
+    --bs-body-color: #1F2933;
+    --bs-link-color: #1F4E79;
+    --bs-link-hover-color: #163A5C;
+    --bs-border-color: #DDE2E7;
+}
+
+body {
+    font-family: 'Inter', system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+}
+
+/* Botones con la paleta (Bootstrap compila sus colores: se sobrescriben aquí). */
+.btn-primary {
+    --bs-btn-bg: #1F4E79;
+    --bs-btn-border-color: #1F4E79;
+    --bs-btn-hover-bg: #163A5C;
+    --bs-btn-hover-border-color: #163A5C;
+    --bs-btn-active-bg: #163A5C;
+    --bs-btn-active-border-color: #163A5C;
+    --bs-btn-disabled-bg: #1F4E79;
+    --bs-btn-disabled-border-color: #1F4E79;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #1F4E79;
+    --bs-btn-border-color: #1F4E79;
+    --bs-btn-hover-bg: #1F4E79;
+    --bs-btn-hover-border-color: #1F4E79;
+    --bs-btn-active-bg: #1F4E79;
+    --bs-btn-active-border-color: #1F4E79;
+}
+
+.btn-success {
+    --bs-btn-bg: #2E7D32;
+    --bs-btn-border-color: #2E7D32;
+    --bs-btn-hover-bg: #256429;
+    --bs-btn-hover-border-color: #256429;
+    --bs-btn-active-bg: #256429;
+    --bs-btn-active-border-color: #256429;
+}
+
+.btn-danger {
+    --bs-btn-bg: #C62828;
+    --bs-btn-border-color: #C62828;
+}
+
+.btn-warning {
+    --bs-btn-color: #1F2933;
+    --bs-btn-bg: #E67E22;
+    --bs-btn-border-color: #E67E22;
+    --bs-btn-hover-bg: #CF6D1A;
+    --bs-btn-hover-border-color: #CF6D1A;
+}
+
+/* Enlaces y navegación. */
+.nav-link {
+    --bs-nav-link-color: rgba(255, 255, 255, 0.85);
+    --bs-nav-link-hover-color: #FFFFFF;
+}
+
+.nav-link.active {
+    color: var(--nf-acento) !important;
+    font-weight: 600;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--nf-principal);
+}
+
+/* Formulario: foco visible color acento. */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--nf-acento);
+    box-shadow: 0 0 0 0.25rem rgba(224, 165, 38, 0.35);
+}
+
+.form-check-input:checked {
+    background-color: var(--nf-principal);
+    border-color: var(--nf-principal);
+}
+
+/* Enfoque visible con teclado en todo lo interactivo. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid var(--nf-acento);
+    outline-offset: 2px;
+}
+
+/* Tablas comunes. */
+.tabla-nf thead th {
+    background-color: #EDF0F3;
+    color: var(--nf-texto);
+    font-weight: 600;
+}
+
+.tabla-nf tbody tr:hover {
+    background-color: rgba(31, 78, 121, 0.06);
+}
+
+.tabla-nf .monto {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.monto {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Login sobre fondo principal. */
+.fondo-login {
+    min-height: 100vh;
+    background: linear-gradient(160deg, var(--nf-principal) 0%, var(--nf-principal-oscuro) 100%);
+}
+
+/* Pantalla de venta: TOTAL grande sobre acento suave. */
+.total-venta {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background-color: rgba(224, 165, 38, 0.25);
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.buscador-venta {
+    font-size: 1.25rem;
+}
+
+/* Toasts de alertas. */
+.toasts-nf {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1080;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: min(22rem, 90vw);
+}
+
+/* Impresión de reportes: sin menú, botones ni fondos. */
+@media print {
+    nav,
+    footer,
+    .no-imprimir {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .card {
+        border: 1px solid #000;
+    }
+}

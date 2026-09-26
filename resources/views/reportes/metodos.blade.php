@@ -3,12 +3,12 @@
 @section('titulo', 'Ventas por método de pago')
 
 @section('contenido')
-    <h1>Ventas por método de pago</h1>
+    <x-page-header titulo="Ventas por método de pago" :migas="['Reportes' => route('reportes.index'), 'Por método' => null]" />
 
     @include('reportes._filtro', ['accion' => route('reportes.metodos')])
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr><th>Método</th><th>Cantidad</th><th>Total</th></tr>
             </thead>

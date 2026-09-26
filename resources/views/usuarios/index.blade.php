@@ -3,17 +3,16 @@
 @section('titulo', 'Usuarios')
 
 @section('contenido')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Usuarios</h1>
-        <a href="{{ route('usuarios.crear') }}" class="btn btn-primary">Nuevo usuario</a>
-    </div>
+    <x-page-header titulo="Usuarios" :migas="['Administración' => null, 'Usuarios' => null]">
+        <a href="{{ route('usuarios.crear') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo usuario</a>
+    </x-page-header>
 
-    <form method="GET" action="{{ route('usuarios.index') }}" class="row g-2 mb-3">
+    <x-filtros :accion="route('usuarios.index')">
         <div class="col-md-4">
-            <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre o usuario">
+            <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre o usuario" aria-label="Buscar">
         </div>
         <div class="col-md-3">
-            <select class="form-select" name="rol">
+            <select class="form-select" name="rol" aria-label="Rol">
                 <option value="">Todos los roles</option>
                 @foreach ($roles as $rol)
                     <option value="{{ $rol->value }}" @selected(request('rol') === $rol->value)>{{ $rol->etiqueta() }}</option>
@@ -21,19 +20,19 @@
             </select>
         </div>
         <div class="col-md-3">
-            <select class="form-select" name="estado">
+            <select class="form-select" name="estado" aria-label="Estado">
                 <option value="">Todos los estados</option>
                 <option value="1" @selected(request('estado') === '1')>Activo</option>
                 <option value="0" @selected(request('estado') === '0')>Inactivo</option>
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-secondary w-100">Buscar</button>
+            <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-search"></i> Buscar</button>
         </div>
-    </form>
+    </x-filtros>
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -50,30 +49,25 @@
                         <td>{{ $usuario->nombre }}</td>
                         <td>{{ $usuario->usuario }}</td>
                         <td>{{ $usuario->rol->etiqueta() }}</td>
-                        <td>
-                            @if ($usuario->activo)
-                                <span class="badge bg-success">Activo</span>
-                            @else
-                                <span class="badge bg-secondary">Inactivo</span>
-                            @endif
-                        </td>
+                        <td><x-estado :estado="$usuario->activo ? 'ACTIVO' : 'INACTIVO'" /></td>
                         <td>{{ $usuario->ultimo_acceso?->format('d/m/Y H:i') ?? '—' }}</td>
                         <td>
-                            <a href="{{ route('usuarios.editar', $usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-                            <a href="{{ route('usuarios.password', $usuario) }}" class="btn btn-sm btn-outline-secondary">Contraseña</a>
+                            <a href="{{ route('usuarios.editar', $usuario) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ route('usuarios.password', $usuario) }}" class="btn btn-sm btn-outline-secondary" title="Restablecer contraseña"><i class="bi bi-key"></i></a>
                             <form method="POST" action="{{ route('usuarios.estado', $usuario) }}" class="d-inline"
-                                onsubmit="return confirm('¿Confirmas que quieres {{ $usuario->activo ? 'desactivar' : 'activar' }} a {{ $usuario->usuario }}?');">
+                                data-confirm="¿Confirmas que quieres {{ $usuario->activo ? 'desactivar' : 'activar' }} a {{ $usuario->usuario }}?"
+                                data-texto-confirm="{{ $usuario->activo ? 'Desactivar' : 'Activar' }}">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="btn btn-sm btn-outline-{{ $usuario->activo ? 'danger' : 'success' }}">
-                                    {{ $usuario->activo ? 'Desactivar' : 'Activar' }}
+                                <button type="submit" class="btn btn-sm btn-outline-{{ $usuario->activo ? 'danger' : 'success' }}" title="{{ $usuario->activo ? 'Desactivar' : 'Activar' }}">
+                                    <i class="bi bi-{{ $usuario->activo ? 'person-dash' : 'person-check' }}"></i>
                                 </button>
                             </form>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center">No hay usuarios.</td>
+                        <td colspan="6"><x-empty-state mensaje="Todavía no hay usuarios registrados." /></td>
                     </tr>
                 @endforelse
             </tbody>

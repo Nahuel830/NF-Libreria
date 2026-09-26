@@ -3,10 +3,10 @@
 @section('titulo', 'Stock bajo')
 
 @section('contenido')
-    <h1>Productos con stock bajo</h1>
+    <x-page-header titulo="Productos con stock bajo" :migas="['Inventario' => null, 'Stock bajo' => null]" />
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr>
                     <th>Código</th>
@@ -23,13 +23,13 @@
                         <td><a href="{{ route('productos.ver', $producto) }}">{{ $producto->codigo }}</a></td>
                         <td>{{ $producto->nombre }}</td>
                         <td>{{ $producto->categoria->nombre }}</td>
-                        <td><span class="badge bg-danger">{{ $producto->stock }}</span></td>
+                        <td><x-estado estado="STOCK BAJO" /> {{ $producto->stock }}</td>
                         <td>{{ $producto->stock_minimo }}</td>
                         <td>{{ $producto->stock - $producto->stock_minimo }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center">No hay productos con stock bajo.</td>
+                        <td colspan="6"><x-empty-state mensaje="No hay productos con stock bajo." /></td>
                     </tr>
                 @endforelse
             </tbody>

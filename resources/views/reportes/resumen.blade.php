@@ -3,12 +3,12 @@
 @section('titulo', 'Resumen de ventas por día')
 
 @section('contenido')
-    <h1>Resumen de ventas por día</h1>
+    <x-page-header titulo="Resumen de ventas por día" :migas="['Reportes' => route('reportes.index'), 'Resumen' => null]" />
 
     @include('reportes._filtro', ['accion' => route('reportes.resumen')])
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr><th>Fecha</th><th>Cantidad</th><th>Total</th><th>Descuentos</th><th>Anuladas</th></tr>
             </thead>

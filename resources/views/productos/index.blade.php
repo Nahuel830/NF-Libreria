@@ -3,22 +3,19 @@
 @section('titulo', 'Productos')
 
 @section('contenido')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Productos</h1>
+    <x-page-header titulo="Productos" :migas="['Inventario' => null, 'Productos' => null]">
         @can('gestionar-productos')
-            <div>
-                <a href="{{ route('productos.importar') }}" class="btn btn-outline-secondary">Importar desde Excel/CSV</a>
-                <a href="{{ route('productos.crear') }}" class="btn btn-primary">Nuevo producto</a>
-            </div>
+            <a href="{{ route('productos.importar') }}" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar desde Excel/CSV</a>
+            <a href="{{ route('productos.crear') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo producto</a>
         @endcan
-    </div>
+    </x-page-header>
 
-    <form method="GET" action="{{ route('productos.index') }}" class="row g-2 mb-3">
+    <x-filtros :accion="route('productos.index')">
         <div class="col-md-3">
-            <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="Buscar por código o nombre">
+            <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="Buscar por código o nombre" aria-label="Buscar">
         </div>
         <div class="col-md-3">
-            <select class="form-select" name="categoria_id">
+            <select class="form-select" name="categoria_id" aria-label="Categoría">
                 <option value="">Todas las categorías</option>
                 @foreach ($categorias as $categoria)
                     <option value="{{ $categoria->id }}" @selected((string) request('categoria_id') === (string) $categoria->id)>{{ $categoria->nombre }}</option>
@@ -26,7 +23,7 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select class="form-select" name="estado">
+            <select class="form-select" name="estado" aria-label="Estado">
                 <option value="">Todos</option>
                 <option value="1" @selected(request('estado') === '1')>Activo</option>
                 <option value="0" @selected(request('estado') === '0')>Inactivo</option>
@@ -39,12 +36,12 @@
             </div>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-secondary w-100">Buscar</button>
+            <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-search"></i> Buscar</button>
         </div>
-    </form>
+    </x-filtros>
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped tabla-nf">
             <thead>
                 <tr>
                     <th>Código</th>
@@ -52,9 +49,9 @@
                     <th>Categoría</th>
                     <th>Marca</th>
                     @can('gestionar-productos')
-                        <th>Precio compra</th>
+                        <th class="monto">Precio compra</th>
                     @endcan
-                    <th>Precio venta</th>
+                    <th class="monto">Precio venta</th>
                     <th>Stock</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -68,35 +65,32 @@
                         <td>{{ $producto->categoria->nombre }}</td>
                         <td>{{ $producto->marca ?? '—' }}</td>
                         @can('gestionar-productos')
-                            <td>{{ bs($producto->precio_compra) }}</td>
+                            <td class="monto"><x-dinero :monto="$producto->precio_compra" /></td>
                         @endcan
-                        <td>{{ bs($producto->precio_venta) }}</td>
+                        <td class="monto"><x-dinero :monto="$producto->precio_venta" /></td>
                         <td>
                             @if (! $producto->controla_stock)
                                 —
-                            @elseif ($producto->stock <= $producto->stock_minimo)
-                                <span class="badge bg-danger">{{ $producto->stock }}</span>
                             @else
+                                @if ($producto->stock <= 0)
+                                    <x-estado estado="SIN STOCK" />
+                                @elseif ($producto->stock <= $producto->stock_minimo)
+                                    <x-estado estado="STOCK BAJO" />
+                                @endif
                                 {{ $producto->stock }}
                             @endif
                         </td>
+                        <td><x-estado :estado="$producto->activo ? 'ACTIVO' : 'INACTIVO'" /></td>
                         <td>
-                            @if ($producto->activo)
-                                <span class="badge bg-success">Activo</span>
-                            @else
-                                <span class="badge bg-secondary">Inactivo</span>
-                            @endif
-                        </td>
-                        <td>
-                            <a href="{{ route('productos.ver', $producto) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                            <a href="{{ route('productos.ver', $producto) }}" class="btn btn-sm btn-outline-secondary" title="Ver"><i class="bi bi-eye"></i></a>
                             @can('gestionar-productos')
-                                <a href="{{ route('productos.editar', $producto) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <a href="{{ route('productos.editar', $producto) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                             @endcan
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="text-center">No hay productos.</td>
+                        <td colspan="9"><x-empty-state mensaje="Todavía no hay productos registrados." /></td>
                     </tr>
                 @endforelse
             </tbody>

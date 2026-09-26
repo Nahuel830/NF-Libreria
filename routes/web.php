@@ -61,6 +61,12 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/{registro}', [AuditoriaController::class, 'ver'])->name('ver');
     });
 
+    Route::middleware('can:gestionar-usuarios')->get('/estilos', function () {
+        abort_unless(app()->environment('local'), 404);
+
+        return view('estilos');
+    })->name('estilos');
+
     Route::middleware('can:gestionar-categorias')->prefix('categorias')->name('categorias.')->group(function (): void {
         Route::get('/', [CategoriaController::class, 'index'])->name('index');
         Route::get('/crear', [CategoriaController::class, 'crear'])->name('crear');
