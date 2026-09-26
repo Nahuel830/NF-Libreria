@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Exceptions\StockInsuficienteException;
 use App\Models\MovimientoStock;
 use App\Models\Producto;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -23,7 +22,8 @@ class StockService
         int $cantidad,
         string $tipo,
         ?string $motivo = null,
-        ?Model $referencia = null,
+        ?string $referenciaTipo = null,
+        int|string|null $referenciaId = null,
         ?bool $permitirNegativo = null
     ): ?MovimientoStock {
         if (DB::transactionLevel() === 0) {
@@ -60,8 +60,8 @@ class StockService
             'stock_anterior' => $anterior,
             'stock_nuevo' => $nuevo,
             'user_id' => auth()->id(),
-            'referencia_tipo' => $referencia ? mb_strtolower(class_basename($referencia)) : null,
-            'referencia_id' => $referencia?->getKey(),
+            'referencia_tipo' => $referenciaTipo,
+            'referencia_id' => $referenciaId,
             'motivo' => $motivo,
         ]);
     }

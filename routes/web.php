@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\AjusteStockController;
+use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
@@ -73,5 +74,17 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/productos/{producto}/ajustar', [AjusteStockController::class, 'editar'])->name('productos.ajustar');
         Route::put('/productos/{producto}/ajustar', [AjusteStockController::class, 'actualizar'])->name('productos.ajustar.actualizar');
         Route::get('/inventario/stock-bajo', [ProductoController::class, 'stockBajo'])->name('inventario.stock-bajo');
+    });
+
+    Route::middleware('can:registrar-entradas')->prefix('entradas')->name('entradas.')->group(function (): void {
+        Route::get('/', [EntradaController::class, 'index'])->name('index');
+        Route::get('/crear', [EntradaController::class, 'crear'])->name('crear');
+        Route::post('/', [EntradaController::class, 'guardar'])->name('guardar');
+        Route::get('/{entrada}', [EntradaController::class, 'ver'])->name('ver');
+        Route::post('/{entrada}/anular', [EntradaController::class, 'anular'])->name('anular');
+    });
+
+    Route::middleware('can:ver-productos')->prefix('api-interna')->name('api-interna.')->group(function (): void {
+        Route::get('/productos/buscar', [EntradaController::class, 'buscar'])->name('productos.buscar');
     });
 });

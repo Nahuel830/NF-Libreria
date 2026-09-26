@@ -41,7 +41,7 @@
                                         <li><a class="dropdown-item" href="{{ route('productos.index') }}">Productos</a></li>
                                     @endcan
                                     @can('registrar-entradas')
-                                        <li><a class="dropdown-item" href="#">Entradas de mercadería</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('entradas.index') }}">Entradas de mercadería</a></li>
                                     @endcan
                                     @can('gestionar-stock')
                                         <li><a class="dropdown-item" href="{{ route('inventario.stock-bajo') }}">Stock bajo</a></li>
