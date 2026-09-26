@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('titulo', 'NF Librería')</title>
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
@@ -24,7 +25,7 @@
                     <ul class="navbar-nav me-auto">
                         @can('realizar-ventas')
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Vender</a>
+                                <a class="btn btn-success btn-sm mt-1" href="{{ route('ventas.nueva') }}">Vender</a>
                             </li>
                         @endcan
 

@@ -40,6 +40,12 @@
             <input type="number" class="form-control" id="minutos_inactividad" name="minutos_inactividad" value="{{ old('minutos_inactividad', $valores['minutos_inactividad']) }}" required min="5" max="480">
         </div>
 
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="imprimir_automatico" name="imprimir_automatico" value="1"
+                @checked(old('imprimir_automatico', $valores['imprimir_automatico'] ?? '0') === '1')>
+            <label class="form-check-label" for="imprimir_automatico">Imprimir ticket automáticamente al vender</label>
+        </div>
+
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 @endsection

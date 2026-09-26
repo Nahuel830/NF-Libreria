@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         temporizador = setTimeout(async () => {
-            const respuesta = await fetch(`/api-interna/productos/buscar?q=${encodeURIComponent(texto)}`, {
+            const respuesta = await fetch(`/api-interna/productos/buscar?para=entrada&q=${encodeURIComponent(texto)}`, {
                 headers: { Accept: 'application/json' },
             });
 

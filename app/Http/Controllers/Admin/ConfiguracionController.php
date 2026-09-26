@@ -21,6 +21,7 @@ class ConfiguracionController extends Controller
         'mensaje_ticket',
         'permitir_stock_negativo',
         'minutos_inactividad',
+        'imprimir_automatico',
     ];
 
     public function editar(ConfiguracionService $configuracion): View
@@ -47,6 +48,7 @@ class ConfiguracionController extends Controller
 
         $datos = $request->validated();
         $datos['permitir_stock_negativo'] = $request->boolean('permitir_stock_negativo') ? '1' : '0';
+        $datos['imprimir_automatico'] = $request->boolean('imprimir_automatico') ? '1' : '0';
 
         foreach ($this->claves as $clave) {
             $configuracion->set($clave, $datos[$clave]);

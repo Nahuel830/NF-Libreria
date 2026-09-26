@@ -6,6 +6,7 @@ use App\Http\Controllers\AjusteStockController;
 use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ImportacionController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\VentaController;
 use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\LoginController;
@@ -91,5 +92,11 @@ Route::middleware('auth')->group(function (): void {
 
     Route::middleware('can:ver-productos')->prefix('api-interna')->name('api-interna.')->group(function (): void {
         Route::get('/productos/buscar', [EntradaController::class, 'buscar'])->name('productos.buscar');
+    });
+
+    Route::middleware('can:realizar-ventas')->prefix('ventas')->name('ventas.')->group(function (): void {
+        Route::get('/nueva', [VentaController::class, 'nueva'])->name('nueva');
+        Route::post('/', [VentaController::class, 'cobrar'])->name('cobrar');
+        Route::get('/{venta}/ticket', [VentaController::class, 'ticket'])->name('ticket');
     });
 });

@@ -23,6 +23,7 @@ class ActualizarConfiguracionRequest extends FormRequest
             'mensaje_ticket' => ['required', 'string', 'max:255'],
             'permitir_stock_negativo' => ['nullable', 'boolean'],
             'minutos_inactividad' => ['required', 'integer', 'min:5', 'max:480'],
+            'imprimir_automatico' => ['nullable', 'boolean'],
         ];
     }
 }

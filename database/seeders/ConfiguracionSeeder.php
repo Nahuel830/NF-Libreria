@@ -17,6 +17,7 @@ class ConfiguracionSeeder extends Seeder
         'mensaje_ticket' => '¡Gracias por su compra!',
         'permitir_stock_negativo' => '1',
         'minutos_inactividad' => '60',
+        'imprimir_automatico' => '0',
     ];
 
     public function run(): void

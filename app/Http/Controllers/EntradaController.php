@@ -83,14 +83,14 @@ class EntradaController extends Controller
 
         $productos = Producto::query()
             ->where('activo', true)
-            ->where('controla_stock', true)
+            ->when($request->input('para') === 'entrada', fn ($consulta) => $consulta->where('controla_stock', true))
             ->where(function ($consulta) use ($q): void {
                 $consulta->where('codigo', 'ilike', "%{$q}%")
                     ->orWhere('nombre', 'ilike', "%{$q}%");
             })
             ->orderBy('nombre')
             ->limit(20)
-            ->get(['id', 'codigo', 'nombre', 'stock', 'precio_compra']);
+            ->get(['id', 'codigo', 'nombre', 'stock', 'precio_compra', 'precio_venta', 'controla_stock']);
 
         return response()->json($productos);
     }
