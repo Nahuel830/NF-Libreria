@@ -199,6 +199,9 @@ class ReporteController extends Controller
             'total' => (clone $base)->sum('total'),
             'efectivo' => (clone $base)->where('metodo_pago', 'EFECTIVO')->sum('total'),
             'anuladas' => $anuladas,
+            'cajas' => \App\Models\Caja::with('usuario')->whereDate('abierta_en', $fecha)
+                ->when($cajeroId, fn ($c) => $c->where('user_id', $cajeroId))
+                ->orderBy('id')->get(),
         ]);
     }
 

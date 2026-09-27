@@ -33,7 +33,15 @@ class VentasDemoSeeder extends Seeder
 
         $metodos = array_column(MetodoPago::cases(), 'value');
         $servicio = app(VentaService::class);
+        $cajas = app(\App\Services\CajaService::class);
         $creadas = [];
+
+        foreach ($vendedores as $vendedor) {
+            if (! \App\Models\Caja::abiertaDe($vendedor)) {
+                Auth::login($vendedor);
+                $cajas->abrir($vendedor, '0.00');
+            }
+        }
 
         for ($i = 0; $i < 60; $i++) {
             $vendedor = $vendedores->random();

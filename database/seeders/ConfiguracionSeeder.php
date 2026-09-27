@@ -18,6 +18,7 @@ class ConfiguracionSeeder extends Seeder
         'permitir_stock_negativo' => '1',
         'minutos_inactividad' => '60',
         'imprimir_automatico' => '0',
+        'exigir_caja_abierta' => '1',
     ];
 
     public function run(): void

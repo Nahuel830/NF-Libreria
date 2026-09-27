@@ -75,6 +75,12 @@
                 <label class="form-check-label" for="imprimir_automatico">Imprimir ticket automáticamente al vender</label>
             </div>
 
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="exigir_caja_abierta" name="exigir_caja_abierta" value="1"
+                    @checked(old('exigir_caja_abierta', $valores['exigir_caja_abierta'] ?? '1') === '1')>
+                <label class="form-check-label" for="exigir_caja_abierta">Exigir caja abierta para vender</label>
+            </div>
+
             <button type="submit" class="btn btn-primary">Guardar</button>
         </form>
     </x-card>

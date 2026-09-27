@@ -13,7 +13,9 @@ class VentaService
 {
     public function __construct(
         protected StockService $stock,
-        protected AuditoriaService $auditoria
+        protected AuditoriaService $auditoria,
+        protected CajaService $caja,
+        protected ConfiguracionService $configuracion
     ) {}
 
     /**
@@ -72,7 +74,21 @@ class VentaService
             Gate::forUser($usuario)->authorize('aplicar-descuentos');
         }
 
-        return DB::transaction(function () use ($agrupados, $datos, $descuento, $metodo, $token, $usuario, $clienteId, $clienteNombre) {
+        $cajaId = null;
+
+        if ($this->configuracion->get('exigir_caja_abierta', '1') === '1') {
+            $caja = \App\Models\Caja::abiertaDe($usuario);
+
+            if (! $caja) {
+                throw new DomainException('Debes abrir tu caja antes de vender.');
+            }
+
+            $cajaId = $caja->id;
+        } else {
+            $cajaId = \App\Models\Caja::abiertaDe($usuario)?->id;
+        }
+
+        return DB::transaction(function () use ($agrupados, $datos, $descuento, $metodo, $token, $usuario, $clienteId, $clienteNombre, $cajaId) {
             $productos = $this->stock->bloquearProductos(array_keys($agrupados))->keyBy('id');
 
             $lineas = [];
@@ -124,6 +140,7 @@ class VentaService
                 'token' => $token,
                 'fecha' => now(),
                 'user_id' => $usuario->id,
+                'caja_id' => $cajaId,
                 'cliente_id' => $clienteId,
                 'cliente_nombre' => $clienteNombre,
                 'subtotal' => $subtotal,

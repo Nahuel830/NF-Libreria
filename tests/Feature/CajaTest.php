@@ -14,17 +14,33 @@ class CajaTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function abrirCaja(User $usuario): void
+    {
+        if (! \App\Models\Caja::abiertaDe($usuario)) {
+            app(\App\Services\CajaService::class)->abrir($usuario, '0.00');
+        }
+    }
+
     public function test_nueva_responde_para_todos_los_roles(): void
     {
         foreach ([Rol::Admin, Rol::Encargado, Rol::Cajero] as $rol) {
             $usuario = User::factory()->create(['rol' => $rol, 'usuario' => 'u-'.$rol->value]);
+            $this->abrirCaja($usuario);
             $this->actingAs($usuario)->get('/ventas/nueva')->assertOk();
         }
+    }
+
+    public function test_nueva_redirige_a_abrir_caja_si_no_hay(): void
+    {
+        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+
+        $this->actingAs($cajero)->get('/ventas/nueva')->assertRedirect(route('caja.abrir'));
     }
 
     public function test_post_de_venta_crea_la_venta_completa(): void
     {
         $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        $this->abrirCaja($cajero);
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
 
         $respuesta = $this->actingAs($cajero)->post('/ventas', [
@@ -44,6 +60,7 @@ class CajaTest extends TestCase
     public function test_cajero_que_envia_descuento_recibe_error(): void
     {
         $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        $this->abrirCaja($cajero);
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
 
         $this->actingAs($cajero)->post('/ventas', [
@@ -59,6 +76,7 @@ class CajaTest extends TestCase
     public function test_reenviar_mismo_token_no_duplica(): void
     {
         $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        $this->abrirCaja($cajero);
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
         $token = (string) Str::uuid();
         $datos = [
@@ -82,6 +100,7 @@ class CajaTest extends TestCase
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
 
         $this->actingAs($cajero1);
+        $this->abrirCaja($cajero1);
         $venta = app(\App\Services\VentaService::class)->registrar(
             [['producto_id' => $a->id, 'cantidad' => 1]],
             ['token' => (string) Str::uuid(), 'metodo_pago' => 'QR'],
@@ -99,6 +118,7 @@ class CajaTest extends TestCase
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
 
         $this->actingAs($encargado);
+        $this->abrirCaja($encargado);
         $venta = app(\App\Services\VentaService::class)->registrar(
             [['producto_id' => $a->id, 'cantidad' => 1]],
             ['token' => (string) Str::uuid(), 'metodo_pago' => 'QR'],
@@ -122,6 +142,7 @@ class CajaTest extends TestCase
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
 
         $this->actingAs($encargado);
+        $this->abrirCaja($encargado);
         $venta = app(\App\Services\VentaService::class)->registrar(
             [['producto_id' => $a->id, 'cantidad' => 1]],
             ['token' => (string) \Illuminate\Support\Str::uuid(), 'metodo_pago' => 'QR'],
@@ -142,6 +163,7 @@ class CajaTest extends TestCase
     public function test_efectivo_con_recibido_menor_da_error_claro(): void
     {
         $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        $this->abrirCaja($cajero);
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
 
         $this->actingAs($cajero)->post('/ventas', [
@@ -160,6 +182,7 @@ class CajaTest extends TestCase
         $a = Producto::factory()->create(['precio_venta' => '10.00']);
 
         $this->actingAs($encargado);
+        $this->abrirCaja($encargado);
         $venta = app(\App\Services\VentaService::class)->registrar(
             [['producto_id' => $a->id, 'cantidad' => 2]],
             ['token' => (string) \Illuminate\Support\Str::uuid(), 'metodo_pago' => 'EFECTIVO', 'monto_recibido' => '25.00', 'cliente_nombre' => 'Juan'],

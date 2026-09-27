@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\AjusteStockController;
+use App\Http\Controllers\CajaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ImportacionController;
@@ -152,4 +153,17 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/{venta}/ticket', [VentaController::class, 'ticket'])->name('ticket')->whereNumber('venta');
         Route::post('/{venta}/anular', [VentaController::class, 'anular'])->name('anular')->middleware('can:anular-ventas');
     });
+
+    Route::middleware('can:realizar-ventas')->prefix('caja')->name('caja.')->group(function (): void {
+        Route::get('/', [CajaController::class, 'miCaja'])->name('mi-caja');
+        Route::get('/abrir', [CajaController::class, 'abrir'])->name('abrir');
+        Route::post('/abrir', [CajaController::class, 'guardarAbrir'])->name('abrir.guardar');
+        Route::get('/{caja}/movimiento', [CajaController::class, 'movimiento'])->name('movimiento');
+        Route::post('/{caja}/movimiento', [CajaController::class, 'guardarMovimiento'])->name('movimiento.guardar');
+        Route::get('/{caja}/cerrar', [CajaController::class, 'cerrar'])->name('cerrar');
+        Route::post('/{caja}/cerrar', [CajaController::class, 'guardarCierre'])->name('cerrar.guardar');
+        Route::get('/{caja}', [CajaController::class, 'ver'])->name('ver');
+    });
+
+    Route::middleware('can:ver-todas-las-ventas')->get('/caja-historial', [CajaController::class, 'historial'])->name('caja.historial');
 });

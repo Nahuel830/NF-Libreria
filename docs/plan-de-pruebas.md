@@ -403,3 +403,18 @@ Anota aquí lo que no es un error pero quieres distinto (textos, orden de column
 - [ ] **CL-05** Venta con cliente guarda el vínculo y la copia del nombre; si después cambia el nombre del cliente, la venta mantiene el viejo.
 - [ ] **CL-06** Detalle del cliente: historial, total comprado y última compra.
 - [ ] **CL-07** Reporte Mejores clientes con CSV.
+
+---
+
+## 18. Caja
+
+- [ ] **CJ-01** Sin caja abierta: /ventas/nueva redirige a "Abrir caja"; cobrar sin caja da error.
+- [ ] **CJ-02** Abrir caja con monto inicial; no se pueden abrir dos.
+- [ ] **CJ-03** "Mi caja" muestra resumen en vivo (inicial, ventas por método, ingresos, egresos, esperado).
+- [ ] **CJ-04** Ingreso y egreso con concepto obligatorio; egreso mayor al disponible pide confirmación.
+- [ ] **CJ-05** Cierre con conteo por denominación que suma solo; diferencia con sobrante y faltante; observaciones obligatorias si hay diferencia.
+- [ ] **CJ-06** Caja cerrada no acepta ventas ni movimientos; su reporte muestra esperado/contado/diferencia.
+- [ ] **CJ-07** Encargado cierra la caja de un cajero (queda quién la cerró); cajero no cierra la de otro.
+- [ ] **CJ-08** Anular una venta de caja cerrada: permitido, marcada "anulada después del cierre".
+- [ ] **CJ-09** Cierre del día muestra las cajas del día.
+- [ ] **CJ-10** Barra superior indica "Caja abierta desde HH:MM".

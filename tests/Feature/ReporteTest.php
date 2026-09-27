@@ -20,6 +20,10 @@ class ReporteTest extends TestCase
     {
         $this->actingAs($usuario);
 
+        if (! \App\Models\Caja::abiertaDe($usuario)) {
+            app(\App\Services\CajaService::class)->abrir($usuario, '0.00');
+        }
+
         return app(VentaService::class)->registrar(
             [['producto_id' => $producto->id, 'cantidad' => $cantidad]],
             ['token' => (string) Str::uuid(), 'metodo_pago' => $metodo],

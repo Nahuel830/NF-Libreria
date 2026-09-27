@@ -24,6 +24,7 @@ class ConfiguracionController extends Controller
         'minutos_inactividad',
         'imprimir_automatico',
         'logo_negocio',
+        'exigir_caja_abierta',
     ];
 
     public function editar(ConfiguracionService $configuracion): View
@@ -51,6 +52,7 @@ class ConfiguracionController extends Controller
         $datos = $request->validated();
         $datos['permitir_stock_negativo'] = $request->boolean('permitir_stock_negativo') ? '1' : '0';
         $datos['imprimir_automatico'] = $request->boolean('imprimir_automatico') ? '1' : '0';
+        $datos['exigir_caja_abierta'] = $request->boolean('exigir_caja_abierta') ? '1' : '0';
 
         if ($request->boolean('quitar_logo')) {
             $anterior = $configuracion->get('logo_negocio');

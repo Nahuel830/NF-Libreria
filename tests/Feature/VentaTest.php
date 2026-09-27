@@ -29,6 +29,10 @@ class VentaTest extends TestCase
         $usuario = User::factory()->create(['rol' => $rol]);
         $this->actingAs($usuario);
 
+        if (! \App\Models\Caja::abiertaDe($usuario)) {
+            app(\App\Services\CajaService::class)->abrir($usuario, '0.00');
+        }
+
         return $usuario;
     }
 

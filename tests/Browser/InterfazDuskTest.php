@@ -26,6 +26,14 @@ class InterfazDuskTest extends DuskTestCase
         $this->artisan('db:seed', ['--class' => CategoriasSeeder::class]);
         $this->artisan('db:seed', ['--class' => UsuariosDemoSeeder::class]);
         $this->artisan('db:seed', ['--class' => ProductosDemoSeeder::class]);
+
+        foreach (['cajero1', 'encargado'] as $usuario) {
+            $u = User::where('usuario', $usuario)->firstOrFail();
+
+            if (! \App\Models\Caja::abiertaDe($u)) {
+                app(\App\Services\CajaService::class)->abrir($u, '0.00');
+            }
+        }
     }
 
     public function test_anular_venta_con_modal_y_motivo(): void
@@ -200,6 +208,43 @@ class InterfazDuskTest extends DuskTestCase
 
             $foco = $browser->script('return document.activeElement.id;');
             $this->assertSame('buscador', (string) $foco[0]);
+        });
+    }
+
+    public function test_sin_caja_redirige_a_abrir(): void
+    {
+        $nuevo = User::factory()->create(['rol' => \App\Enums\Rol::Cajero]);
+
+        $this->browse(function (Browser $browser) use ($nuevo) {
+            $browser->loginAs($nuevo)->visit('/ventas/nueva')
+                ->assertPathIs('/caja/abrir')
+                ->assertSee('Abrir caja');
+        });
+    }
+
+    public function test_abrir_vender_y_cerrar_con_conteo(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $cajero = User::where('usuario', 'cajero1')->firstOrFail();
+            \App\Models\Caja::abiertaDe($cajero)->forceFill(['estado' => 'CERRADA'])->save();
+
+            $browser->loginAs($cajero)->visit('/caja/abrir')
+                ->type('#monto_inicial', '100')
+                ->press('Abrir caja')
+                ->waitForText('Nueva venta', 10)
+                ->assertPathIs('/ventas/nueva');
+
+            $browser->visit('/caja')
+                ->assertSee('Caja abierta desde');
+
+            $cajaId = \App\Models\Caja::abiertaDe($cajero)->id;
+            $browser->visit("/caja/{$cajaId}/cerrar");
+            $contado = $browser->script("
+                document.getElementById('conteo-100').value = 1;
+                document.getElementById('conteo-100').dispatchEvent(new Event('input', {bubbles: true}));
+                return document.getElementById('contado').textContent;
+            ");
+            $this->assertStringContainsString('100,00', (string) $contado[0]);
         });
     }
 }

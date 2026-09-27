@@ -38,6 +38,10 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item {{ request()->routeIs('ventas.nueva') ? 'active' : '' }}" href="{{ route('ventas.nueva') }}">Nueva venta</a></li>
                                     <li><a class="dropdown-item {{ request()->routeIs('ventas.index', 'ventas.ver') ? 'active' : '' }}" href="{{ route('ventas.index') }}">Historial de ventas</a></li>
+                                    <li><a class="dropdown-item {{ request()->routeIs('caja.*') ? 'active' : '' }}" href="{{ route('caja.mi-caja') }}">Caja</a></li>
+                                    @can('ver-todas-las-ventas')
+                                        <li><a class="dropdown-item {{ request()->routeIs('caja.historial') ? 'active' : '' }}" href="{{ route('caja.historial') }}">Historial de cajas</a></li>
+                                    @endcan
                                     @can('gestionar-clientes')
                                         <li><a class="dropdown-item {{ request()->routeIs('clientes.*') ? 'active' : '' }}" href="{{ route('clientes.index') }}">Clientes</a></li>
                                     @endcan
@@ -97,6 +101,13 @@
                     </ul>
 
                     <ul class="navbar-nav ms-auto">
+                        @if (! empty($cajaAbierta))
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('caja.mi-caja') }}" title="Ver mi caja">
+                                    <i class="bi bi-safe"></i> Caja abierta desde {{ $cajaAbierta->abierta_en->format('H:i') }}
+                                </a>
+                            </li>
+                        @endif
                         <li class="nav-item">
                             <span class="navbar-text me-3">
                                 <i class="bi bi-person-circle"></i>

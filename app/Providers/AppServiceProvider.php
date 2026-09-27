@@ -52,6 +52,12 @@ class AppServiceProvider extends ServiceProvider
                 'nombreNegocio',
                 app(ConfiguracionService::class)->get('nombre_negocio', 'NF Librería')
             );
+
+            $usuario = auth()->user();
+            $view->with(
+                'cajaAbierta',
+                $usuario ? \App\Models\Caja::abiertaDe($usuario) : null
+            );
         });
     }
 }

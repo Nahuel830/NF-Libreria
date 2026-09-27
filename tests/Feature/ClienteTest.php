@@ -36,6 +36,7 @@ class ClienteTest extends TestCase
     {
         $cajero = User::factory()->create(['rol' => Rol::Cajero]);
         $this->actingAs($cajero);
+        app(\App\Services\CajaService::class)->abrir($cajero, '0.00');
         $producto = Producto::factory()->create(['precio_venta' => '10.00']);
         $cliente = Cliente::factory()->create(['nombre' => 'Juan Perez']);
 
@@ -68,6 +69,7 @@ class ClienteTest extends TestCase
     {
         $cajero = User::factory()->create(['rol' => Rol::Cajero]);
         $this->actingAs($cajero);
+        app(\App\Services\CajaService::class)->abrir($cajero, '0.00');
         $producto = Producto::factory()->create(['precio_venta' => '10.00']);
         $inactivo = Cliente::factory()->create(['activo' => false]);
 
@@ -109,6 +111,7 @@ class ClienteTest extends TestCase
     {
         $encargado = User::factory()->create(['rol' => Rol::Encargado]);
         $this->actingAs($encargado);
+        app(\App\Services\CajaService::class)->abrir($encargado, '0.00');
         $producto = Producto::factory()->create(['precio_venta' => '10.00']);
         $cliente = Cliente::factory()->create(['nombre' => 'Fiel Comprador']);
 

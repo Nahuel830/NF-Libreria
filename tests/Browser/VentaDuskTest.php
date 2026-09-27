@@ -26,6 +26,14 @@ class VentaDuskTest extends DuskTestCase
         $this->artisan('db:seed', ['--class' => CategoriasSeeder::class]);
         $this->artisan('db:seed', ['--class' => UsuariosDemoSeeder::class]);
         $this->artisan('db:seed', ['--class' => ProductosDemoSeeder::class]);
+
+        foreach (['cajero1', 'encargado'] as $usuario) {
+            $u = User::where('usuario', $usuario)->firstOrFail();
+
+            if (! \App\Models\Caja::abiertaDe($u)) {
+                app(\App\Services\CajaService::class)->abrir($u, '0.00');
+            }
+        }
     }
 
     protected function cajero(): User

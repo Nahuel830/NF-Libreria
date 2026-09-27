@@ -65,6 +65,20 @@
                     <li>Ninguna.</li>
                 @endforelse
             </ul>
+
+            <h2 class="h6">Cajas del día ({{ $cajas->count() }})</h2>
+            <ul>
+                @forelse ($cajas as $caja)
+                    <li>
+                        Caja #{{ $caja->id }} ({{ $caja->usuario->usuario }}): {{ $caja->estado }}
+                        @if ($caja->estado === 'CERRADA')
+                            — esperado {{ bs($caja->efectivo_esperado) }}, contado {{ bs($caja->efectivo_contado) }}, diferencia {{ bs($caja->diferencia) }}
+                        @endif
+                    </li>
+                @empty
+                    <li>Ninguna.</li>
+                @endforelse
+            </ul>
         </div>
     </div>
 </body>

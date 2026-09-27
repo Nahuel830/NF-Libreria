@@ -7,6 +7,7 @@ use App\Http\Requests\AnularVentaRequest;
 use App\Http\Requests\VentaRequest;
 use App\Models\User;
 use App\Models\Venta;
+use App\Services\CajaService;
 use App\Services\ConfiguracionService;
 use App\Services\VentaService;
 use DomainException;
@@ -18,8 +19,12 @@ use Illuminate\View\View;
 
 class VentaController extends Controller
 {
-    public function nueva(): View
+    public function nueva(CajaService $cajas)
     {
+        if ($cajas->exigirAbierta() && ! \App\Models\Caja::abiertaDe(request()->user())) {
+            return redirect()->route('caja.abrir')->with('warning', 'Debes abrir tu caja antes de vender.');
+        }
+
         return view('ventas.nueva', [
             'token' => (string) Str::uuid(),
             'metodos' => MetodoPago::cases(),
