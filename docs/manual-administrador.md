@@ -82,6 +82,12 @@ Administración → Auditoría: quién hizo qué, cuándo y desde qué IP. Filtr
 3. Mantén copia fuera de la PC (nube o disco externo).
 4. Para restaurar en emergencia: `docs/restauracion.md`.
 
+## Si un admin pierde el teléfono (verificación en dos pasos)
+
+1. Otro administrador: Usuarios → Editar al usuario → "Restablecer verificación en dos pasos". Al entrar, deberá configurarla de nuevo (queda en auditoría).
+2. Si no hay otro admin disponible, en el servidor: `php artisan totp:restablecer <usuario> --motivo="<motivo>"`. El motivo es obligatorio y queda en auditoría.
+3. El usuario entra con su contraseña y activa de nuevo con su teléfono nuevo (QR + código + guardar los 10 códigos de recuperación en papel).
+
 ## Qué hacer si la PC principal falla
 
 1. No entres en pánico: los datos están en los backups (local + copia externa).

@@ -292,7 +292,29 @@ class TotpTest extends TestCase
             ->assertRedirect(route('usuarios.editar', $otro));
 
         $this->assertNull($otro->fresh()->totp_confirmado_en);
-        $this->assertDatabaseHas('auditoria', ['accion' => 'TOTP', 'user_id' => $admin->id]);
+        $this->assertDatabaseHas('auditoria', [
+            'accion' => 'TOTP',
+            'user_id' => $admin->id,
+            'entidad' => 'users',
+            'entidad_id' => $otro->id,
+        ]);
+    }
+
+    public function test_comando_restablece_totp_con_motivo_y_audita(): void
+    {
+        $admin = $this->adminSinTotp('admintotp9');
+        $this->activarTotp($admin);
+
+        $this->artisan('totp:restablecer', ['usuario' => 'admintotp9'])
+            ->assertFailed();
+
+        $this->artisan('totp:restablecer', ['usuario' => 'admintotp9', '--motivo' => 'perdió el teléfono'])
+            ->assertSuccessful();
+
+        $this->assertNull($admin->fresh()->totp_confirmado_en);
+        $this->assertDatabaseHas('auditoria', ['accion' => 'TOTP', 'entidad_id' => $admin->id]);
+        $registro = \App\Models\Auditoria::where('accion', 'TOTP')->latest('id')->first();
+        $this->assertStringContainsString('perdió el teléfono', $registro->descripcion);
     }
 
     public function test_bloqueo_por_ip_tras_20_fallos(): void

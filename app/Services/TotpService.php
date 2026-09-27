@@ -183,12 +183,7 @@ class TotpService
 
     public function desactivar(User $usuario): void
     {
-        $usuario->forceFill([
-            'totp_secreto' => null,
-            'totp_confirmado_en' => null,
-            'totp_ultimo_paso' => null,
-            'codigos_recuperacion' => null,
-        ])->save();
+        $this->limpiar($usuario);
 
         $this->auditoria->registrar(
             'TOTP',
@@ -199,15 +194,36 @@ class TotpService
 
     public function restablecerPorAdmin(User $usuario, User $admin): void
     {
-        $this->desactivar($usuario);
+        $this->limpiar($usuario);
 
         $this->auditoria->registrar(
             'TOTP',
             "El administrador '{$admin->usuario}' restableció la verificación en dos pasos de '{$usuario->usuario}'.",
-            $admin,
+            $usuario,
             null,
             null,
+            $admin
+        );
+    }
+
+    public function restablecerPorConsola(User $usuario, string $motivo): void
+    {
+        $this->limpiar($usuario);
+
+        $this->auditoria->registrar(
+            'TOTP',
+            "Verificación en dos pasos de '{$usuario->usuario}' restablecida por consola. Motivo: {$motivo}",
             $usuario
         );
+    }
+
+    protected function limpiar(User $usuario): void
+    {
+        $usuario->forceFill([
+            'totp_secreto' => null,
+            'totp_confirmado_en' => null,
+            'totp_ultimo_paso' => null,
+            'codigos_recuperacion' => null,
+        ])->save();
     }
 }
