@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\PasswordNoTrivial;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,7 +25,7 @@ class CrearUsuarioRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:100'],
             'usuario' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9._]+$/', Rule::unique('users', 'usuario')],
             'rol' => ['required', Rule::in(['admin', 'encargado', 'cajero'])],
-            'password' => ['required', 'string', "min:{$minimo}", 'confirmed'],
+            'password' => ['required', 'string', "min:{$minimo}", 'confirmed', new PasswordNoTrivial($this->input('usuario'))],
         ];
     }
 

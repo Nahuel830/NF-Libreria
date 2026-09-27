@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\PasswordNoTrivial;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RestablecerPasswordRequest extends FormRequest
@@ -20,7 +21,7 @@ class RestablecerPasswordRequest extends FormRequest
         $minimo = $rol === 'cajero' ? 8 : 10;
 
         return [
-            'password' => ['required', 'string', "min:{$minimo}", 'confirmed'],
+            'password' => ['required', 'string', "min:{$minimo}", 'confirmed', new PasswordNoTrivial($this->route('usuario')?->usuario)],
         ];
     }
 

@@ -115,9 +115,11 @@
                                 {{ auth()->user()->nombre }} ({{ auth()->user()->rol->etiqueta() }})
                             </span>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('password.*') ? 'active' : '' }}" href="{{ route('password.editar') }}">Cambiar contraseña</a>
-                        </li>
+                        @if (auth()->user()->rol !== \App\Enums\Rol::Cajero)
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('password.*') ? 'active' : '' }}" href="{{ route('password.editar') }}">Cambiar contraseña</a>
+                            </li>
+                        @endif
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf

@@ -99,13 +99,14 @@ class AutenticacionTest extends TestCase
     public function test_usuario_con_debe_cambiar_password_es_redirigido(): void
     {
         $user = User::factory()->create([
-            'usuario' => 'cajero-cambio',
+            'usuario' => 'encargado-cambio',
             'password' => 'secreta123',
+            'rol' => Rol::Encargado,
             'debe_cambiar_password' => true,
         ]);
 
         $this->post('/login', [
-            'usuario' => 'cajero-cambio',
+            'usuario' => 'encargado-cambio',
             'password' => 'secreta123',
         ])->assertRedirect('/');
 
@@ -117,8 +118,9 @@ class AutenticacionTest extends TestCase
     public function test_cambiar_password_funciona_y_exige_la_actual(): void
     {
         $user = User::factory()->create([
-            'usuario' => 'cajero-pass',
+            'usuario' => 'encargado-pass',
             'password' => 'actual123',
+            'rol' => Rol::Encargado,
             'debe_cambiar_password' => true,
         ]);
 
@@ -188,16 +190,17 @@ class AutenticacionTest extends TestCase
     public function test_auditoria_nunca_guarda_la_password(): void
     {
         User::factory()->create([
-            'usuario' => 'cajero-limpio',
+            'usuario' => 'encargado-limpio',
             'password' => 'clave-secreta-123',
+            'rol' => Rol::Encargado,
         ]);
 
         $this->post('/login', [
-            'usuario' => 'cajero-limpio',
+            'usuario' => 'encargado-limpio',
             'password' => 'otra-clave-456',
         ]);
 
-        $user = User::where('usuario', 'cajero-limpio')->first();
+        $user = User::where('usuario', 'encargado-limpio')->first();
         $this->actingAs($user)->put('/cambiar-password', [
             'actual' => 'clave-secreta-123',
             'nueva' => 'nueva-clave-789',
@@ -251,7 +254,7 @@ class AutenticacionTest extends TestCase
 
     public function test_cambiar_password_exige_minimo_y_confirmacion(): void
     {
-        $user = User::factory()->create(['password' => 'actual123']);
+        $user = User::factory()->create(['password' => 'actual123', 'rol' => Rol::Encargado]);
 
         $this->actingAs($user)->put('/cambiar-password', [
             'actual' => 'actual123',
@@ -264,5 +267,34 @@ class AutenticacionTest extends TestCase
             'nueva' => 'nueva12345',
             'nueva_confirmation' => 'distinta123',
         ])->assertSessionHasErrors('nueva');
+    }
+
+    public function test_cajero_no_puede_cambiar_su_password(): void
+    {
+        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+
+        $this->actingAs($cajero)->get('/cambiar-password')->assertForbidden();
+        $this->actingAs($cajero)->put('/cambiar-password', [
+            'actual' => 'password',
+            'nueva' => 'nueva12345',
+            'nueva_confirmation' => 'nueva12345',
+        ])->assertForbidden();
+    }
+
+    public function test_cambiar_password_rechaza_triviales(): void
+    {
+        $user = User::factory()->create([
+            'usuario' => 'encargado7',
+            'password' => 'actual123',
+            'rol' => Rol::Encargado,
+        ]);
+
+        foreach (['password', '12345678', 'encargado7'] as $trivial) {
+            $this->actingAs($user)->put('/cambiar-password', [
+                'actual' => 'actual123',
+                'nueva' => $trivial,
+                'nueva_confirmation' => $trivial,
+            ])->assertSessionHasErrors('nueva');
+        }
     }
 }

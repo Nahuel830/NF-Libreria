@@ -42,7 +42,7 @@ class AdministracionTest extends TestCase
 
         $creado = User::where('usuario', 'cajero.nuevo')->first();
         $this->assertNotNull($creado);
-        $this->assertTrue($creado->debe_cambiar_password);
+        $this->assertFalse($creado->debe_cambiar_password);
         $this->assertTrue(Hash::check('temporal123', $creado->password));
 
         $this->assertDatabaseHas('auditoria', [
@@ -166,7 +166,7 @@ class AdministracionTest extends TestCase
     public function test_restablecer_password_deja_debe_cambiar_en_true(): void
     {
         $admin = $this->admin();
-        $usuario = User::factory()->create(['debe_cambiar_password' => false]);
+        $usuario = User::factory()->create(['rol' => Rol::Encargado, 'debe_cambiar_password' => false]);
 
         $this->actingAs($admin)->put("/usuarios/{$usuario->id}/password", [
             'password' => 'temporal999',
@@ -181,6 +181,49 @@ class AdministracionTest extends TestCase
             'user_id' => $admin->id,
             'entidad_id' => $usuario->id,
         ]);
+    }
+
+    public function test_restablecer_password_de_cajero_no_exige_cambio(): void
+    {
+        $admin = $this->admin();
+        $cajero = User::factory()->create(['rol' => Rol::Cajero, 'debe_cambiar_password' => false]);
+
+        $this->actingAs($admin)->put("/usuarios/{$cajero->id}/password", [
+            'password' => 'fija12345',
+            'password_confirmation' => 'fija12345',
+        ])->assertRedirect(route('usuarios.index'));
+
+        $cajero->refresh();
+        $this->assertFalse($cajero->debe_cambiar_password);
+        $this->assertTrue(Hash::check('fija12345', $cajero->password));
+    }
+
+    public function test_password_trivial_se_rechaza_al_crear_y_restablecer(): void
+    {
+        foreach (['password', '123456'] as $trivial) {
+            $this->actingAs($this->admin())->post('/usuarios', [
+                'nombre' => 'Trivial',
+                'usuario' => 'trivial.'.$trivial,
+                'rol' => 'cajero',
+                'password' => $trivial,
+                'password_confirmation' => $trivial,
+            ])->assertSessionHasErrors('password');
+        }
+
+        $this->actingAs($this->admin())->post('/usuarios', [
+            'nombre' => 'Igual',
+            'usuario' => 'igualito12',
+            'rol' => 'cajero',
+            'password' => 'igualito12',
+            'password_confirmation' => 'igualito12',
+        ])->assertSessionHasErrors('password');
+
+        $encargado = User::factory()->create(['rol' => Rol::Encargado, 'usuario' => 'encargado9']);
+
+        $this->actingAs($this->admin())->put("/usuarios/{$encargado->id}/password", [
+            'password' => 'encargado9',
+            'password_confirmation' => 'encargado9',
+        ])->assertSessionHasErrors('password');
     }
 
     public function test_encargado_y_cajero_reciben_403(): void

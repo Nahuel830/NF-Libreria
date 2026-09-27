@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Enums\Rol;
+use App\Rules\PasswordNoTrivial;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CambiarPasswordRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return in_array($this->user()?->rol, [Rol::Admin, Rol::Encargado], true);
     }
 
     /**
@@ -20,7 +22,7 @@ class CambiarPasswordRequest extends FormRequest
 
         return [
             'actual' => ['required', 'string', 'current_password'],
-            'nueva' => ['required', 'string', "min:{$minimo}", 'confirmed'],
+            'nueva' => ['required', 'string', "min:{$minimo}", 'confirmed', new PasswordNoTrivial($this->user()?->usuario)],
         ];
     }
 

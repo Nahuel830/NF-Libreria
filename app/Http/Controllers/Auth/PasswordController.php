@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\Rol;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\CambiarPasswordRequest;
 use App\Services\AuditoriaService;
@@ -12,6 +13,8 @@ class PasswordController extends Controller
 {
     public function editar(): View
     {
+        abort_unless(in_array(auth()->user()->rol, [Rol::Admin, Rol::Encargado], true), 403);
+
         return view('auth.cambiar-password');
     }
 
