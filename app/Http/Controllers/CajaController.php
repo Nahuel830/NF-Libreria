@@ -99,9 +99,18 @@ class CajaController extends Controller
 
         $conteo = [];
         $contado = '0.00';
+        $recibidos = $request->input('conteo', []);
 
         foreach (self::DENOMINACIONES as $denominacion) {
-            $cantidad = (int) ($request->input("conteo.{$denominacion}", 0));
+            // Las claves numéricas como '0.50' llegan como 0: se comparan por valor.
+            $cantidad = 0;
+
+            foreach ($recibidos as $clave => $valor) {
+                if ((float) $clave === (float) $denominacion) {
+                    $cantidad = (int) $valor;
+                    break;
+                }
+            }
 
             if ($cantidad > 0) {
                 $conteo[$denominacion] = (string) $cantidad;

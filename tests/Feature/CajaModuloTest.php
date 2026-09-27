@@ -163,4 +163,20 @@ class CajaModuloTest extends TestCase
         $this->actingAs($cajero)->get('/caja-historial')->assertForbidden();
         $this->actingAs($encargado)->get('/caja-historial')->assertOk();
     }
+
+    public function test_cierre_cuenta_monedas_decimales(): void
+    {
+        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        $this->actingAs($cajero);
+        $caja = $this->servicio()->abrir($cajero, '0.00');
+
+        $this->actingAs($cajero)->post("/caja/{$caja->id}/cerrar", [
+            'conteo' => ['0.50' => 3, '1' => 1],
+            'observaciones' => 'Sobrante de prueba',
+        ])->assertRedirect(route('caja.ver', $caja));
+
+        $caja->refresh();
+        $this->assertSame('2.50', $caja->efectivo_contado);
+        $this->assertSame('2.50', $caja->diferencia);
+    }
 }

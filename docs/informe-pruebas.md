@@ -6,6 +6,8 @@ BD de pruebas verificada con psql tras los flujos (ver evidencias).
 
 > Actualización FASE 3: **148 PHPUnit + 24 Dusk en verde**. Secciones nuevas 18–22 abajo.
 
+> Actualización FASE 7: **158 PHPUnit + 26 Dusk en verde**. Día completo automatizado (DiaCompletoTest). Secciones 18–22 y correcciones FASE 5–7 abajo.
+
 Leyenda: OK = pasa; CORREGIDO = fallaba y se corrigió; MANUAL = lo prueba el usuario.
 
 ## 0. Preparación

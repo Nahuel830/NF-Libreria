@@ -22,7 +22,7 @@ class DevolucionRequest extends FormRequest
             'metodo_reembolso' => ['required', Rule::in(array_column(\App\Enums\MetodoPago::cases(), 'value'))],
             'items' => ['required', 'array', 'min:1'],
             'items.*.detalle_venta_id' => ['required', 'integer', 'exists:detalle_ventas,id'],
-            'items.*.cantidad' => ['required', 'integer', 'min:1'],
+            'items.*.cantidad' => ['required', 'integer', 'min:0'],
         ];
     }
 

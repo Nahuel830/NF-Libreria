@@ -58,6 +58,7 @@ class InterfazDuskTest extends DuskTestCase
                 ->assertSee('Reimprimir ticket')
                 ->press('Anular venta')
                 ->waitFor('#modal-confirmar.show', 10)
+                ->pause(500)
                 ->type('#modal-confirmar-motivo', 'Me equivoqué de producto')
                 ->pause(500)
                 ->press('Confirmar anulación')
