@@ -29,6 +29,7 @@ Thumbs.db
 # NF-Libreria
 .env.*
 !.env.example
+!.env.production.example
 !.env.dusk.local.example
 scripts/backup.config.ps1
 backups/
