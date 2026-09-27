@@ -38,3 +38,20 @@ Revisión del 26/09/2026 sobre todo el código (rutas, controladores, servicios,
 - `detalle_conteo` de caja y `datos_*` de auditoría confían en validación de entrada (tipos validados).
 - Cabeceras de seguridad HTTP (CSP, HSTS) pendientes para el despliegue web (ver prompt futuro).
 - Rate limiting solo en login; considerar throttle global si se expone a Internet.
+
+## Anexo WEB-1 — seguridad para Internet (26/09/2026)
+
+| Punto | Resultado |
+|---|---|
+| Contraseñas mín. 10 admin/encargado (cajero 8) | Implementado en CrearUsuario, RestablecerPassword, CambiarPassword |
+| TOTP obligatorio admin (QR + confirmación, códigos de recuperación hasheados) | Implementado; migración `totp_secreto/totp_activo/totp_recuperacion`; tests + Dusk con QR real |
+| TOTP opcional encargado (activar/desactivar con contraseña) | Implementado |
+| Cajero sin TOTP | Sin cambios |
+| Rate limit por IP (20 fallos/10 min) | Implementado en login (tests incluidos) |
+| Auditoría LOGIN con IP y nota de IP nueva | Implementado (TotpTest) |
+| Restricción cajero por IP (`ips_cajero`, 403) | Implementado con middleware + tests |
+| Cabeceras solo en producción (SAMEORIGIN, nosniff, same-origin, CSP `default-src 'self'`) | Implementado con middleware + tests; JS locales verificados |
+| `SESSION_SECURE_COOKIE` / `SESSION_SAME_SITE` / `TRUSTED_PROXIES` | Comentados en `.env.example` para producción |
+| `/estilos` y `_dusk/*` fuera de local | `/estilos` aborta 404 (test); `_dusk/*` solo existe con el paquete dev instalado |
+| Rutas públicas | Solo login, TOTP (pendiente), `up` (health) y assets; el resto exige auth |
+| Códigos de recuperación | 8 por activación, hasheados, un solo uso (test) |

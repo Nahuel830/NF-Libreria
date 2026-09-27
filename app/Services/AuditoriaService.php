@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Auditoria;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class AuditoriaService
@@ -25,10 +26,11 @@ class AuditoriaService
         string $descripcion,
         Model|string|null $entidad = null,
         ?array $antes = null,
-        ?array $despues = null
+        ?array $despues = null,
+        ?User $comoUsuario = null
     ): Auditoria {
         return Auditoria::create([
-            'user_id' => auth()->id(),
+            'user_id' => $comoUsuario?->id ?? auth()->id(),
             'accion' => $accion,
             'entidad' => $entidad instanceof Model ? $entidad->getTable() : $entidad,
             'entidad_id' => $entidad instanceof Model ? $entidad->getKey() : null,

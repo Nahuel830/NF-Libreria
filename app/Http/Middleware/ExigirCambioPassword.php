@@ -15,7 +15,7 @@ class ExigirCambioPassword
         if (
             $usuario
             && $usuario->debe_cambiar_password
-            && ! $request->routeIs('login*', 'logout', 'password.*')
+            && ! $request->routeIs('login*', 'logout', 'password.*', 'totp.*')
         ) {
             return redirect()->route('password.editar')
                 ->with('warning', 'Debes cambiar tu contraseña antes de continuar.');

@@ -25,6 +25,7 @@ class ConfiguracionController extends Controller
         'imprimir_automatico',
         'logo_negocio',
         'exigir_caja_abierta',
+        'ips_cajero',
     ];
 
     public function editar(ConfiguracionService $configuracion): View

@@ -16,8 +16,21 @@ class RestablecerPasswordRequest extends FormRequest
      */
     public function rules(): array
     {
+        $rol = $this->route('usuario')?->rol?->value ?? 'cajero';
+        $minimo = $rol === 'cajero' ? 8 : 10;
+
         return [
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', "min:{$minimo}", 'confirmed'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'password.min' => 'La contraseña debe tener al menos :min caracteres.',
         ];
     }
 }

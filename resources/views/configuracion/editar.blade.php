@@ -81,6 +81,14 @@
                 <label class="form-check-label" for="exigir_caja_abierta">Exigir caja abierta para vender</label>
             </div>
 
+            <div class="mb-3">
+                <label for="ips_cajero" class="form-label">IPs autorizadas para cajeros (separadas por coma; vacío = sin restricción)</label>
+                <input type="text" class="form-control @error('ips_cajero') is-invalid @enderror" id="ips_cajero" name="ips_cajero" value="{{ old('ips_cajero', $valores['ips_cajero'] ?? '') }}" maxlength="255" placeholder="Ej: 192.168.1.50, 192.168.1.51">
+                @error('ips_cajero')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
             <button type="submit" class="btn btn-primary">Guardar</button>
         </form>
     </x-card>

@@ -38,6 +38,11 @@
 
                     <button type="submit" class="btn btn-primary w-100">Guardar</button>
                 </form>
+
+                @if (auth()->user()->rol->value === 'encargado')
+                    <hr>
+                    <a href="{{ route('totp.estado') }}" class="btn btn-outline-secondary w-100">Verificación en dos pasos</a>
+                @endif
             </x-card>
         </div>
     </div>

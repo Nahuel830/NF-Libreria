@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\Rol;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
@@ -15,9 +16,15 @@ use Illuminate\View\View;
 
 class LoginController extends Controller
 {
+    use CompletaLogin;
+
     protected int $maxIntentos = 5;
 
     protected int $segundosBloqueo = 60;
+
+    protected int $maxIntentosIp = 20;
+
+    protected int $segundosBloqueoIp = 600;
 
     public function mostrarFormulario(): View
     {
@@ -28,14 +35,16 @@ class LoginController extends Controller
     {
         $usuario = $request->input('usuario');
         $clave = $this->claveLimite($usuario, $request);
+        $claveIp = $this->claveLimiteIp($request);
 
-        if (RateLimiter::tooManyAttempts($clave, $this->maxIntentos)) {
+        if (RateLimiter::tooManyAttempts($clave, $this->maxIntentos)
+            || RateLimiter::tooManyAttempts($claveIp, $this->maxIntentosIp)) {
             $auditoria->registrar(
                 'LOGIN_FALLIDO',
                 "Intento de acceso bloqueado por exceso de intentos para el usuario '{$usuario}'."
             );
 
-            $segundos = RateLimiter::availableIn($clave);
+            $segundos = max(RateLimiter::availableIn($clave), RateLimiter::availableIn($claveIp));
 
             return back()
                 ->withInput($request->only('usuario'))
@@ -47,6 +56,7 @@ class LoginController extends Controller
 
         if (! $user || ! $user->activo || ! Hash::check($request->input('password'), $user->password)) {
             RateLimiter::hit($clave, $this->segundosBloqueo);
+            RateLimiter::hit($claveIp, $this->segundosBloqueoIp);
 
             $auditoria->registrar(
                 'LOGIN_FALLIDO',
@@ -61,13 +71,13 @@ class LoginController extends Controller
 
         RateLimiter::clear($clave);
 
-        Auth::login($user);
-        $request->session()->regenerate();
-        $request->session()->put('ultima_actividad', now()->timestamp);
+        if ($user->rol === Rol::Admin) {
+            $request->session()->put('totp_pendiente', $user->id);
 
-        $user->forceFill(['ultimo_acceso' => now()])->save();
+            return redirect()->route($user->totp_activo ? 'totp.verificar' : 'totp.configurar');
+        }
 
-        $auditoria->registrar('LOGIN', "El usuario '{$user->usuario}' inició sesión.");
+        $this->completarLogin($request, $user, $auditoria);
 
         return redirect()->intended(route('inicio'));
     }
@@ -88,5 +98,10 @@ class LoginController extends Controller
     protected function claveLimite(string $usuario, Request $request): string
     {
         return 'login:'.$usuario.'|'.$request->ip();
+    }
+
+    protected function claveLimiteIp(Request $request): string
+    {
+        return 'login-ip:'.$request->ip();
     }
 }

@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\TotpController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function (): void {
@@ -25,11 +26,19 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/login', [LoginController::class, 'entrar'])->name('login.entrar');
 });
 
+Route::get('/totp/configurar', [TotpController::class, 'configurar'])->name('totp.configurar');
+Route::post('/totp/configurar', [TotpController::class, 'guardarConfigurar'])->name('totp.configurar.guardar');
+Route::get('/totp/verificar', [TotpController::class, 'verificar'])->name('totp.verificar');
+Route::post('/totp/verificar', [TotpController::class, 'comprobar'])->name('totp.verificar.comprobar');
+
 Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [LoginController::class, 'salir'])->name('logout');
 
     Route::get('/cambiar-password', [PasswordController::class, 'editar'])->name('password.editar');
     Route::put('/cambiar-password', [PasswordController::class, 'actualizar'])->name('password.actualizar');
+
+    Route::get('/totp', [TotpController::class, 'estado'])->name('totp.estado');
+    Route::post('/totp/desactivar', [TotpController::class, 'desactivar'])->name('totp.desactivar');
 
     Route::get('/', [InicioController::class, 'index'])->name('inicio');
 

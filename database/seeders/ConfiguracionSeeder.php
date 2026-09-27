@@ -19,6 +19,7 @@ class ConfiguracionSeeder extends Seeder
         'minutos_inactividad' => '60',
         'imprimir_automatico' => '0',
         'exigir_caja_abierta' => '1',
+        'ips_cajero' => '',
     ];
 
     public function run(): void
