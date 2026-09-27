@@ -86,15 +86,15 @@ Módulos: usuarios y roles, categorías, productos, inventario (stock con kardex
 | PROMPTS 4–13 (categorías → backups) | ✅ Hecho en bloque: 12 commits, 102 tests verdes, stock:verificar OK. Subido a rama `respaldo-bloque-4-13` |
 | PROMPT DISEÑO | ✅ Hecho (commit b78974b, 103 tests) |
 | Plan de pruebas manual | ⏭️ Reemplazado por verificación automática del prompt maestro |
-| **PROMPT MAESTRO** | ⏳ **EN EJECUCIÓN** en OpenCode desde el 26/09/2026 ~15:45. Revisar `docs/progreso.md` para saber en qué fase va. Hace push a `main` al final de cada fase en verde |
+| **PROMPT MAESTRO** | ✅ **TERMINADO** en OpenCode el 27/09/2026 (~01:50). 158 PHPUnit + 26 Dusk en verde, tag `v1.0.0` en `main`. Detalle en `docs/progreso.md` |
 | Carga inicial de productos reales | ⏳ Prompt listo; ejecutar DESPUÉS del maestro |
-| Versión web (opción 2, VPS) | 🆕 Decidida; **falta escribir el prompt** (sección 9) |
+| Versión web (opción 2, VPS) | ⏳ En curso: redactando `docs/prompt-web.md` (sección 9) |
 
 ## 8. Pendientes (en orden)
 
-1. Dejar terminar el **prompt maestro**; revisar `docs/progreso.md` ("Decisiones para revisar", BLOQUEADOS) y `docs/pruebas-manuales-usuario.md`.
-2. Pedir a OpenCode que agregue CONTEXTO-PROYECTO.md al repo y lo mantenga (ver sección 11).
-3. **Escribir y ejecutar el PROMPT WEB** (sección 9). Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
+1. ✅ Prompt maestro terminado y revisado (158 + 26 en verde, tag v1.0.0).
+2. ✅ CONTEXTO-PROYECTO.md en el repo y con regla de mantenimiento en AGENTS.md.
+3. **Escribir y ejecutar el PROMPT WEB** (sección 9, en curso). Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
 4. Comprar dominio + VPS (el usuario pagará anual).
 5. Ejecutar **carga inicial** (PARTE 1–2 en la PC; PARTE 3 en el servidor web, adaptada a Linux/SSH).
 6. Conteo físico, usuarios reales (2 admins), logo y datos del negocio, impresora térmica y lector de barras en la PC de caja.
@@ -143,3 +143,9 @@ Requisitos y contenido del PROMPT WEB (a redactar en `docs/prompt-web.md`):
 - Prompt maestro lanzado (~15:45).
 - Decisión: versión online opción 2 (VPS + dominio). Pendiente redactar prompt-web.md (sección 9).
 - Creado este documento de contexto.
+
+### 27/09/2026 — Prompt maestro terminado + PROMPT WEB (~01:50)
+- FASES 0–7 completadas: Dusk con Edge, verificación total del plan (informe-pruebas.md), código de barras, proveedores, clientes, caja, devoluciones, puesta en marcha, seguridad (3 fixes), manuales, instalación Windows, día completo en Dusk.
+- 158 tests PHPUnit + 26 Dusk en verde, stock limpio, tag `v1.0.0` en `main`.
+- CONTEXTO-PROYECTO.md ya estaba en el repo; se agregó la regla de mantenimiento a AGENTS.md.
+- En curso: redacción de `docs/prompt-web.md` (VPS + dominio, opción 2).

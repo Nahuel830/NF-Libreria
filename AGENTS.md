@@ -28,6 +28,7 @@
 - Usa las herramientas de Laravel (migraciones, Form Requests, Gates/Policies, middleware, Eloquent, DB::transaction, factories) en lugar de reinventarlas.
 - La lógica de negocio va en clases de servicio (app/Services), no en los controladores ni en las vistas.
 - Toda pantalla nueva debe usar el layout y los componentes de resources/views/components (ver docs/diseno.md); no crear estilos sueltos en las vistas.
+- Al terminar cada tarea o fase, agrega una entrada en la sección 12 (Bitácora) de docs/CONTEXTO-PROYECTO.md con fecha, qué se hizo, commits y pendientes, y actualiza las secciones 7 (Estado) y 8 (Pendientes). Nunca borres entradas anteriores.
 
 ## Seguridad
 - Nunca subir a git: .env, contraseñas, backups, dumps de base de datos, datos reales. Usar .env.example con valores de ejemplo.
