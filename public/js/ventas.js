@@ -29,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return `Bs. ${n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
     };
 
+    const esc = (texto) => String(texto ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+
     const mostrarMensaje = (texto) => {
         if (mensajeEl) {
             mensajeEl.textContent = texto;
@@ -118,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const supera = item.controla && item.cantidad > item.stock;
 
             fila.innerHTML = `
-                <td>${item.codigo}<br><small>${item.nombre}</small>
+                <td>${esc(item.codigo)}<br><small>${esc(item.nombre)}</small>
                     ${supera ? `<br><span class="badge bg-warning text-dark">Supera el stock (disponible ${item.stock})</span>` : ''}
                 </td>
                 <td>${formatear(item.precio)}</td>
@@ -203,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const boton = document.createElement('button');
             boton.type = 'button';
             boton.className = `list-group-item list-group-item-action${i === indiceActivo ? ' active' : ''}`;
-            boton.innerHTML = `${producto.codigo} — ${producto.nombre} — ${formatear(producto.precio_venta)} — <span class="${enRojo ? 'text-danger fw-bold' : ''}">${stockTexto}</span>`;
+            boton.innerHTML = `${esc(producto.codigo)} — ${esc(producto.nombre)} — ${formatear(producto.precio_venta)} — <span class="${enRojo ? 'text-danger fw-bold' : ''}">${stockTexto}</span>`;
             boton.addEventListener('click', () => agregar(producto));
             resultados.appendChild(boton);
         });

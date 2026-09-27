@@ -22,7 +22,7 @@ class EntradaRequest extends FormRequest
             'documento_referencia' => ['nullable', 'string', 'max:50'],
             'observaciones' => ['nullable', 'string'],
             'actualizar_precio_compra' => ['nullable', 'boolean'],
-            'items' => ['required', 'array', 'min:1'],
+            'items' => ['required', 'array', 'min:1', 'max:200'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
             'items.*.cantidad' => ['required', 'integer', 'min:1'],
             'items.*.costo_unitario' => ['required', 'numeric', 'min:0'],

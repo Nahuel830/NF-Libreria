@@ -26,7 +26,7 @@ class VentaRequest extends FormRequest
             'cliente_nombre' => ['nullable', 'string', 'max:150'],
             'cliente_id' => ['nullable', 'integer', Rule::exists('clientes', 'id')->where('activo', true)],
             'observaciones' => ['nullable', 'string'],
-            'items' => ['required', 'array', 'min:1'],
+            'items' => ['required', 'array', 'min:1', 'max:200'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
             'items.*.cantidad' => ['required', 'integer', 'min:1'],
         ];

@@ -243,4 +243,20 @@ class VentaDuskTest extends DuskTestCase
         $venta = \App\Models\Venta::where('user_id', $this->cajero()->id)->latest('id')->first();
         $this->assertSame(3, $venta->detalles->first()->cantidad);
     }
+
+    public function test_nombre_con_html_no_crea_elementos(): void
+    {
+        Producto::factory()->create(['codigo' => 'XSS-999', 'nombre' => '<b>Malicioso</b>']);
+
+        $this->browse(function (Browser $browser) {
+            $this->abrirCaja($browser);
+
+            $browser->type('#buscador', 'XSS-999')
+                ->waitForText('XSS-999', 10);
+
+            $hayB = $browser->script("return document.querySelectorAll('#resultados b').length;");
+            $this->assertSame(0, (int) $hayB[0]);
+            $browser->assertSee('Malicioso');
+        });
+    }
 }

@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formatear = (valor) => `Bs. ${valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 
+    const esc = (texto) => String(texto ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+
     const pitar = () => {
         try {
             const contexto = new (window.AudioContext || window.webkitAudioContext)();
@@ -77,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fila.dataset.indice = String(indice);
         fila.dataset.producto = String(producto.id);
         fila.innerHTML = `
-            <td>${producto.codigo} — ${producto.nombre}
+            <td>${esc(producto.codigo)} — ${esc(producto.nombre)}
                 <input type="hidden" name="items[${indice}][producto_id]" value="${producto.id}">
             </td>
             <td>${producto.stock}</td>

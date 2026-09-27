@@ -169,4 +169,37 @@ class DevolucionTest extends TestCase
         // Vendió 4, devolvió 1, anula 3 → stock vuelve a 0.
         $this->assertSame(0, $producto->fresh()->stock);
     }
+
+    public function test_cajero_no_ve_ticket_de_devolucion_ajena(): void
+    {
+        $cajero1 = User::factory()->create(['rol' => Rol::Cajero, 'usuario' => 'cj1']);
+        $cajero2 = User::factory()->create(['rol' => Rol::Cajero, 'usuario' => 'cj2']);
+        $encargado = User::factory()->create(['rol' => Rol::Encargado]);
+        $this->actingAs($encargado);
+
+        if (! \App\Models\Caja::abiertaDe($encargado)) {
+            app(\App\Services\CajaService::class)->abrir($encargado, '0.00');
+        }
+
+        if (! \App\Models\Caja::abiertaDe($cajero1)) {
+            app(\App\Services\CajaService::class)->abrir($cajero1, '0.00');
+        }
+
+        $producto = Producto::factory()->create(['precio_venta' => '10.00']);
+        $venta = app(VentaService::class)->registrar(
+            [['producto_id' => $producto->id, 'cantidad' => 1]],
+            ['token' => (string) \Illuminate\Support\Str::uuid(), 'metodo_pago' => 'QR'],
+            $cajero1
+        );
+        $devolucion = app(\App\Services\DevolucionService::class)->devolver(
+            $venta,
+            [['detalle_venta_id' => $venta->detalles->first()->id, 'cantidad' => 1]],
+            'Falla de prueba',
+            'QR',
+            $encargado
+        );
+
+        $this->actingAs($cajero2)->get("/devoluciones/{$devolucion->id}/ticket")->assertForbidden();
+        $this->actingAs($cajero1)->get("/devoluciones/{$devolucion->id}/ticket")->assertOk();
+    }
 }

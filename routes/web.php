@@ -162,6 +162,9 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('can:anular-ventas')->group(function (): void {
         Route::get('/ventas/{venta}/devoluciones/crear', [DevolucionController::class, 'crear'])->name('devoluciones.crear');
         Route::post('/ventas/{venta}/devoluciones', [DevolucionController::class, 'guardar'])->name('devoluciones.guardar');
+    });
+
+    Route::middleware('can:realizar-ventas')->group(function (): void {
         Route::get('/devoluciones/{devolucion}/ticket', [DevolucionController::class, 'ticket'])->name('devoluciones.ticket');
     });
 

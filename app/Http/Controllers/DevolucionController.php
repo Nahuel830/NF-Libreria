@@ -55,7 +55,12 @@ class DevolucionController extends Controller
 
     public function ticket(Devolucion $devolucion): View
     {
+        $usuario = request()->user();
         $devolucion->load(['detalles.producto', 'venta', 'usuario']);
+
+        if (! $usuario->can('ver-todas-las-ventas') && $devolucion->venta->user_id !== $usuario->id) {
+            abort(403);
+        }
 
         return view('devoluciones.ticket', [
             'devolucion' => $devolucion,
