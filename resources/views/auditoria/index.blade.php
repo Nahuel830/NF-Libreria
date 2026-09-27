@@ -5,6 +5,10 @@
 @section('contenido')
     <x-page-header titulo="Auditoría" subtitulo="Solo lectura: los registros no se editan ni se borran." :migas="['Administración' => null, 'Auditoría' => null]" />
 
+    <div class="mb-3">
+        <a href="{{ route('auditoria.actividad') }}" class="btn btn-outline-primary"><i class="bi bi-clock-history"></i> Actividad reciente de accesos</a>
+    </div>
+
     <x-filtros :accion="route('auditoria.index')">
         <div class="col-md-2">
             <input type="date" class="form-control" name="desde" value="{{ request('desde') }}" aria-label="Desde">

@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::middleware('can:ver-auditoria')->prefix('auditoria')->name('auditoria.')->group(function (): void {
         Route::get('/', [AuditoriaController::class, 'index'])->name('index');
+        Route::get('/actividad', [AuditoriaController::class, 'actividad'])->name('actividad');
         Route::get('/{registro}', [AuditoriaController::class, 'ver'])->name('ver');
     });
 

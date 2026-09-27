@@ -363,4 +363,25 @@ class AdministracionTest extends TestCase
             ->assertOk()
             ->assertSee('No hay registros de auditoría.');
     }
+
+    public function test_actividad_reciente_muestra_logins_y_filtra_por_usuario(): void
+    {
+        $admin = $this->admin();
+        $cajero = User::factory()->create(['usuario' => 'cajeroact', 'password' => 'secreta123']);
+
+        $this->post('/login', ['usuario' => 'cajeroact', 'password' => 'secreta123'])->assertRedirect('/');
+        $this->post('/logout');
+        $this->post('/login', ['usuario' => 'cajeroact', 'password' => 'mal'])->assertSessionHasErrors('usuario');
+
+        $this->actingAs($admin)->get('/auditoria/actividad')
+            ->assertOk()
+            ->assertSee('Actividad reciente de accesos')
+            ->assertSee('cajeroact')
+            ->assertSee('Correcto')
+            ->assertSee('Fallido');
+
+        $this->actingAs($admin)->get('/auditoria/actividad?usuario_id='.$admin->id)
+            ->assertOk()
+            ->assertSee('No hay accesos registrados.');
+    }
 }

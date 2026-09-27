@@ -36,4 +36,21 @@ class AuditoriaController extends Controller
 
         return view('auditoria.ver', ['registro' => $registro]);
     }
+
+    public function actividad(Request $request): View
+    {
+        $registros = Auditoria::query()
+            ->with('usuario')
+            ->whereIn('accion', ['LOGIN', 'LOGIN_FALLIDO'])
+            ->when($request->input('usuario_id'), fn ($consulta, $id) => $consulta->where('user_id', $id))
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(50)
+            ->withQueryString();
+
+        return view('auditoria.actividad', [
+            'registros' => $registros,
+            'usuarios' => User::orderBy('nombre')->get(['id', 'nombre', 'usuario']),
+        ]);
+    }
 }
