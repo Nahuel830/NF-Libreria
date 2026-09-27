@@ -36,6 +36,8 @@
 
                             <button type="submit" class="btn btn-primary btn-lg w-100">Entrar</button>
                         </form>
+
+                        <p class="text-secondary small mt-3 mb-0">Por seguridad, los intentos fallidos se registran. Si entras desde un dispositivo o red nuevos, verás un aviso después del login.</p>
                     </div>
                 </div>
             </div>

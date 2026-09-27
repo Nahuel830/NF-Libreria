@@ -36,6 +36,11 @@ class AutenticacionTest extends TestCase
         ]);
     }
 
+    public function test_login_muestra_nota_de_dispositivo_nuevo(): void
+    {
+        $this->get('/login')->assertOk()->assertSee('dispositivo');
+    }
+
     public function test_login_con_password_incorrecta_falla_y_registra_fallido(): void
     {
         $user = User::factory()->create([
