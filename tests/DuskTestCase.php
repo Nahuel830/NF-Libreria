@@ -14,6 +14,17 @@ abstract class DuskTestCase extends BaseTestCase
     protected static ?Process $edgeDriver = null;
 
     /**
+     * Marca el TOTP como confirmado para navegar con loginAs.
+     * El flujo real de activación se prueba en LoginTest.
+     */
+    protected function totpConfirmado(\App\Models\User $usuario): \App\Models\User
+    {
+        $usuario->forceFill(['totp_confirmado_en' => now()])->save();
+
+        return $usuario->fresh();
+    }
+
+    /**
      * Prepare for Dusk test execution.
      */
     #[BeforeClass]

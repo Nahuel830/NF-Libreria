@@ -11,7 +11,7 @@ trait CompletaLogin
 {
     protected function completarLogin(Request $request, User $usuario, AuditoriaService $auditoria): void
     {
-        $request->session()->forget('totp_pendiente');
+        $request->session()->forget(['totp_pendiente', 'totp_intentos']);
 
         Auth::login($usuario);
         $request->session()->regenerate();

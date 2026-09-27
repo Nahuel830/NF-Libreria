@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\CrearUsuarioRequest;
 use App\Http\Requests\Admin\EditarUsuarioRequest;
 use App\Http\Requests\Admin\RestablecerPasswordRequest;
 use App\Models\User;
+use App\Services\TotpService;
 use App\Services\UsuarioService;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
@@ -81,6 +82,17 @@ class UsuarioController extends Controller
 
         return redirect()->route('usuarios.index')
             ->with('success', "Contraseña de '{$usuario->usuario}' restablecida. Deberá cambiarla al entrar.");
+    }
+
+    public function restablecerTotp(Request $request, User $usuario, TotpService $totp): RedirectResponse
+    {
+        abort_unless(in_array($usuario->rol, [Rol::Admin, Rol::Encargado], true), 404);
+        abort_unless($totp->activoPara($usuario->fresh()), 404);
+
+        $totp->restablecerPorAdmin($usuario->fresh(), $request->user());
+
+        return redirect()->route('usuarios.editar', $usuario)
+            ->with('success', "Verificación en dos pasos de '{$usuario->usuario}' restablecida. Deberá configurarla al entrar.");
     }
 
     public function estado(Request $request, User $usuario, UsuarioService $servicio): RedirectResponse

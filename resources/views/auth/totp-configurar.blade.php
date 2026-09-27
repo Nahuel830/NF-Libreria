@@ -6,6 +6,10 @@
     <div class="row justify-content-center mt-4">
         <div class="col-md-6">
             <x-card titulo="Activar verificación en dos pasos">
+                @if ($obligatorio ?? false)
+                    <p class="text-danger">Es obligatoria para tu rol: debes activarla para usar el sistema.</p>
+                @endif
+
                 <ol>
                     <li>Abre Google Authenticator (u otra app) y escanea este código QR.</li>
                     <li>Escribe abajo el código de 6 dígitos que muestra la app.</li>

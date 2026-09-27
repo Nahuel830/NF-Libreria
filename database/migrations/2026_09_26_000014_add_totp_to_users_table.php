@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('totp_secreto', 100)->nullable();
-            $table->boolean('totp_activo')->default(false);
-            $table->jsonb('totp_recuperacion')->nullable();
+            $table->text('totp_secreto')->nullable();
+            $table->timestampTz('totp_confirmado_en')->nullable();
+            $table->bigInteger('totp_ultimo_paso')->nullable();
+            $table->text('codigos_recuperacion')->nullable();
         });
     }
 
@@ -24,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['totp_secreto', 'totp_activo', 'totp_recuperacion']);
+            $table->dropColumn(['totp_secreto', 'totp_confirmado_en', 'totp_ultimo_paso', 'codigos_recuperacion']);
         });
     }
 };

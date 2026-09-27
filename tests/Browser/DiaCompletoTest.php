@@ -61,7 +61,7 @@ class DiaCompletoTest extends DuskTestCase
             $admin = User::where('usuario', 'admin')->firstOrFail();
 
             // 1. Admin crea un cajero.
-            $browser->loginAs($admin)->visit('/usuarios/crear')
+            $browser->loginAs($this->totpConfirmado($admin))->visit('/usuarios/crear')
                 ->type('#nombre', 'Cajero Día')
                 ->type('#usuario', 'cajerodia')
                 ->select('#rol', 'cajero')

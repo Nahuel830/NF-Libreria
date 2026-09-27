@@ -174,7 +174,7 @@ class InterfazDuskTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $admin = User::where('usuario', 'admin')->firstOrFail();
             $admin->forceFill(['debe_cambiar_password' => false])->save();
-            $browser->loginAs($admin)->visit('/')
+            $browser->loginAs($this->totpConfirmado($admin))->visit('/')
                 ->assertSee('Administración')
                 ->assertSee('Reportes');
 

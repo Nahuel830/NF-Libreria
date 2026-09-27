@@ -56,8 +56,8 @@ class LoginTest extends DuskTestCase
                 ->assertSee('Verificación en dos pasos');
         });
 
-        $this->assertTrue(
-            \App\Models\User::where('usuario', 'admin')->first()->totp_activo
+        $this->assertNotNull(
+            \App\Models\User::where('usuario', 'admin')->first()->totp_confirmado_en
         );
     }
 }

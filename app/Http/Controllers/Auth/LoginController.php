@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use App\Services\AuditoriaService;
+use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,7 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function entrar(LoginRequest $request, AuditoriaService $auditoria): RedirectResponse
+    public function entrar(LoginRequest $request, AuditoriaService $auditoria, TotpService $totp): RedirectResponse
     {
         $usuario = $request->input('usuario');
         $clave = $this->claveLimite($usuario, $request);
@@ -70,11 +71,20 @@ class LoginController extends Controller
         }
 
         RateLimiter::clear($clave);
+        $request->session()->forget('totp_intentos');
 
-        if ($user->rol === Rol::Admin) {
-            $request->session()->put('totp_pendiente', $user->id);
+        if (in_array($user->rol, [Rol::Admin, Rol::Encargado], true)) {
+            if ($totp->obligatorioPara($user) && ! $totp->activoPara($user)) {
+                $this->completarLogin($request, $user, $auditoria);
 
-            return redirect()->route($user->totp_activo ? 'totp.verificar' : 'totp.configurar');
+                return redirect()->route('totp.configurar');
+            }
+
+            if ($totp->activoPara($user)) {
+                $request->session()->put('totp_pendiente', $user->id);
+
+                return redirect()->route('totp.verificar');
+            }
         }
 
         $this->completarLogin($request, $user, $auditoria);

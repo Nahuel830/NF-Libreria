@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\VerificarUsuarioActivo::class,
             \App\Http\Middleware\CierrePorInactividad::class,
             \App\Http\Middleware\ExigirCambioPassword::class,
+            \App\Http\Middleware\ExigirTotp::class,
             \App\Http\Middleware\VerificarIpCajero::class,
             \App\Http\Middleware\CabecerasSeguridad::class,
         ]);

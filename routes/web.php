@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function (): void {
     Route::put('/cambiar-password', [PasswordController::class, 'actualizar'])->name('password.actualizar');
 
     Route::get('/totp', [TotpController::class, 'estado'])->name('totp.estado');
+    Route::post('/totp/regenerar', [TotpController::class, 'regenerar'])->name('totp.regenerar');
     Route::post('/totp/desactivar', [TotpController::class, 'desactivar'])->name('totp.desactivar');
 
     Route::get('/', [InicioController::class, 'index'])->name('inicio');
@@ -65,6 +66,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/{usuario}/password', [UsuarioController::class, 'password'])->name('password');
         Route::put('/{usuario}/password', [UsuarioController::class, 'actualizarPassword'])->name('password.actualizar');
         Route::patch('/{usuario}/estado', [UsuarioController::class, 'estado'])->name('estado');
+        Route::post('/{usuario}/totp', [UsuarioController::class, 'restablecerTotp'])->name('totp.restablecer');
     });
 
     Route::middleware('can:gestionar-configuracion')->group(function (): void {

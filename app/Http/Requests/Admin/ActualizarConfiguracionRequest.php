@@ -26,6 +26,8 @@ class ActualizarConfiguracionRequest extends FormRequest
             'imprimir_automatico' => ['nullable', 'boolean'],
             'exigir_caja_abierta' => ['nullable', 'boolean'],
             'ips_cajero' => ['nullable', 'string', 'max:255'],
+            'totp_obligatorio_admin' => ['nullable', 'boolean'],
+            'totp_obligatorio_encargado' => ['nullable', 'boolean'],
             'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:1024'],
             'quitar_logo' => ['nullable', 'boolean'],
         ];

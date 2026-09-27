@@ -39,4 +39,16 @@
             <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
         </form>
     </x-card>
+
+    @if (in_array($usuario->rol->value, ['admin', 'encargado'], true) && $usuario->totp_confirmado_en)
+        <x-card titulo="Verificación en dos pasos">
+            <p>Estado: <x-estado estado="ACTIVO" /></p>
+            <p class="text-secondary">Al restablecer, el usuario deberá configurar de nuevo la verificación al entrar.</p>
+            <form method="POST" action="{{ route('usuarios.totp.restablecer', $usuario) }}"
+                onsubmit="return confirm('¿Restablecer la verificación en dos pasos de {{ $usuario->usuario }}?');">
+                @csrf
+                <button type="submit" class="btn btn-outline-warning">Restablecer verificación en dos pasos</button>
+            </form>
+        </x-card>
+    @endif
 @endsection

@@ -20,6 +20,8 @@ class ConfiguracionSeeder extends Seeder
         'imprimir_automatico' => '0',
         'exigir_caja_abierta' => '1',
         'ips_cajero' => '',
+        'totp_obligatorio_admin' => '1',
+        'totp_obligatorio_encargado' => '0',
     ];
 
     public function run(): void

@@ -89,6 +89,18 @@
                 @enderror
             </div>
 
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="totp_obligatorio_admin" name="totp_obligatorio_admin" value="1"
+                    @checked(old('totp_obligatorio_admin', $valores['totp_obligatorio_admin'] ?? '1') === '1')>
+                <label class="form-check-label" for="totp_obligatorio_admin">Exigir verificación en dos pasos a administradores</label>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="totp_obligatorio_encargado" name="totp_obligatorio_encargado" value="1"
+                    @checked(old('totp_obligatorio_encargado', $valores['totp_obligatorio_encargado'] ?? '0') === '1')>
+                <label class="form-check-label" for="totp_obligatorio_encargado">Exigir verificación en dos pasos a encargados</label>
+            </div>
+
             <button type="submit" class="btn btn-primary">Guardar</button>
         </form>
     </x-card>

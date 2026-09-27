@@ -26,6 +26,8 @@ class ConfiguracionController extends Controller
         'logo_negocio',
         'exigir_caja_abierta',
         'ips_cajero',
+        'totp_obligatorio_admin',
+        'totp_obligatorio_encargado',
     ];
 
     public function editar(ConfiguracionService $configuracion): View
@@ -54,6 +56,8 @@ class ConfiguracionController extends Controller
         $datos['permitir_stock_negativo'] = $request->boolean('permitir_stock_negativo') ? '1' : '0';
         $datos['imprimir_automatico'] = $request->boolean('imprimir_automatico') ? '1' : '0';
         $datos['exigir_caja_abierta'] = $request->boolean('exigir_caja_abierta') ? '1' : '0';
+        $datos['totp_obligatorio_admin'] = $request->boolean('totp_obligatorio_admin') ? '1' : '0';
+        $datos['totp_obligatorio_encargado'] = $request->boolean('totp_obligatorio_encargado') ? '1' : '0';
 
         if ($request->boolean('quitar_logo')) {
             $anterior = $configuracion->get('logo_negocio');

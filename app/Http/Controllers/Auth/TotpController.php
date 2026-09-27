@@ -10,50 +10,92 @@ use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 
 class TotpController extends Controller
 {
     use CompletaLogin;
-    protected function usuarioPendiente(Request $request): ?User
+
+    protected int $maxIntentosTotp = 5;
+
+    /**
+     * Resuelve el usuario del flujo TOTP: autenticado (activación/Mi seguridad)
+     * o pendiente de verificación (sesión intermedia de login).
+     */
+    protected function usuarioTotp(Request $request): ?User
     {
+        $autenticado = $request->user();
+
+        if ($autenticado && in_array($autenticado->rol, [Rol::Admin, Rol::Encargado], true)) {
+            return $autenticado->fresh();
+        }
+
         $id = $request->session()->get('totp_pendiente');
 
         return $id ? User::find($id) : null;
     }
 
-    protected function claveLimite(User $usuario, Request $request): string
+    protected function cerrarPorIntentos(Request $request, AuditoriaService $auditoria, User $usuario): RedirectResponse
     {
-        return 'login:'.mb_strtolower($usuario->usuario).'|'.$request->ip();
+        $intentos = (int) $request->session()->get('totp_intentos', 0) + 1;
+        $request->session()->put('totp_intentos', $intentos);
+
+        if ($intentos < $this->maxIntentosTotp) {
+            return back()->withErrors(['codigo' => "El código no es válido. Te quedan {$this->restantes($intentos)} intentos."]);
+        }
+
+        $auditoria->registrar(
+            'LOGIN_FALLIDO',
+            "Sesión cerrada por superar los {$this->maxIntentosTotp} intentos de verificación para '{$usuario->usuario}'.",
+            $usuario
+        );
+
+        $request->session()->forget(['totp_pendiente', 'totp_intentos']);
+
+        if (Auth::check()) {
+            Auth::logout();
+        }
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')
+            ->withErrors(['usuario' => 'Superaste el máximo de intentos. Vuelve a intentarlo.']);
     }
 
-    public function estado(Request $request): View
+    protected function restantes(int $intentos): int
     {
-        return view('auth.totp-estado', ['usuario' => $request->user()]);
+        return max(0, $this->maxIntentosTotp - $intentos);
+    }
+
+    public function estado(Request $request, TotpService $totp): View
+    {
+        $usuario = $request->user()?->fresh();
+
+        abort_unless($usuario, 404);
+
+        return view('auth.totp-estado', [
+            'usuario' => $usuario,
+            'obligatorio' => $totp->obligatorioPara($usuario),
+        ]);
     }
 
     public function configurar(Request $request, TotpService $totp): View|RedirectResponse
     {
-        $usuario = $request->user() ?? $this->usuarioPendiente($request);
+        $usuario = $this->usuarioTotp($request);
 
-        abort_unless($usuario && in_array($usuario->rol, [Rol::Admin, Rol::Encargado], true), 404);
+        abort_unless($usuario, 404);
 
-        if ($usuario->totp_activo) {
+        if ($totp->activoPara($usuario)) {
             return redirect()->route('totp.estado');
         }
 
-        $secreto = session('totp_secreto');
-
-        if (! is_string($secreto) || $secreto === '') {
-            $secreto = $totp->generarSecreto();
-            session(['totp_secreto' => $secreto]);
-        }
+        $secreto = $totp->generarSecretoPara($usuario);
 
         return view('auth.totp-configurar', [
             'qr' => $totp->qrSvg($secreto, $usuario),
             'secreto' => $secreto,
+            'obligatorio' => $totp->obligatorioPara($usuario),
         ]);
     }
 
@@ -61,26 +103,21 @@ class TotpController extends Controller
     {
         $request->validate(['codigo' => ['required', 'string']]);
 
-        $usuario = $request->user() ?? $this->usuarioPendiente($request);
-        $secreto = $request->session()->get('totp_secreto');
+        $usuario = $this->usuarioTotp($request);
 
-        abort_unless($usuario && is_string($secreto) && $secreto !== '', 404);
+        abort_unless($usuario && ! $totp->activoPara($usuario), 404);
 
-        $usuario->forceFill(['totp_secreto' => $secreto])->save();
+        $paso = $totp->verificar($usuario->fresh(), $request->input('codigo'));
 
-        if (! $totp->verificar($usuario, $request->input('codigo'))) {
-            return back()->withErrors(['codigo' => 'El código no es válido. Revisa la hora de tu teléfono e inténtalo de nuevo.']);
+        if ($paso === false) {
+            return $this->cerrarPorIntentos($request, $auditoria, $usuario);
         }
 
-        $codigos = $totp->activar($usuario, $secreto);
-        $request->session()->forget('totp_secreto');
+        $request->session()->forget('totp_intentos');
+        $codigos = $totp->confirmar($usuario->fresh(), $paso);
 
         if (! Auth::check()) {
-            $this->completarLogin($request, $usuario, $auditoria);
-
-            return redirect()->route('totp.estado')
-                ->with('codigos_recuperacion', $codigos)
-                ->with('success', 'Verificación en dos pasos activada. Guarda tus códigos de recuperación.');
+            $this->completarLogin($request, $usuario->fresh(), $auditoria);
         }
 
         return redirect()->route('totp.estado')
@@ -88,11 +125,12 @@ class TotpController extends Controller
             ->with('success', 'Verificación en dos pasos activada. Guarda tus códigos de recuperación.');
     }
 
-    public function verificar(Request $request): View
+    public function verificar(Request $request, TotpService $totp): View
     {
-        $usuario = $this->usuarioPendiente($request);
+        $id = $request->session()->get('totp_pendiente');
+        $usuario = $id ? User::find($id) : null;
 
-        abort_unless($usuario && $usuario->totp_activo, 404);
+        abort_unless($usuario && $totp->activoPara($usuario), 404);
 
         return view('auth.totp-verificar');
     }
@@ -101,40 +139,66 @@ class TotpController extends Controller
     {
         $request->validate(['codigo' => ['required', 'string']]);
 
-        $usuario = $this->usuarioPendiente($request);
+        $id = $request->session()->get('totp_pendiente');
+        $usuario = $id ? User::find($id) : null;
 
-        abort_unless($usuario && $usuario->totp_activo, 404);
+        abort_unless($usuario && $totp->activoPara($usuario), 404);
 
-        $clave = $this->claveLimite($usuario, $request);
-
-        if (RateLimiter::tooManyAttempts($clave, 5)) {
-            $auditoria->registrar('LOGIN_FALLIDO', "Acceso bloqueado por exceso de intentos para '{$usuario->usuario}'.", $usuario);
-
-            return back()->withErrors(['codigo' => 'Demasiados intentos. Inténtalo de nuevo en '.RateLimiter::availableIn($clave).' segundos.'])->setStatusCode(429);
-        }
-
+        $usuario = $usuario->fresh();
         $codigo = $request->input('codigo');
 
-        if ($totp->verificar($usuario, $codigo) || $totp->verificarRecuperacion($usuario, $codigo)) {
-            RateLimiter::clear($clave);
+        $paso = $totp->verificar($usuario, $codigo);
+
+        if ($paso !== false) {
+            $request->session()->forget('totp_intentos');
+            $totp->marcarPasoUsado($usuario, $paso);
             $this->completarLogin($request, $usuario, $auditoria);
 
             return redirect()->intended(route('inicio'));
         }
 
-        RateLimiter::hit($clave, 60);
-        $auditoria->registrar('LOGIN_FALLIDO', "Código de verificación incorrecto para '{$usuario->usuario}'.", $usuario);
+        if ($totp->usarCodigoRecuperacion($usuario, $codigo)) {
+            $request->session()->forget('totp_intentos');
+            $this->completarLogin($request, $usuario->fresh(), $auditoria);
 
-        return back()->withErrors(['codigo' => 'El código no es válido.']);
+            return redirect()->intended(route('inicio'));
+        }
+
+        return $this->cerrarPorIntentos($request, $auditoria, $usuario);
+    }
+
+    public function regenerar(Request $request, TotpService $totp): RedirectResponse
+    {
+        $request->validate([
+            'actual' => ['required', 'string', 'current_password'],
+            'codigo' => ['required', 'string'],
+        ]);
+
+        $usuario = $request->user()?->fresh();
+
+        abort_unless($usuario && $totp->activoPara($usuario), 403);
+        abort_unless($totp->verificar($usuario, $request->input('codigo')) !== false, 403);
+
+        $codigos = $totp->regenerarCodigos($usuario);
+
+        return redirect()->route('totp.estado')
+            ->with('codigos_recuperacion', $codigos)
+            ->with('success', 'Códigos de recuperación regenerados. Los anteriores ya no sirven.');
     }
 
     public function desactivar(Request $request, TotpService $totp): RedirectResponse
     {
-        $request->validate(['actual' => ['required', 'string', 'current_password']]);
+        $request->validate([
+            'actual' => ['required', 'string', 'current_password'],
+            'codigo' => ['required', 'string'],
+        ]);
 
-        $usuario = $request->user();
+        $usuario = $request->user()?->fresh();
 
-        abort_unless($usuario && $usuario->rol === Rol::Encargado && $usuario->totp_activo, 403);
+        abort_unless($usuario && $totp->activoPara($usuario), 403);
+        abort_if($totp->obligatorioPara($usuario), 403);
+
+        abort_unless($totp->verificar($usuario, $request->input('codigo')) !== false, 403);
 
         $totp->desactivar($usuario);
 
