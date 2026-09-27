@@ -77,7 +77,18 @@
 
                 <x-card>
                     <div class="mb-3">
-                        <label for="cliente_nombre" class="form-label">Cliente (opcional)</label>
+                        <label for="cliente_buscar" class="form-label">Cliente (opcional)</label>
+                        <input type="text" class="form-control" id="cliente_buscar" autocomplete="off" placeholder="Buscar por nombre o CI/NIT...">
+                        <input type="hidden" id="cliente_id" name="cliente_id">
+                        <div id="clientes-resultados" class="list-group mt-1"></div>
+                        <div class="d-flex gap-2 mt-1">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal-cliente">Nuevo cliente</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="cliente-quitar">Quitar</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cliente_nombre" class="form-label">Cliente sin registro (opcional)</label>
                         <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" maxlength="150">
                     </div>
 
@@ -95,6 +106,28 @@
             </div>
         </div>
     </form>
+
+    <div class="modal fade" id="modal-cliente" tabindex="-1" aria-labelledby="modal-cliente-titulo" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modal-cliente-titulo">Nuevo cliente</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="cliente-rapido-nombre" class="form-label">Nombre *</label>
+                    <input type="text" class="form-control" id="cliente-rapido-nombre" maxlength="150">
+                    <label for="cliente-rapido-ci" class="form-label mt-2">CI/NIT</label>
+                    <input type="text" class="form-control" id="cliente-rapido-ci" maxlength="20">
+                    <div class="text-danger small mt-1 d-none" id="cliente-rapido-error"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="cliente-rapido-guardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')

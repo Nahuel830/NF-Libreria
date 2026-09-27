@@ -46,13 +46,33 @@ class VentaService
             throw new DomainException('La venta debe tener al menos un ítem.');
         }
 
+        $clienteId = isset($datos['cliente_id']) && trim((string) $datos['cliente_id']) !== ''
+            ? (int) $datos['cliente_id']
+            : null;
+        $clienteNombre = isset($datos['cliente_nombre']) ? trim((string) $datos['cliente_nombre']) : '';
+        $clienteNombre = $clienteNombre === '' ? null : mb_substr($clienteNombre, 0, 150);
+
+        if ($clienteId !== null) {
+            $cliente = \App\Models\Cliente::whereKey($clienteId)->first();
+
+            if (! $cliente) {
+                throw new DomainException('El cliente indicado no existe.');
+            }
+
+            if (! $cliente->activo) {
+                throw new DomainException('El cliente indicado está inactivo.');
+            }
+
+            $clienteNombre = $cliente->nombre;
+        }
+
         $descuento = $this->normalizarDecimal($datos['descuento'] ?? '0');
 
         if (bccomp($descuento, '0', 2) > 0) {
             Gate::forUser($usuario)->authorize('aplicar-descuentos');
         }
 
-        return DB::transaction(function () use ($agrupados, $datos, $descuento, $metodo, $token, $usuario) {
+        return DB::transaction(function () use ($agrupados, $datos, $descuento, $metodo, $token, $usuario, $clienteId, $clienteNombre) {
             $productos = $this->stock->bloquearProductos(array_keys($agrupados))->keyBy('id');
 
             $lineas = [];
@@ -104,7 +124,8 @@ class VentaService
                 'token' => $token,
                 'fecha' => now(),
                 'user_id' => $usuario->id,
-                'cliente_nombre' => $datos['cliente_nombre'] ?? null,
+                'cliente_id' => $clienteId,
+                'cliente_nombre' => $clienteNombre,
                 'subtotal' => $subtotal,
                 'descuento' => $descuento,
                 'total' => $total,

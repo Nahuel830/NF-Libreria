@@ -24,6 +24,7 @@ class VentaRequest extends FormRequest
             'descuento' => ['nullable', 'numeric', 'min:0'],
             'monto_recibido' => ['nullable', 'numeric', 'min:0'],
             'cliente_nombre' => ['nullable', 'string', 'max:150'],
+            'cliente_id' => ['nullable', 'integer', Rule::exists('clientes', 'id')->where('activo', true)],
             'observaciones' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],

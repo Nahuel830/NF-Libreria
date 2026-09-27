@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\AjusteStockController;
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ImportacionController;
 use App\Http\Controllers\InicioController;
@@ -40,6 +41,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/inventario', [ReporteController::class, 'inventario'])->name('inventario');
         Route::get('/movimientos', [ReporteController::class, 'movimientos'])->name('movimientos');
         Route::get('/compras', [ReporteController::class, 'compras'])->name('compras');
+        Route::get('/clientes', [ReporteController::class, 'clientes'])->name('clientes');
     });
 
     Route::middleware('can:gestionar-usuarios')->prefix('usuarios')->name('usuarios.')->group(function (): void {
@@ -121,6 +123,21 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/{proveedor}/editar', [ProveedorController::class, 'editar'])->name('editar');
         Route::put('/{proveedor}', [ProveedorController::class, 'actualizar'])->name('actualizar');
         Route::patch('/{proveedor}/estado', [ProveedorController::class, 'estado'])->name('estado');
+    });
+
+    Route::middleware('can:realizar-ventas')->group(function (): void {
+        Route::get('/clientes/buscar', [ClienteController::class, 'buscar'])->name('clientes.buscar');
+        Route::post('/clientes/rapido', [ClienteController::class, 'guardarRapido'])->name('clientes.rapido');
+    });
+
+    Route::middleware('can:gestionar-clientes')->prefix('clientes')->name('clientes.')->group(function (): void {
+        Route::get('/', [ClienteController::class, 'index'])->name('index');
+        Route::get('/crear', [ClienteController::class, 'crear'])->name('crear');
+        Route::post('/', [ClienteController::class, 'guardar'])->name('guardar');
+        Route::get('/{cliente}', [ClienteController::class, 'ver'])->name('ver');
+        Route::get('/{cliente}/editar', [ClienteController::class, 'editar'])->name('editar');
+        Route::put('/{cliente}', [ClienteController::class, 'actualizar'])->name('actualizar');
+        Route::patch('/{cliente}/estado', [ClienteController::class, 'estado'])->name('estado');
     });
 
     Route::middleware('can:ver-productos')->prefix('api-interna')->name('api-interna.')->group(function (): void {

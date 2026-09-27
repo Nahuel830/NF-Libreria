@@ -31,7 +31,7 @@ class VentaController extends Controller
         try {
             $venta = $servicio->registrar(
                 $request->input('items'),
-                $request->only(['token', 'metodo_pago', 'descuento', 'monto_recibido', 'cliente_nombre', 'observaciones']),
+                $request->only(['token', 'metodo_pago', 'descuento', 'monto_recibido', 'cliente_id', 'cliente_nombre', 'observaciones']),
                 $request->user()
             );
         } catch (DomainException $e) {

@@ -12,6 +12,7 @@ class Venta extends Model
         'token',
         'fecha',
         'user_id',
+        'cliente_id',
         'cliente_nombre',
         'subtotal',
         'descuento',
@@ -47,6 +48,11 @@ class Venta extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class, 'cliente_id');
     }
 
     public function anuladaPor()

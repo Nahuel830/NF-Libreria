@@ -300,4 +300,26 @@ class ReporteController extends Controller
 
         return view('reportes.compras', ['filas' => $filas, 'desde' => $desde, 'hasta' => $hasta]);
     }
+
+    public function clientes(Request $request): View|\Illuminate\Http\Response
+    {
+        [$desde, $hasta] = $this->rango($request);
+
+        $filas = Venta::join('clientes as c', 'c.id', '=', 'ventas.cliente_id')
+            ->where('ventas.estado', 'COMPLETADA')
+            ->whereDate('fecha', '>=', $desde)->whereDate('fecha', '<=', $hasta)
+            ->select('c.nombre', 'c.ci_nit', DB::raw('COUNT(*) as cantidad'), DB::raw('SUM(total) as total'))
+            ->groupBy('c.id', 'c.nombre', 'c.ci_nit')
+            ->orderByDesc('total')
+            ->limit(50)
+            ->get();
+
+        if ($this->quiereCsv($request)) {
+            return $this->csv('mejores-clientes.csv',
+                ['cliente', 'ci_nit', 'cantidad', 'total'],
+                $filas->map(fn ($f) => [$f->nombre, $f->ci_nit ?? '', $f->cantidad, $this->monedaCsv($f->total)]));
+        }
+
+        return view('reportes.clientes', ['filas' => $filas, 'desde' => $desde, 'hasta' => $hasta]);
+    }
 }

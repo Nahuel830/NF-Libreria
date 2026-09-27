@@ -464,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     metodo_pago: metodoEl.value,
                     descuento: descuentoEl ? descuentoEl.value : null,
                     monto_recibido: recibidoEl ? recibidoEl.value : null,
+                    cliente_id: document.getElementById('cliente_id').value || null,
                     cliente_nombre: document.getElementById('cliente_nombre').value,
                     observaciones: document.getElementById('observaciones').value,
                     items,
@@ -488,4 +489,100 @@ document.addEventListener('DOMContentLoaded', () => {
 
     buscador.focus();
     dibujar();
+
+    // Cliente con búsqueda + creación rápida.
+    const clienteBuscar = document.getElementById('cliente_buscar');
+    const clienteId = document.getElementById('cliente_id');
+    const clientesResultados = document.getElementById('clientes-resultados');
+    const clienteQuitar = document.getElementById('cliente-quitar');
+    const clienteNombre = document.getElementById('cliente_nombre');
+    let temporizadorCliente = null;
+
+    const fijarCliente = (id, nombre) => {
+        clienteId.value = id;
+        clienteBuscar.value = nombre;
+        clienteNombre.value = '';
+        clienteNombre.disabled = id !== '';
+        clienteQuitar.classList.toggle('d-none', id === '');
+    };
+
+    if (clienteBuscar && clienteId) {
+        clienteBuscar.addEventListener('input', () => {
+            clearTimeout(temporizadorCliente);
+            clienteId.value = '';
+            clienteNombre.disabled = false;
+            clienteQuitar.classList.add('d-none');
+            const texto = clienteBuscar.value.trim();
+
+            if (texto.length < 1) {
+                clientesResultados.innerHTML = '';
+                return;
+            }
+
+            temporizadorCliente = setTimeout(async () => {
+                const respuesta = await fetch(`/clientes/buscar?q=${encodeURIComponent(texto)}`, {
+                    headers: { Accept: 'application/json' },
+                });
+
+                if (!respuesta.ok) {
+                    return;
+                }
+
+                const clientes = await respuesta.json();
+                clientesResultados.innerHTML = '';
+
+                clientes.forEach((cliente) => {
+                    const boton = document.createElement('button');
+                    boton.type = 'button';
+                    boton.className = 'list-group-item list-group-item-action';
+                    boton.textContent = cliente.ci_nit ? `${cliente.nombre} (${cliente.ci_nit})` : cliente.nombre;
+                    boton.addEventListener('click', () => {
+                        fijarCliente(String(cliente.id), cliente.nombre);
+                        clientesResultados.innerHTML = '';
+                    });
+                    clientesResultados.appendChild(boton);
+                });
+            }, 250);
+        });
+
+        clienteQuitar.addEventListener('click', () => {
+            fijarCliente('', '');
+            clienteBuscar.value = '';
+            clienteBuscar.focus();
+        });
+
+        const rapidoGuardar = document.getElementById('cliente-rapido-guardar');
+
+        if (rapidoGuardar) {
+            rapidoGuardar.addEventListener('click', async () => {
+                const nombreEl = document.getElementById('cliente-rapido-nombre');
+                const ciEl = document.getElementById('cliente-rapido-ci');
+                const errorEl = document.getElementById('cliente-rapido-error');
+                const token = document.querySelector('meta[name="csrf-token"]').content;
+
+                const respuesta = await fetch('/clientes/rapido', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: JSON.stringify({ nombre: nombreEl.value, ci_nit: ciEl.value }),
+                });
+
+                const datos = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    errorEl.textContent = datos.message || 'No se pudo crear el cliente.';
+                    errorEl.classList.remove('d-none');
+                    return;
+                }
+
+                fijarCliente(String(datos.id), datos.nombre);
+                errorEl.classList.add('d-none');
+                bootstrap.Modal.getInstance(document.getElementById('modal-cliente')).hide();
+                buscador.focus();
+            });
+        }
+    }
 });

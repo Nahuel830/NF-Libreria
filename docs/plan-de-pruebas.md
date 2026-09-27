@@ -391,3 +391,15 @@ Anota aquí lo que no es un error pero quieres distinto (textos, orden de column
 - [ ] **PV-04** Detalle: datos, historial de entradas con filtro de fechas, total comprado y productos que suele proveer con último costo.
 - [ ] **PV-05** Nueva entrada: selector de proveedor con búsqueda + "Crear proveedor rápido".
 - [ ] **PV-06** Reporte Compras por proveedor con CSV.
+
+---
+
+## 21. Clientes
+
+- [ ] **CL-01** Listado con búsqueda por nombre o CI/NIT y estado.
+- [ ] **CL-02** Crear cliente (nombre obligatorio, CI/NIT único); editar; desactivar/reactivar; todo auditado.
+- [ ] **CL-03** Cajero recibe 403 en el módulo, pero puede buscar y crear desde la venta.
+- [ ] **CL-04** En la venta: buscar cliente por nombre o CI/NIT, botón "Nuevo cliente"; sigue siendo opcional (nombre libre o sin cliente).
+- [ ] **CL-05** Venta con cliente guarda el vínculo y la copia del nombre; si después cambia el nombre del cliente, la venta mantiene el viejo.
+- [ ] **CL-06** Detalle del cliente: historial, total comprado y última compra.
+- [ ] **CL-07** Reporte Mejores clientes con CSV.

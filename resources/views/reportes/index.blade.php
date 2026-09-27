@@ -15,5 +15,6 @@
         <li><a href="{{ route('reportes.inventario') }}">Inventario valorizado</a></li>
         <li><a href="{{ route('reportes.movimientos') }}">Movimientos de stock</a></li>
         <li><a href="{{ route('reportes.compras') }}">Compras por proveedor</a></li>
+        <li><a href="{{ route('reportes.clientes') }}">Mejores clientes</a></li>
     </ul>
 @endsection

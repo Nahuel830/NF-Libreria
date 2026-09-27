@@ -16,6 +16,7 @@ Se inicia sesión con el campo `usuario` (en minúsculas), no con correo.
 | gestionar-stock | ✅ | ✅ | ❌ |
 | registrar-entradas | ✅ | ✅ | ❌ |
 | gestionar-proveedores | ✅ | ✅ | ❌ |
+| gestionar-clientes | ✅ | ✅ | ❌ |
 | realizar-ventas | ✅ | ✅ | ✅ |
 | ver-todas-las-ventas | ✅ | ✅ | ❌ |
 | anular-ventas | ✅ | ✅ | ❌ |

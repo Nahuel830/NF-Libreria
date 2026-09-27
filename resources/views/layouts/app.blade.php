@@ -38,6 +38,9 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item {{ request()->routeIs('ventas.nueva') ? 'active' : '' }}" href="{{ route('ventas.nueva') }}">Nueva venta</a></li>
                                     <li><a class="dropdown-item {{ request()->routeIs('ventas.index', 'ventas.ver') ? 'active' : '' }}" href="{{ route('ventas.index') }}">Historial de ventas</a></li>
+                                    @can('gestionar-clientes')
+                                        <li><a class="dropdown-item {{ request()->routeIs('clientes.*') ? 'active' : '' }}" href="{{ route('clientes.index') }}">Clientes</a></li>
+                                    @endcan
                                 </ul>
                             </li>
                         @endcan

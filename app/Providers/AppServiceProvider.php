@@ -35,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('gestionar-configuracion', $soloAdmin);
         Gate::define('ver-auditoria', $soloAdmin);
         Gate::define('gestionar-proveedores', $adminOEncargado);
+        Gate::define('gestionar-clientes', $adminOEncargado);
         Gate::define('gestionar-categorias', $adminOEncargado);
         Gate::define('gestionar-productos', $adminOEncargado);
         Gate::define('ver-productos', $todos);
