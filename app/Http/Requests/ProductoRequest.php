@@ -20,6 +20,12 @@ class ProductoRequest extends FormRequest
                 'codigo' => mb_strtoupper(trim((string) $this->input('codigo'))),
             ]);
         }
+
+        if ($this->has('codigo_barras')) {
+            $codigoBarras = trim((string) $this->input('codigo_barras'));
+
+            $this->merge(['codigo_barras' => $codigoBarras === '' ? null : $codigoBarras]);
+        }
     }
 
     /**
@@ -31,6 +37,7 @@ class ProductoRequest extends FormRequest
 
         return [
             'codigo' => ['required', 'string', 'max:30', Rule::unique('productos', 'codigo')->ignore($ignorarId)],
+            'codigo_barras' => ['nullable', 'string', 'max:50', Rule::unique('productos', 'codigo_barras')->ignore($ignorarId)],
             'nombre' => ['required', 'string', 'max:150'],
             'descripcion' => ['nullable', 'string'],
             'categoria_id' => ['required', 'integer', Rule::exists('categorias', 'id')->where('activo', true)],

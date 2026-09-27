@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Picqer\Barcode\BarcodeGeneratorSVG;
 
 class ProductoController extends Controller
 {
@@ -136,6 +137,35 @@ class ProductoController extends Controller
             ->with('success', "Producto '{$producto->codigo}' ".($producto->activo ? 'activado' : 'desactivado').'.');
     }
 
+    public function etiquetas(Request $request): View
+    {
+        $filas = max(1, min(20, (int) $request->input('filas', 8)));
+        $columnas = max(1, min(5, (int) $request->input('columnas', 3)));
+
+        $productos = Producto::query()
+            ->where('activo', true)
+            ->when($request->input('categoria_id'), fn ($consulta, $id) => $consulta->where('categoria_id', $id))
+            ->when($request->boolean('solo_sin_barras'), fn ($consulta) => $consulta->whereNull('codigo_barras'))
+            ->orderBy('nombre')
+            ->limit(200)
+            ->get();
+
+        $generador = new BarcodeGeneratorSVG();
+        $etiquetas = $productos->map(fn (Producto $p) => [
+            'nombre' => $p->nombre,
+            'codigo' => $p->codigo_barras ?? $p->codigo,
+            // SVG generado en el servidor (solo gráficos, sin HTML de usuarios).
+            'svg' => $generador->getBarcode($p->codigo_barras ?? $p->codigo, BarcodeGeneratorSVG::TYPE_CODE_128),
+        ]);
+
+        return view('productos.etiquetas', [
+            'etiquetas' => $etiquetas,
+            'filas' => $filas,
+            'columnas' => $columnas,
+            'categorias' => Categoria::where('activo', true)->orderBy('nombre')->get(),
+        ]);
+    }
+
     public function stockBajo(): View
     {
         $productos = Producto::query()
@@ -174,6 +204,7 @@ class ProductoController extends Controller
     {
         return [
             'codigo' => $request->input('codigo'),
+            'codigo_barras' => $request->input('codigo_barras'),
             'nombre' => trim((string) $request->input('nombre')),
             'descripcion' => $request->input('descripcion'),
             'categoria_id' => $request->input('categoria_id'),

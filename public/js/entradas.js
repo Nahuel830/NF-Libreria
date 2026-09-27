@@ -16,6 +16,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formatear = (valor) => `Bs. ${valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 
+    const pitar = () => {
+        try {
+            const contexto = new (window.AudioContext || window.webkitAudioContext)();
+            const oscilador = contexto.createOscillator();
+            const ganancia = contexto.createGain();
+            oscilador.connect(ganancia);
+            ganancia.connect(contexto.destination);
+            oscilador.frequency.value = 880;
+            oscilador.start();
+            ganancia.gain.setTargetAtTime(0.0001, contexto.currentTime, 0.05);
+            setTimeout(() => { oscilador.stop(); contexto.close(); }, 250);
+        } catch (error) {
+            // Sin audio disponible: solo el aviso visual.
+        }
+    };
+
+    const avisoBreve = (texto) => {
+        let aviso = document.getElementById('aviso-entrada');
+
+        if (!aviso) {
+            aviso = document.createElement('div');
+            aviso.id = 'aviso-entrada';
+            aviso.className = 'toast-venta';
+            document.body.appendChild(aviso);
+        }
+
+        aviso.textContent = texto;
+        aviso.classList.add('visible');
+        clearTimeout(aviso.dataset.t);
+        aviso.dataset.t = setTimeout(() => aviso.classList.remove('visible'), 2500).toString();
+    };
+
     const recalcular = () => {
         let total = 0;
 
@@ -58,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fila.querySelector('.quitar').addEventListener('click', () => {
             fila.remove();
             recalcular();
+            buscador.focus();
         });
         fila.querySelector('.cantidad').addEventListener('input', recalcular);
         fila.querySelector('.costo').addEventListener('input', recalcular);
@@ -65,7 +98,54 @@ document.addEventListener('DOMContentLoaded', () => {
         items.appendChild(fila);
         indice += 1;
         recalcular();
+        buscador.focus();
     };
+
+    const coincideExacto = (productos, texto) => {
+        const arriba = texto.toUpperCase();
+        return productos.find((p) => p.codigo.toUpperCase() === arriba
+            || (p.codigo_barras && p.codigo_barras.toUpperCase() === arriba));
+    };
+
+    buscador.addEventListener('keydown', async (e) => {
+        if (e.key !== 'Enter') {
+            return;
+        }
+
+        e.preventDefault();
+
+        const texto = buscador.value.trim();
+
+        if (texto === '') {
+            return;
+        }
+
+        const respuesta = await fetch(`/api-interna/productos/buscar?para=entrada&q=${encodeURIComponent(texto)}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!respuesta.ok) {
+            return;
+        }
+
+        const productos = await respuesta.json();
+        const directo = coincideExacto(productos, texto);
+
+        if (directo) {
+            agregar(directo);
+            resultados.innerHTML = '';
+            buscador.value = '';
+            buscador.focus();
+            return;
+        }
+
+        if (productos.length === 0) {
+            avisoBreve(`Código no encontrado: ${texto}`);
+            pitar();
+            buscador.value = '';
+            buscador.focus();
+        }
+    });
 
     buscador.addEventListener('input', () => {
         clearTimeout(temporizador);

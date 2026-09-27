@@ -4,7 +4,8 @@
 
 1. Entra a Productos → "Importar desde Excel/CSV" y descarga la **plantilla**.
 2. Ábrela en Excel. Tiene estos encabezados (no los cambies):
-   `codigo;nombre;categoria;marca;unidad;precio_compra;precio_venta;stock_inicial;stock_minimo;controla_stock`
+   `codigo;nombre;categoria;marca;unidad;precio_compra;precio_venta;stock_inicial;stock_minimo;controla_stock;codigo_barras`
+   (`codigo_barras` es opcional: código de fábrica para lector; único si se usa).
 3. Agrega una fila por producto:
    - `codigo`: código interno, único (ej: `CUA-001`).
    - `categoria`: debe existir o se crea si marcaste la opción.

@@ -366,3 +366,17 @@ Anota aquí lo que no es un error pero quieres distinto (textos, orden de column
 
 - 
 - 
+
+---
+
+## 19. Código de barras (lector USB tipo teclado)
+
+- [ ] **CB-01** En el producto: campo "Código de barras", se puede llenar escaneando (el Enter del lector no envía el formulario).
+- [ ] **CB-02** Código de barras repetido en otro producto → error.
+- [ ] **CB-03** En ventas: escanear un código existente agrega 1 (o suma 1 si ya está), limpia el buscador y lo deja enfocado; 3 escaneos seguidos → cantidad 3.
+- [ ] **CB-04** Escanear un código que no existe → aviso breve + sonido corto, sin bloquear.
+- [ ] **CB-05** Escanear mientras el foco está en otro campo: documentado (el lector escribe donde esté el foco; para agregar al carrito el foco debe estar en el buscador o F2).
+- [ ] **CB-06** En entradas: escanear agrega el producto igual que en ventas.
+- [ ] **CB-07** Importar CSV con columna codigo_barras → se guarda; duplicado → error claro.
+- [ ] **CB-08** Pantalla Etiquetas: imprime hojas A4 con códigos Code128 (nombre + código); filtro por categoría y "solo sin código".
+- [ ] **CB-09** Después de cambiar cantidad, quitar ítem o cancelar con el modal, el foco vuelve al buscador.

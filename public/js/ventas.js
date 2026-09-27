@@ -43,6 +43,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const pitar = () => {
+        try {
+            const contexto = new (window.AudioContext || window.webkitAudioContext)();
+            const oscilador = contexto.createOscillator();
+            const ganancia = contexto.createGain();
+            oscilador.connect(ganancia);
+            ganancia.connect(contexto.destination);
+            oscilador.frequency.value = 880;
+            oscilador.start();
+            ganancia.gain.setTargetAtTime(0.0001, contexto.currentTime, 0.05);
+            setTimeout(() => { oscilador.stop(); contexto.close(); }, 250);
+        } catch (error) {
+            // Sin audio disponible: solo el aviso visual.
+        }
+    };
+
+    const avisoBreve = (texto) => {
+        let aviso = document.getElementById('aviso-venta');
+
+        if (!aviso) {
+            aviso = document.createElement('div');
+            aviso.id = 'aviso-venta';
+            aviso.className = 'toast-venta';
+            document.body.appendChild(aviso);
+        }
+
+        aviso.textContent = texto;
+        aviso.classList.add('visible');
+        clearTimeout(aviso.dataset.t);
+        aviso.dataset.t = setTimeout(() => aviso.classList.remove('visible'), 2500).toString();
+    };
+
+    const codigoNoEncontrado = (texto) => {
+        avisoBreve(`Código no encontrado: ${texto}`);
+        pitar();
+        buscador.value = '';
+        buscador.focus();
+    };
+
+    const coincideExacto = (productos, texto) => {
+        const arriba = texto.toUpperCase();
+        return productos.find((p) => p.codigo.toUpperCase() === arriba
+            || (p.codigo_barras && p.codigo_barras.toUpperCase() === arriba));
+    };
+
     const recalcular = () => {
         let subtotal = 0;
 
@@ -96,23 +141,27 @@ document.addEventListener('DOMContentLoaded', () => {
             item.cantidad += 1;
             dibujar();
             recalcular();
+            buscador.focus();
         }));
         carrito.querySelectorAll('.menos').forEach((b) => b.addEventListener('click', () => {
             const item = carritoItems.get(Number(b.dataset.id));
             item.cantidad = Math.max(1, item.cantidad - 1);
             dibujar();
             recalcular();
+            buscador.focus();
         }));
         carrito.querySelectorAll('.cantidad').forEach((input) => input.addEventListener('change', () => {
             const item = carritoItems.get(Number(input.dataset.id));
             item.cantidad = Math.max(1, parseInt(input.value, 10) || 1);
             dibujar();
             recalcular();
+            buscador.focus();
         }));
         carrito.querySelectorAll('.quitar').forEach((b) => b.addEventListener('click', () => {
             carritoItems.delete(Number(b.dataset.id));
             dibujar();
             recalcular();
+            buscador.focus();
         }));
 
         recalcular();
@@ -195,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const exacto = resultadosActuales.find((p) => p.codigo.toUpperCase() === texto.toUpperCase());
+            const exacto = coincideExacto(resultadosActuales, texto);
 
             if (exacto) {
                 agregar(exacto);
@@ -217,10 +266,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const productos = await respuesta.json();
-            const directo = productos.find((p) => p.codigo.toUpperCase() === texto.toUpperCase());
+            const directo = coincideExacto(productos, texto);
 
             if (directo) {
                 agregar(directo);
+                return;
+            }
+
+            if (productos.length === 0) {
+                codigoNoEncontrado(texto);
                 return;
             }
 
@@ -242,6 +296,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         temporizador = setTimeout(() => buscar(texto), 250);
+    });
+
+    // Lector de código de barras con el foco en otro campo: si llega una
+    // entrada rápida (menos de 50 ms entre caracteres) terminada en Enter,
+    // se redirige al carrito. La escritura manual es más lenta y no se toca.
+    let secuencia = '';
+    let ultimoTiempo = 0;
+
+    const redirigirEscaneo = async (texto, objetivo) => {
+        const respuesta = await fetch(`/api-interna/productos/buscar?q=${encodeURIComponent(texto)}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (respuesta.ok) {
+            const directo = coincideExacto(await respuesta.json(), texto);
+
+            if (directo) {
+                if (objetivo && (objetivo.tagName === 'INPUT' || objetivo.tagName === 'TEXTAREA')
+                    && typeof objetivo.value === 'string' && objetivo.value.endsWith(texto)) {
+                    objetivo.value = objetivo.value.slice(0, -texto.length);
+                    objetivo.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                agregar(directo);
+                return true;
+            }
+        }
+
+        avisoBreve(`Código no encontrado: ${texto}`);
+        pitar();
+        buscador.focus();
+        return false;
+    };
+
+    document.addEventListener('keydown', async (e) => {
+        if (e.target === buscador || e.ctrlKey || e.metaKey || e.altKey) {
+            return;
+        }
+
+        const ahora = performance.now();
+
+        if (e.key === 'Enter') {
+            const texto = secuencia;
+            const rapida = texto.length >= 3 && (ahora - ultimoTiempo) < 50;
+            secuencia = '';
+
+            if (!rapida) {
+                return;
+            }
+
+            e.preventDefault();
+            await redirigirEscaneo(texto, e.target);
+            return;
+        }
+
+        if (e.key.length === 1) {
+            if (ahora - ultimoTiempo > 50) {
+                secuencia = '';
+            }
+
+            secuencia += e.key;
+            ultimoTiempo = ahora;
+        } else {
+            secuencia = '';
+        }
     });
 
     document.querySelectorAll('[data-metodo]').forEach((boton) => {

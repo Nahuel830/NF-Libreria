@@ -6,6 +6,7 @@
     <x-page-header titulo="Productos" :migas="['Inventario' => null, 'Productos' => null]">
         @can('gestionar-productos')
             <a href="{{ route('productos.importar') }}" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar desde Excel/CSV</a>
+            <a href="{{ route('productos.etiquetas') }}" class="btn btn-outline-secondary"><i class="bi bi-upc-scan"></i> Etiquetas</a>
             <a href="{{ route('productos.crear') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo producto</a>
         @endcan
     </x-page-header>

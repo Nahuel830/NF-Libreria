@@ -169,4 +169,28 @@ class ImportacionTest extends TestCase
         $this->assertNotNull(Producto::where('codigo', 'TIL-001')->first());
         $this->assertSame('Lápiz ótimo', Producto::where('codigo', 'TIL-001')->first()->nombre);
     }
+
+    public function test_importa_codigo_de_barras_y_rechaza_duplicado(): void
+    {
+        Producto::factory()->create(['codigo' => 'BAR-EX', 'codigo_barras' => '7501000199999']);
+
+        $csv = "codigo;nombre;categoria;marca;unidad;precio_compra;precio_venta;stock_inicial;stock_minimo;controla_stock;codigo_barras\n"
+            ."BAR-010;Con barras;Accesorios;;unidad;1;2;0;0;si;7501000100100\n"
+            ."BAR-011;Duplicado;Accesorios;;unidad;1;2;0;0;si;7501000199999\n";
+
+        $respuesta = $this->actingAs($this->admin())->post('/productos/importar/vista-previa', [
+            'archivo' => $this->archivo($csv),
+            'si_existe' => 'omitir',
+            'crear_categorias' => '1',
+        ]);
+
+        $respuesta->assertOk()->assertSee('ya está en uso');
+
+        preg_match('/name="token" value="([^"]+)"/', $respuesta->getContent(), $m);
+
+        $this->actingAs($this->admin())->post('/productos/importar/confirmar', ['token' => $m[1]])->assertOk();
+
+        $this->assertSame('7501000100100', Producto::where('codigo', 'BAR-010')->first()->codigo_barras);
+        $this->assertNull(Producto::where('codigo', 'BAR-011')->first());
+    }
 }

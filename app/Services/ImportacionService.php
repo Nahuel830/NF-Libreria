@@ -15,6 +15,7 @@ class ImportacionService
     protected array $encabezados = [
         'codigo', 'nombre', 'categoria', 'marca', 'unidad',
         'precio_compra', 'precio_venta', 'stock_inicial', 'stock_minimo', 'controla_stock',
+        'codigo_barras',
     ];
 
     /**
@@ -31,8 +32,8 @@ class ImportacionService
     {
         $lineas = [
             implode(';', $this->encabezados),
-            'CUA-001;Cuaderno universitario 100 hojas;Cuadernos;Norma;unidad;8,50;12,00;20;5;si',
-            'LAP-001;Lapicero azul;Lapiceros;Bic;unidad;1,50;2,50;100;20;si',
+            'CUA-001;Cuaderno universitario 100 hojas;Cuadernos;Norma;unidad;8,50;12,00;20;5;si;',
+            'LAP-001;Lapicero azul;Lapiceros;Bic;unidad;1,50;2,50;100;20;si;7501000100018',
         ];
 
         return "\xEF\xBB\xBF".implode("\r\n", $lineas)."\r\n";
@@ -133,6 +134,7 @@ class ImportacionService
 
                     $producto->forceFill([
                         'nombre' => $datos['nombre'],
+                        'codigo_barras' => $datos['codigo_barras'] !== '' ? $datos['codigo_barras'] : null,
                         'categoria_id' => $categoria->id,
                         'marca' => $datos['marca'] !== '' ? $datos['marca'] : null,
                         'unidad' => $datos['unidad'],
@@ -148,6 +150,7 @@ class ImportacionService
 
                 $producto = Producto::create([
                     'codigo' => $datos['codigo'],
+                    'codigo_barras' => $datos['codigo_barras'] !== '' ? $datos['codigo_barras'] : null,
                     'nombre' => $datos['nombre'],
                     'categoria_id' => $categoria->id,
                     'marca' => $datos['marca'] !== '' ? $datos['marca'] : null,
@@ -192,6 +195,19 @@ class ImportacionService
         $datos['codigo'] = mb_strtoupper(trim($datos['codigo']));
         $datos['nombre'] = trim($datos['nombre']);
         $datos['categoria'] = trim($datos['categoria']);
+        $datos['codigo_barras'] = trim((string) ($datos['codigo_barras'] ?? ''));
+
+        if ($datos['codigo_barras'] !== '') {
+            if (mb_strlen($datos['codigo_barras']) > 50) {
+                return $this->fila($numero, $datos, 'Error', 'El código de barras supera 50 caracteres.');
+            }
+
+            if (isset($vistos['barras:'.$datos['codigo_barras']])) {
+                return $this->fila($numero, $datos, 'Error', 'Código de barras duplicado dentro del archivo.');
+            }
+
+            $vistos['barras:'.$datos['codigo_barras']] = true;
+        }
 
         if ($datos['codigo'] === '') {
             return $this->fila($numero, $datos, 'Error', 'Falta el código.');
@@ -259,7 +275,19 @@ class ImportacionService
 
         $datos['controla_stock'] = $this->parsearControla($datos['controla_stock']) ? '1' : '0';
 
-        $existe = Producto::where('codigo', $datos['codigo'])->exists();
+        $existe = Producto::where('codigo', $datos['codigo'])->first();
+
+        if ($datos['codigo_barras'] !== '') {
+            $otro = Producto::where('codigo_barras', $datos['codigo_barras']);
+
+            if ($existe) {
+                $otro->where('id', '!=', $existe->id);
+            }
+
+            if ($otro->exists()) {
+                return $this->fila($numero, $datos, 'Error', 'El código de barras ya está en uso.');
+            }
+        }
 
         if ($existe) {
             return $this->fila($numero, $datos, $siExiste === 'actualizar' ? 'Actualizar' : 'Omitir', null);
@@ -273,9 +301,11 @@ class ImportacionService
      */
     protected function esEncabezado(array $columnas): bool
     {
-        $normalizadas = array_map(fn ($c) => mb_strtolower(trim($c)), array_slice($columnas, 0, count($this->encabezados)));
+        $normalizadas = array_map(fn ($c) => mb_strtolower(trim($c)), $columnas);
+        $esperados = $this->encabezados;
 
-        return $normalizadas === $this->encabezados;
+        return $normalizadas === $esperados
+            || $normalizadas === array_slice($esperados, 0, 10);
     }
 
     protected function parsearPrecio(string $valor, bool $permiteVacio): ?string

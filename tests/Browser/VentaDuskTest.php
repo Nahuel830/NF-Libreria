@@ -209,4 +209,30 @@ class VentaDuskTest extends DuskTestCase
             $this->assertTrue((bool) $ancho[0]);
         });
     }
+
+    public function test_escaneo_consecutivo_por_codigo_de_barras(): void
+    {
+        $producto = Producto::where('codigo', 'LAP-001')->firstOrFail();
+        $producto->forceFill(['codigo_barras' => '7501000100018'])->save();
+        $stockAntes = $producto->stock;
+
+        $this->browse(function (Browser $browser) {
+            $this->abrirCaja($browser);
+
+            // Simula el lector: escribe rápido y termina con Enter, 3 veces.
+            for ($i = 0; $i < 3; $i++) {
+                $browser->type('#buscador', '7501000100018')
+                    ->keys('#buscador', '{enter}');
+            }
+
+            $browser->waitForTextIn('#total', 'Bs. 7,50', 10)
+                ->type('#recibido', '10')
+                ->press('COBRAR (F9)')
+                ->waitForText('VENTA #', 15);
+        });
+
+        $this->assertSame($stockAntes - 3, $producto->fresh()->stock);
+        $venta = \App\Models\Venta::where('user_id', $this->cajero()->id)->latest('id')->first();
+        $this->assertSame(3, $venta->detalles->first()->cantidad);
+    }
 }

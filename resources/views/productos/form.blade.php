@@ -27,14 +27,24 @@
                     @enderror
                 </div>
 
-                <div class="col-md-8 mb-3">
-                    <label for="nombre" class="form-label">Nombre *</label>
-                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $producto->nombre ?? '') }}" required maxlength="150">
-                    @error('nombre')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
+            <div class="col-md-8 mb-3">
+                <label for="nombre" class="form-label">Nombre *</label>
+                <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $producto->nombre ?? '') }}" required maxlength="150">
+                @error('nombre')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
             </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="codigo_barras" class="form-label">Código de barras (opcional, se puede escanear)</label>
+                <input type="text" class="form-control @error('codigo_barras') is-invalid @enderror" id="codigo_barras" name="codigo_barras" value="{{ old('codigo_barras', $producto->codigo_barras ?? '') }}" maxlength="50">
+                @error('codigo_barras')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
 
             <div class="mb-3">
                 <label for="descripcion" class="form-label">Descripción</label>

@@ -17,6 +17,9 @@
             <dt class="col-sm-3">Código</dt>
             <dd class="col-sm-9">{{ $producto->codigo }}</dd>
 
+            <dt class="col-sm-3">Código de barras</dt>
+            <dd class="col-sm-9">{{ $producto->codigo_barras ?? '—' }}</dd>
+
             <dt class="col-sm-3">Nombre</dt>
             <dd class="col-sm-9">{{ $producto->nombre }}</dd>
 

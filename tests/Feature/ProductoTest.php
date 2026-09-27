@@ -202,4 +202,27 @@ class ProductoTest extends TestCase
             ->assertOk()
             ->assertJsonMissing(['codigo' => 'INA-001']);
     }
+
+    public function test_busqueda_encuentra_por_codigo_de_barras(): void
+    {
+        $admin = User::factory()->create(['rol' => Rol::Admin]);
+        Producto::factory()->create(['codigo' => 'BAR-001', 'codigo_barras' => '7501000100018']);
+
+        $this->actingAs($admin)->getJson('/api-interna/productos/buscar?q=7501000100018')
+            ->assertOk()
+            ->assertJsonFragment(['codigo' => 'BAR-001']);
+    }
+
+    public function test_codigo_de_barras_duplicado_se_rechaza(): void
+    {
+        $admin = User::factory()->create(['rol' => Rol::Admin]);
+        Producto::factory()->create(['codigo_barras' => '7501000100018']);
+
+        $this->actingAs($admin)->post('/productos', array_merge($this->datosValidos(), [
+            'codigo' => 'BAR-002',
+            'codigo_barras' => '7501000100018',
+        ]))->assertSessionHasErrors('codigo_barras');
+
+        $this->assertNull(Producto::where('codigo', 'BAR-002')->first());
+    }
 }

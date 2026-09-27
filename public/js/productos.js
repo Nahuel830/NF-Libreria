@@ -27,4 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
             codigo.value = datos.codigo;
         }
     });
+
+    // El Enter del lector no debe enviar el formulario.
+    const barras = document.getElementById('codigo_barras');
+
+    if (barras) {
+        barras.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    }
 });

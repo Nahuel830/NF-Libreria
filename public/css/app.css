@@ -210,6 +210,26 @@ textarea:focus-visible,
     max-width: min(22rem, 90vw);
 }
 
+/* Aviso breve de JavaScript (p. ej. código no encontrado). */
+.toast-venta {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1090;
+    background-color: var(--nf-texto);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.toast-venta.visible {
+    opacity: 1;
+}
+
 /* Impresión de reportes: sin menú, botones ni fondos. */
 @media print {
     nav,

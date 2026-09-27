@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/crear', [ProductoController::class, 'crear'])->name('crear');
         Route::post('/', [ProductoController::class, 'guardar'])->name('guardar');
         Route::get('/sugerir-codigo', [ProductoController::class, 'sugerirCodigo'])->name('sugerir-codigo');
+        Route::get('/etiquetas', [ProductoController::class, 'etiquetas'])->name('etiquetas');
         Route::get('/importar', [ImportacionController::class, 'importar'])->name('importar');
         Route::get('/importar/plantilla', [ImportacionController::class, 'plantilla'])->name('importar.plantilla');
         Route::post('/importar/vista-previa', [ImportacionController::class, 'vistaPrevia'])->name('importar.vista-previa');
