@@ -69,6 +69,7 @@ Módulos: usuarios y roles, categorías, productos, inventario (stock con kardex
 | prompts-opencode.md | Especificación de PROMPTS 0–16 (base, login, usuarios, categorías, productos, stock, entradas, importación, ventas, ticket, historial, reportes, backups, instalación local, pruebas finales, caja) |
 | prompts-finales.md | Corrección de fallos (A), push (B), PROMPTS 14 (instalación), 15 (seguridad y manuales), 16 (caja), 17 (puesta en marcha), 18 (proveedores), 19 (clientes), 20 (código de barras), 21 (devoluciones) |
 | prompt-maestro.md | Ejecución autónoma por fases 0–7: Dusk, verificación de todo el plan de pruebas, código de barras, módulos 18/19/16/21, puesta en marcha, seguridad/manuales, instalación, regresión final y versión 1.0.0 |
+| prompt-web.md | Versión online opción 2 (VPS + dominio): WEB-1 seguridad/TOTP, WEB-2 scripts Linux, WEB-3 docs y ensayo, WEB-4 VPS real |
 | prompt-carga-inicial.md | Convertir la lista real de productos (PDF/Excel) en `carga-inicial/` (no se sube a git), verificarla, ensayar y cargar en producción desde cero (ventas #000001) con `php artisan carga:inicial` |
 | plan-de-pruebas.md | ~190 pruebas con códigos (L-, R-, U-, C-, A-, K-, PR-, S-, E-, I-, V-, T-, H-, D-, RP-, B-, X-, DS-) |
 | progreso.md | Bitácora técnica que escribe OpenCode durante los bloques (estado, decisiones, bloqueos) |
@@ -88,13 +89,13 @@ Módulos: usuarios y roles, categorías, productos, inventario (stock con kardex
 | Plan de pruebas manual | ⏭️ Reemplazado por verificación automática del prompt maestro |
 | **PROMPT MAESTRO** | ✅ **TERMINADO** en OpenCode el 27/09/2026 (~01:50). 158 PHPUnit + 26 Dusk en verde, tag `v1.0.0` en `main`. Detalle en `docs/progreso.md` |
 | Carga inicial de productos reales | ⏳ Prompt listo; ejecutar DESPUÉS del maestro |
-| Versión web (opción 2, VPS) | ⏳ En curso: redactando `docs/prompt-web.md` (sección 9) |
+| Versión web (opción 2, VPS) | ⏳ `docs/prompt-web.md` redactado (WEB-1 a WEB-4); sin ejecutar (falta comprar VPS/dominio) |
 
 ## 8. Pendientes (en orden)
 
 1. ✅ Prompt maestro terminado y revisado (158 + 26 en verde, tag v1.0.0).
 2. ✅ CONTEXTO-PROYECTO.md en el repo y con regla de mantenimiento en AGENTS.md.
-3. **Escribir y ejecutar el PROMPT WEB** (sección 9, en curso). Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
+3. **Escribir y ejecutar el PROMPT WEB** (sección 9): ✅ redactado (`docs/prompt-web.md`); ⏳ ejecutar WEB-1 cuando confirmes. Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
 4. Comprar dominio + VPS (el usuario pagará anual).
 5. Ejecutar **carga inicial** (PARTE 1–2 en la PC; PARTE 3 en el servidor web, adaptada a Linux/SSH).
 6. Conteo físico, usuarios reales (2 admins), logo y datos del negocio, impresora térmica y lector de barras en la PC de caja.
@@ -149,3 +150,8 @@ Requisitos y contenido del PROMPT WEB (a redactar en `docs/prompt-web.md`):
 - 158 tests PHPUnit + 26 Dusk en verde, stock limpio, tag `v1.0.0` en `main`.
 - CONTEXTO-PROYECTO.md ya estaba en el repo; se agregó la regla de mantenimiento a AGENTS.md.
 - En curso: redacción de `docs/prompt-web.md` (VPS + dominio, opción 2).
+
+### 27/09/2026 — PROMPT WEB redactado
+- Creado `docs/prompt-web.md` desde la sección 9: WEB-1 (seguridad web, TOTP, cabeceras, límites), WEB-2 (scripts Linux backup/restore/deploy + Actions opcional), WEB-3 (despliegue-web.md, operacion-web.md, manuales, ensayo en VM/WSL2), WEB-4 (VPS real, carga inicial por SSH).
+- Actualizadas secciones 6, 7 y 8 de este documento.
+- Pendiente: confirmación para ejecutar WEB-1; compra de VPS + dominio para WEB-4.
