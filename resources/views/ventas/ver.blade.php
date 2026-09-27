@@ -7,6 +7,7 @@
         <a href="{{ route('ventas.ticket', $venta) }}" class="btn btn-outline-primary"><i class="bi bi-printer"></i> Reimprimir ticket</a>
         @if ($venta->estado === 'COMPLETADA')
             @can('anular-ventas')
+                <a href="{{ route('devoluciones.crear', $venta) }}" class="btn btn-outline-warning"><i class="bi bi-arrow-counterclockwise"></i> Devolver</a>
                 <form method="POST" action="{{ route('ventas.anular', $venta) }}" class="d-inline"
                     data-confirm="Esta acción devolverá el stock y no se puede deshacer."
                     data-motivo
@@ -104,4 +105,17 @@
     </x-card>
 
     <a href="{{ route('ventas.index') }}" class="btn btn-secondary">Volver</a>
+
+    @if ($venta->devoluciones->isNotEmpty())
+        <x-card titulo="Devoluciones">
+            <ul class="mb-0">
+                @foreach ($venta->devoluciones as $devolucion)
+                    <li>
+                        <a href="{{ route('devoluciones.ticket', $devolucion) }}">{{ $devolucion->numero() }}</a>
+                        — <x-dinero :monto="$devolucion->total_devuelto" /> — {{ $devolucion->motivo }}
+                    </li>
+                @endforeach
+            </ul>
+        </x-card>
+    @endif
 @endsection

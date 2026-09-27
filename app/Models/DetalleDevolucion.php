@@ -4,20 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DetalleVenta extends Model
+class DetalleDevolucion extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'detalle_ventas';
+    protected $table = 'detalle_devoluciones';
 
     protected $fillable = [
-        'venta_id',
-        'producto_id',
-        'codigo_producto',
-        'nombre_producto',
-        'cantidad',
-        'precio_unitario',
-        'subtotal',
+        'devolucion_id', 'detalle_venta_id', 'producto_id',
+        'cantidad', 'precio_unitario', 'subtotal',
     ];
 
     protected function casts(): array
@@ -28,14 +23,14 @@ class DetalleVenta extends Model
         ];
     }
 
-    public function venta()
+    public function devolucion()
     {
-        return $this->belongsTo(Venta::class, 'venta_id');
+        return $this->belongsTo(Devolucion::class, 'devolucion_id');
     }
 
-    public function devoluciones()
+    public function detalleVenta()
     {
-        return $this->hasMany(DetalleDevolucion::class, 'detalle_venta_id');
+        return $this->belongsTo(DetalleVenta::class, 'detalle_venta_id');
     }
 
     public function producto()

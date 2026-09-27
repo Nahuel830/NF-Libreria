@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categoria;
+use App\Models\Devolucion;
 use App\Models\EntradaStock;
 use App\Models\MovimientoStock;
 use App\Models\Producto;
@@ -60,6 +61,24 @@ class ReporteController extends Controller
         return $request->input('formato') === 'csv';
     }
 
+    /**
+     * Criterio de devoluciones en reportes: los totales monetarios y las
+     * cantidades son NETOS (ventas COMPLETADA menos devoluciones del período,
+     * por fecha de devolución).
+     *
+     * @return array<string, string> mapa clave => devuelto con 2 decimales
+     */
+    protected function devolucionesAgrupadas(string $desde, string $hasta, string $grupo): array
+    {
+        return Devolucion::whereDate('fecha', '>=', $desde)->whereDate('fecha', '<=', $hasta)
+            ->selectRaw("{$grupo} as clave")
+            ->selectRaw('SUM(total_devuelto) as devuelto')
+            ->groupByRaw($grupo)
+            ->pluck('devuelto', 'clave')
+            ->map(fn ($v) => number_format((float) $v, 2, '.', ''))
+            ->all();
+    }
+
     public function resumen(Request $request): View|\Illuminate\Http\Response
     {
         [$desde, $hasta] = $this->rango($request);
@@ -74,10 +93,19 @@ class ReporteController extends Controller
             ->orderBy('dia')
             ->get();
 
+        $devueltos = $this->devolucionesAgrupadas($desde, $hasta, 'fecha::date');
+
+        $filas = $filas->map(function ($fila) use ($devueltos) {
+            $fila->devoluciones = $devueltos[$fila->dia] ?? '0.00';
+            $fila->total = bcsub($fila->total, $fila->devoluciones, 2);
+
+            return $fila;
+        });
+
         if ($this->quiereCsv($request)) {
             return $this->csv('resumen-ventas.csv',
-                ['fecha', 'cantidad', 'total', 'descuentos', 'anuladas'],
-                $filas->map(fn ($f) => [$f->dia, $f->cantidad, $this->monedaCsv($f->total), $this->monedaCsv($f->descuentos), $f->anuladas]));
+                ['fecha', 'cantidad', 'total', 'descuentos', 'devoluciones', 'anuladas'],
+                $filas->map(fn ($f) => [$f->dia, $f->cantidad, $this->monedaCsv($f->total), $this->monedaCsv($f->descuentos), $this->monedaCsv($f->devoluciones), $f->anuladas]));
         }
 
         return view('reportes.resumen', ['filas' => $filas, 'desde' => $desde, 'hasta' => $hasta]);
@@ -90,15 +118,29 @@ class ReporteController extends Controller
         $filas = Venta::join('users', 'users.id', '=', 'ventas.user_id')
             ->where('ventas.estado', 'COMPLETADA')
             ->whereDate('fecha', '>=', $desde)->whereDate('fecha', '<=', $hasta)
-            ->select('users.nombre', 'users.usuario', DB::raw('COUNT(*) as cantidad'), DB::raw('SUM(total) as total'))
+            ->select('users.id as cajero_id', 'users.nombre', 'users.usuario', DB::raw('COUNT(*) as cantidad'), DB::raw('SUM(total) as total'))
             ->groupBy('users.id', 'users.nombre', 'users.usuario')
             ->orderByDesc('total')
             ->get();
 
+        $devueltos = Devolucion::join('ventas as v', 'v.id', '=', 'devoluciones.venta_id')
+            ->whereDate('devoluciones.fecha', '>=', $desde)->whereDate('devoluciones.fecha', '<=', $hasta)
+            ->selectRaw('v.user_id as cajero_id')
+            ->selectRaw('SUM(total_devuelto) as devuelto')
+            ->groupBy('v.user_id')
+            ->pluck('devuelto', 'cajero_id');
+
+        $filas = $filas->map(function ($fila) use ($devueltos) {
+            $fila->devoluciones = number_format((float) ($devueltos[$fila->cajero_id] ?? 0), 2, '.', '');
+            $fila->total = bcsub($fila->total, $fila->devoluciones, 2);
+
+            return $fila;
+        })->sortByDesc('total')->values();
+
         if ($this->quiereCsv($request)) {
             return $this->csv('ventas-por-cajero.csv',
-                ['cajero', 'usuario', 'cantidad', 'total'],
-                $filas->map(fn ($f) => [$f->nombre, $f->usuario, $f->cantidad, $this->monedaCsv($f->total)]));
+                ['cajero', 'usuario', 'cantidad', 'total', 'devoluciones'],
+                $filas->map(fn ($f) => [$f->nombre, $f->usuario, $f->cantidad, $this->monedaCsv($f->total), $this->monedaCsv($f->devoluciones)]));
         }
 
         return view('reportes.cajeros', ['filas' => $filas, 'desde' => $desde, 'hasta' => $hasta]);
@@ -115,10 +157,19 @@ class ReporteController extends Controller
             ->orderByDesc('total')
             ->get();
 
+        $devueltos = $this->devolucionesAgrupadas($desde, $hasta, 'metodo_reembolso');
+
+        $filas = $filas->map(function ($fila) use ($devueltos) {
+            $fila->devoluciones = $devueltos[$fila->metodo_pago] ?? '0.00';
+            $fila->total = bcsub($fila->total, $fila->devoluciones, 2);
+
+            return $fila;
+        })->sortByDesc('total')->values();
+
         if ($this->quiereCsv($request)) {
             return $this->csv('ventas-por-metodo.csv',
-                ['metodo', 'cantidad', 'total'],
-                $filas->map(fn ($f) => [$f->metodo_pago, $f->cantidad, $this->monedaCsv($f->total)]));
+                ['metodo', 'cantidad', 'total', 'devoluciones'],
+                $filas->map(fn ($f) => [$f->metodo_pago, $f->cantidad, $this->monedaCsv($f->total), $this->monedaCsv($f->devoluciones)]));
         }
 
         return view('reportes.metodos', ['filas' => $filas, 'desde' => $desde, 'hasta' => $hasta]);
@@ -129,14 +180,22 @@ class ReporteController extends Controller
         [$desde, $hasta] = $this->rango($request);
         $orden = $request->input('orden', 'cantidad');
 
+        $devueltos = DB::table('detalle_devoluciones as dd')
+            ->join('devoluciones as d', 'd.id', '=', 'dd.devolucion_id')
+            ->whereDate('d.fecha', '>=', $desde)->whereDate('d.fecha', '<=', $hasta)
+            ->select('dd.detalle_venta_id', DB::raw('SUM(dd.cantidad) as dev_cant'), DB::raw('SUM(dd.subtotal) as dev_total'))
+            ->groupBy('dd.detalle_venta_id');
+
         $filas = DB::table('detalle_ventas as dv')
             ->join('ventas as v', 'v.id', '=', 'dv.venta_id')
             ->join('productos as p', 'p.id', '=', 'dv.producto_id')
             ->join('categorias as c', 'c.id', '=', 'p.categoria_id')
+            ->leftJoinSub($devueltos, 'dd', 'dd.detalle_venta_id', '=', 'dv.id')
             ->where('v.estado', 'COMPLETADA')
             ->whereDate('v.fecha', '>=', $desde)->whereDate('v.fecha', '<=', $hasta)
             ->select('dv.codigo_producto as codigo', 'dv.nombre_producto as nombre', 'c.nombre as categoria',
-                DB::raw('SUM(dv.cantidad) as cantidad'), DB::raw('SUM(dv.subtotal) as total'))
+                DB::raw('SUM(dv.cantidad) - COALESCE(SUM(dd.dev_cant), 0) as cantidad'),
+                DB::raw('SUM(dv.subtotal) - COALESCE(SUM(dd.dev_total), 0) as total'))
             ->groupBy('dv.codigo_producto', 'dv.nombre_producto', 'c.nombre')
             ->orderByDesc($orden === 'total' ? 'total' : 'cantidad')
             ->limit(50)
@@ -155,13 +214,22 @@ class ReporteController extends Controller
     {
         [$desde, $hasta] = $this->rango($request);
 
+        $devueltos = DB::table('detalle_devoluciones as dd')
+            ->join('devoluciones as d', 'd.id', '=', 'dd.devolucion_id')
+            ->whereDate('d.fecha', '>=', $desde)->whereDate('d.fecha', '<=', $hasta)
+            ->select('dd.detalle_venta_id', DB::raw('SUM(dd.cantidad) as dev_cant'), DB::raw('SUM(dd.subtotal) as dev_total'))
+            ->groupBy('dd.detalle_venta_id');
+
         $filas = DB::table('detalle_ventas as dv')
             ->join('ventas as v', 'v.id', '=', 'dv.venta_id')
             ->join('productos as p', 'p.id', '=', 'dv.producto_id')
             ->join('categorias as c', 'c.id', '=', 'p.categoria_id')
+            ->leftJoinSub($devueltos, 'dd', 'dd.detalle_venta_id', '=', 'dv.id')
             ->where('v.estado', 'COMPLETADA')
             ->whereDate('v.fecha', '>=', $desde)->whereDate('v.fecha', '<=', $hasta)
-            ->select('c.nombre as categoria', DB::raw('SUM(dv.cantidad) as cantidad'), DB::raw('SUM(dv.subtotal) as total'))
+            ->select('c.nombre as categoria',
+                DB::raw('SUM(dv.cantidad) - COALESCE(SUM(dd.dev_cant), 0) as cantidad'),
+                DB::raw('SUM(dv.subtotal) - COALESCE(SUM(dd.dev_total), 0) as total'))
             ->groupBy('c.nombre')
             ->orderByDesc('total')
             ->get();
@@ -190,15 +258,26 @@ class ReporteController extends Controller
             ->when($cajeroId, fn ($c) => $c->where('user_id', $cajeroId))
             ->orderBy('id')->get();
 
+        $devueltas = Devolucion::whereDate('fecha', $fecha)
+            ->when($cajeroId, function ($c) use ($cajeroId) {
+                $c->whereHas('venta', fn ($v) => $v->where('user_id', $cajeroId));
+            })
+            ->orderBy('id')->get();
+
+        $devTotal = number_format((float) $devueltas->sum('total_devuelto'), 2, '.', '');
+        $devEfectivo = number_format((float) $devueltas->where('metodo_reembolso', 'EFECTIVO')->sum('total_devuelto'), 2, '.', '');
+
         return view('reportes.cierre', [
             'fecha' => $fecha,
             'cajeroId' => $cajeroId,
             'cajeros' => User::orderBy('nombre')->get(['id', 'nombre', 'usuario']),
             'porMetodo' => $porMetodo,
             'cantidad' => (clone $base)->count(),
-            'total' => (clone $base)->sum('total'),
-            'efectivo' => (clone $base)->where('metodo_pago', 'EFECTIVO')->sum('total'),
+            'total' => bcsub((string) (clone $base)->sum('total'), $devTotal, 2),
+            'efectivo' => bcsub((string) (clone $base)->where('metodo_pago', 'EFECTIVO')->sum('total'), $devEfectivo, 2),
             'anuladas' => $anuladas,
+            'devueltas' => $devueltas,
+            'devTotal' => $devTotal,
             'cajas' => \App\Models\Caja::with('usuario')->whereDate('abierta_en', $fecha)
                 ->when($cajeroId, fn ($c) => $c->where('user_id', $cajeroId))
                 ->orderBy('id')->get(),
@@ -311,16 +390,30 @@ class ReporteController extends Controller
         $filas = Venta::join('clientes as c', 'c.id', '=', 'ventas.cliente_id')
             ->where('ventas.estado', 'COMPLETADA')
             ->whereDate('fecha', '>=', $desde)->whereDate('fecha', '<=', $hasta)
-            ->select('c.nombre', 'c.ci_nit', DB::raw('COUNT(*) as cantidad'), DB::raw('SUM(total) as total'))
+            ->select('c.id as cliente_id', 'c.nombre', 'c.ci_nit', DB::raw('COUNT(*) as cantidad'), DB::raw('SUM(total) as total'))
             ->groupBy('c.id', 'c.nombre', 'c.ci_nit')
             ->orderByDesc('total')
             ->limit(50)
             ->get();
 
+        $devueltos = Devolucion::join('ventas as v', 'v.id', '=', 'devoluciones.venta_id')
+            ->whereDate('devoluciones.fecha', '>=', $desde)->whereDate('devoluciones.fecha', '<=', $hasta)
+            ->selectRaw('v.cliente_id')
+            ->selectRaw('SUM(total_devuelto) as devuelto')
+            ->groupBy('v.cliente_id')
+            ->pluck('devuelto', 'cliente_id');
+
+        $filas = $filas->map(function ($fila) use ($devueltos) {
+            $fila->devoluciones = number_format((float) ($devueltos[$fila->cliente_id] ?? 0), 2, '.', '');
+            $fila->total = bcsub($fila->total, $fila->devoluciones, 2);
+
+            return $fila;
+        })->sortByDesc('total')->values();
+
         if ($this->quiereCsv($request)) {
             return $this->csv('mejores-clientes.csv',
-                ['cliente', 'ci_nit', 'cantidad', 'total'],
-                $filas->map(fn ($f) => [$f->nombre, $f->ci_nit ?? '', $f->cantidad, $this->monedaCsv($f->total)]));
+                ['cliente', 'ci_nit', 'cantidad', 'total', 'devoluciones'],
+                $filas->map(fn ($f) => [$f->nombre, $f->ci_nit ?? '', $f->cantidad, $this->monedaCsv($f->total), $this->monedaCsv($f->devoluciones)]));
         }
 
         return view('reportes.clientes', ['filas' => $filas, 'desde' => $desde, 'hasta' => $hasta]);

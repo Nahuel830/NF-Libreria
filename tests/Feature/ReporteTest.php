@@ -70,7 +70,7 @@ class ReporteTest extends TestCase
         $this->actingAs($encargado)->get('/reportes/resumen?formato=csv')
             ->assertOk()
             ->assertHeader('content-type', 'text/csv; charset=UTF-8')
-            ->assertSee('fecha;cantidad;total;descuentos;anuladas');
+            ->assertSee('fecha;cantidad;total;descuentos;devoluciones;anuladas');
     }
 
     public function test_cajero_recibe_403_en_reportes(): void

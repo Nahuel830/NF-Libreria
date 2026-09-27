@@ -201,9 +201,17 @@ class VentaService
             $this->stock->bloquearProductos($detalles->pluck('producto_id')->all());
 
             foreach ($detalles as $detalle) {
+                // Si hubo devoluciones parciales, solo se revierte lo no devuelto.
+                $devuelto = $detalle->devoluciones()->sum('cantidad');
+                $revertir = $detalle->cantidad - $devuelto;
+
+                if ($revertir <= 0) {
+                    continue;
+                }
+
                 $this->stock->mover(
                     $detalle->producto_id,
-                    $detalle->cantidad,
+                    $revertir,
                     'ANULACION_VENTA',
                     $motivo,
                     'venta',

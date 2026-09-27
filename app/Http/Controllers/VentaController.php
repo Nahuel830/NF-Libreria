@@ -131,7 +131,7 @@ class VentaController extends Controller
     {
         $this->autorizarVerVenta($venta);
 
-        $venta->load(['detalles', 'usuario', 'anuladaPor']);
+        $venta->load(['detalles', 'usuario', 'anuladaPor', 'devoluciones']);
 
         return view('ventas.ver', ['venta' => $venta]);
     }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\AjusteStockController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ImportacionController;
 use App\Http\Controllers\InicioController;
@@ -152,6 +153,12 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/{venta}', [VentaController::class, 'ver'])->name('ver')->whereNumber('venta');
         Route::get('/{venta}/ticket', [VentaController::class, 'ticket'])->name('ticket')->whereNumber('venta');
         Route::post('/{venta}/anular', [VentaController::class, 'anular'])->name('anular')->middleware('can:anular-ventas');
+    });
+
+    Route::middleware('can:anular-ventas')->group(function (): void {
+        Route::get('/ventas/{venta}/devoluciones/crear', [DevolucionController::class, 'crear'])->name('devoluciones.crear');
+        Route::post('/ventas/{venta}/devoluciones', [DevolucionController::class, 'guardar'])->name('devoluciones.guardar');
+        Route::get('/devoluciones/{devolucion}/ticket', [DevolucionController::class, 'ticket'])->name('devoluciones.ticket');
     });
 
     Route::middleware('can:realizar-ventas')->prefix('caja')->name('caja.')->group(function (): void {

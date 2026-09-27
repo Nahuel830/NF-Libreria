@@ -10,7 +10,7 @@
     <div class="table-responsive">
         <table class="table table-striped tabla-nf">
             <thead>
-                <tr><th>Método</th><th>Cantidad</th><th>Total</th></tr>
+                <tr><th>Método</th><th>Cantidad</th><th>Total</th><th>Devoluciones</th></tr>
             </thead>
             <tbody>
                 @forelse ($filas as $fila)
@@ -18,9 +18,10 @@
                         <td>{{ $fila->metodo_pago }}</td>
                         <td>{{ $fila->cantidad }}</td>
                         <td>{{ bs($fila->total) }}</td>
+                        <td>{{ bs($fila->devoluciones) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="3" class="text-center">Sin datos.</td></tr>
+                    <tr><td colspan="4" class="text-center">Sin datos.</td></tr>
                 @endforelse
             </tbody>
         </table>

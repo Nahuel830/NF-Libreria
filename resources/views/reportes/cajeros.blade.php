@@ -10,7 +10,7 @@
     <div class="table-responsive">
         <table class="table table-striped tabla-nf">
             <thead>
-                <tr><th>Cajero</th><th>Usuario</th><th>Cantidad</th><th>Total</th></tr>
+                <tr><th>Cajero</th><th>Usuario</th><th>Cantidad</th><th>Total</th><th>Devoluciones</th></tr>
             </thead>
             <tbody>
                 @forelse ($filas as $fila)
@@ -19,9 +19,10 @@
                         <td>{{ $fila->usuario }}</td>
                         <td>{{ $fila->cantidad }}</td>
                         <td>{{ bs($fila->total) }}</td>
+                        <td>{{ bs($fila->devoluciones) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="text-center">Sin datos.</td></tr>
+                    <tr><td colspan="5" class="text-center">Sin datos.</td></tr>
                 @endforelse
             </tbody>
         </table>

@@ -49,19 +49,37 @@ class InicioController extends Controller
             || str_starts_with((string) $ultimoBackupResultado, 'error');
 
         $ventasHoy = Venta::where('estado', 'COMPLETADA')->whereDate('fecha', $hoy);
-        $totalHoy = (clone $ventasHoy)->sum('total');
+        $devHoy = number_format((float) \App\Models\Devolucion::whereDate('fecha', $hoy)->sum('total_devuelto'), 2, '.', '');
+        $totalHoy = bcsub((string) (clone $ventasHoy)->sum('total'), $devHoy, 2);
         $cantidadHoy = (clone $ventasHoy)->count();
+
+        $devMetodo = \App\Models\Devolucion::whereDate('fecha', $hoy)
+            ->selectRaw('metodo_reembolso')
+            ->selectRaw('SUM(total_devuelto) as devuelto')
+            ->groupBy('metodo_reembolso')
+            ->pluck('devuelto', 'metodo_reembolso');
 
         $porMetodo = Venta::where('estado', 'COMPLETADA')->whereDate('fecha', $hoy)
             ->select('metodo_pago', DB::raw('COUNT(*) as cantidad'), DB::raw('SUM(total) as total'))
-            ->groupBy('metodo_pago')->get();
+            ->groupBy('metodo_pago')->get()
+            ->map(function ($fila) use ($devMetodo) {
+                $fila->total = bcsub($fila->total, number_format((float) ($devMetodo[$fila->metodo_pago] ?? 0), 2, '.', ''), 2);
+
+                return $fila;
+            });
+
+        $devDias = \App\Models\Devolucion::whereDate('fecha', '>=', today()->subDays(6)->toDateString())
+            ->select(DB::raw('fecha::date as dia'), DB::raw('SUM(total_devuelto) as devuelto'))
+            ->groupBy(DB::raw('fecha::date'))
+            ->pluck('devuelto', 'dia');
 
         $ultimos7 = Venta::where('estado', 'COMPLETADA')
             ->whereDate('fecha', '>=', today()->subDays(6)->toDateString())
             ->select(DB::raw('fecha::date as dia'), DB::raw('SUM(total) as total'))
             ->groupBy(DB::raw('fecha::date'))
             ->orderBy('dia')
-            ->get();
+            ->get()
+            ->keyBy('dia');
 
         $etiquetas = [];
         $valores = [];
@@ -69,7 +87,8 @@ class InicioController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $dia = today()->subDays($i)->toDateString();
             $etiquetas[] = $dia;
-            $valores[] = (float) ($ultimos7->firstWhere('dia', $dia)->total ?? 0);
+            $bruto = (float) ($ultimos7->get($dia)->total ?? 0);
+            $valores[] = $bruto - (float) ($devDias[$dia] ?? 0);
         }
 
         return [

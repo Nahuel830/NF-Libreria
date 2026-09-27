@@ -406,6 +406,19 @@ Anota aquí lo que no es un error pero quieres distinto (textos, orden de column
 
 ---
 
+## 22. Devoluciones parciales
+
+- [ ] **DV-01** Desde una venta COMPLETADA: elegir productos y cantidades, motivo y método de reembolso.
+- [ ] **DV-02** No se puede devolver más de lo vendido menos lo ya devuelto.
+- [ ] **DV-03** El stock vuelve solo para productos que controlan stock (movimiento DEVOLUCION).
+- [ ] **DV-04** Reembolso en efectivo genera un EGRESO en la caja.
+- [ ] **DV-05** La venta muestra sus devoluciones; ticket de devolución imprimible.
+- [ ] **DV-06** Los reportes restan las devoluciones (criterio: neto = ventas − devoluciones del período).
+- [ ] **DV-07** Anular una venta con devoluciones solo devuelve lo no devuelto.
+- [ ] **DV-08** Cajero no puede devolver (403).
+
+---
+
 ## 18. Caja
 
 - [ ] **CJ-01** Sin caja abierta: /ventas/nueva redirige a "Abrir caja"; cobrar sin caja da error.

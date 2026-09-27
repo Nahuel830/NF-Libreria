@@ -56,6 +56,7 @@
             <p>Cantidad de ventas: <strong>{{ $cantidad }}</strong></p>
             <p>Total: <strong>{{ bs($total) }}</strong></p>
             <p>Efectivo esperado: <strong>{{ bs($efectivo) }}</strong></p>
+            <p>Devoluciones: <strong>{{ bs($devTotal) }}</strong> (ya restadas)</p>
 
             <h2 class="h6">Ventas anuladas ({{ $anuladas->count() }})</h2>
             <ul>
