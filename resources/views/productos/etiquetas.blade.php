@@ -4,7 +4,7 @@
 
 @section('contenido')
     <x-page-header titulo="Etiquetas de código de barras" :migas="['Inventario' => null, 'Productos' => route('productos.index'), 'Etiquetas' => null]">
-        <button type="button" class="btn btn-primary no-imprimir" onclick="window.print();"><i class="bi bi-printer"></i> Imprimir</button>
+        <button type="button" class="btn btn-primary no-imprimir" data-imprimir><i class="bi bi-printer"></i> Imprimir</button>
     </x-page-header>
 
     <form method="GET" action="{{ route('productos.etiquetas') }}" class="row g-2 mb-3 no-imprimir">

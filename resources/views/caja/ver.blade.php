@@ -4,7 +4,7 @@
 
 @section('contenido')
     <x-page-header :titulo="'Caja #' . $caja->id . ' — ' . $caja->usuario->usuario" :migas="['Ventas' => null, 'Caja' => route('caja.mi-caja'), '#' . $caja->id => null]">
-        <button type="button" class="btn btn-outline-primary no-imprimir" onclick="window.print();"><i class="bi bi-printer"></i> Imprimir</button>
+        <button type="button" class="btn btn-outline-primary no-imprimir" data-imprimir><i class="bi bi-printer"></i> Imprimir</button>
     </x-page-header>
 
     <x-card>

@@ -48,11 +48,12 @@
         </div>
 
         <div class="text-center mt-3 no-imprimir">
-            <button type="button" class="btn btn-primary" onclick="window.print();">Imprimir</button>
+            <button type="button" class="btn btn-primary" data-imprimir>Imprimir</button>
             <a href="{{ route('ventas.ver', $devolucion->venta) }}" class="btn btn-secondary">Volver a la venta</a>
         </div>
     </div>
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/imprimir.js') }}"></script>
 </body>
 </html>

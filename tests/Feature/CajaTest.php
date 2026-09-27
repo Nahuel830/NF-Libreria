@@ -151,13 +151,14 @@ class CajaTest extends TestCase
 
         $this->actingAs($encargado)->get("/ventas/{$venta->id}/ticket")
             ->assertOk()
-            ->assertDontSee("window.addEventListener('load', () => window.print());", false);
+            ->assertSee('data-impresion-automatica="0"', false)
+            ->assertSee('js/ticket.js', false);
 
         app(\App\Services\ConfiguracionService::class)->set('imprimir_automatico', '1');
 
         $this->actingAs($encargado)->get("/ventas/{$venta->id}/ticket")
             ->assertOk()
-            ->assertSee("window.addEventListener('load', () => window.print());", false);
+            ->assertSee('data-impresion-automatica="1"', false);
     }
 
     public function test_efectivo_con_recibido_menor_da_error_claro(): void

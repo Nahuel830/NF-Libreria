@@ -48,7 +48,7 @@
 
             @if (! $obligatorio)
                 <form method="POST" action="{{ route('totp.desactivar') }}"
-                    onsubmit="return confirm('¿Desactivar la verificación en dos pasos?');">
+                    data-confirm="¿Desactivar la verificación en dos pasos?">
                     @csrf
 
                     <p class="fw-bold">Desactivar</p>

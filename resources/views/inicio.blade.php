@@ -123,22 +123,7 @@
 @if ($esAdmin)
     @push('scripts')
         <script src="{{ asset('vendor/chartjs/chart.umd.min.js') }}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                new Chart(document.getElementById('grafico-ventas'), {
-                    type: 'bar',
-                    data: {
-                        labels: @json($graficoEtiquetas),
-                        datasets: [{
-                            label: 'Ventas (Bs.)',
-                            data: @json($graficoValores),
-                            backgroundColor: '#1F4E79',
-                            borderColor: '#163A5C',
-                        }],
-                    },
-                    options: { responsive: true, scales: { y: { beginAtZero: true } } },
-                });
-            });
-        </script>
+        <script type="application/json" id="datos-grafico">@json(['etiquetas' => $graficoEtiquetas, 'valores' => $graficoValores])</script>
+        <script src="{{ asset('js/inicio.js') }}"></script>
     @endpush
 @endif

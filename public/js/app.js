@@ -4,6 +4,23 @@ document.addEventListener('DOMContentLoaded', () => {
         bootstrap.Toast.getOrCreateInstance(elemento).show();
     });
 
+    // Botones con data-imprimir (CSP: sin onclick inline).
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-imprimir]')) {
+            e.preventDefault();
+            window.print();
+        }
+    });
+
+    // Campos con data-envio-automatico (CSP: sin onchange inline).
+    document.addEventListener('change', (e) => {
+        const campo = e.target.closest('[data-envio-automatico]');
+
+        if (campo && campo.form) {
+            campo.form.submit();
+        }
+    });
+
     const modalEl = document.getElementById('modal-confirmar');
 
     if (!modalEl) {

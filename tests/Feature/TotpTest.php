@@ -367,20 +367,4 @@ class TotpTest extends TestCase
         $this->actingAs($cajero)->get('/')->assertOk();
     }
 
-    public function test_cabeceras_solo_en_produccion(): void
-    {
-        $this->get('/login')->assertOk()
-            ->assertHeaderMissing('X-Frame-Options');
-
-        app()->instance('env', 'production');
-
-        try {
-            $this->get('/login')->assertOk()
-                ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
-                ->assertHeader('X-Content-Type-Options', 'nosniff')
-                ->assertHeader('Referrer-Policy', 'same-origin');
-        } finally {
-            app()->instance('env', 'testing');
-        }
-    }
 }

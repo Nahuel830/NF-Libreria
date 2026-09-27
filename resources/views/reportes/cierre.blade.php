@@ -40,7 +40,7 @@
             </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-secondary">Ver</button>
-                <button type="button" class="btn btn-primary" onclick="window.print();">Imprimir</button>
+                <button type="button" class="btn btn-primary" data-imprimir>Imprimir</button>
             </div>
         </form>
 
@@ -82,5 +82,6 @@
             </ul>
         </div>
     </div>
+    <script src="{{ asset('js/imprimir.js') }}"></script>
 </body>
 </html>

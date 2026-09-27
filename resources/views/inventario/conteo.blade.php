@@ -9,7 +9,7 @@
 
     <form method="GET" action="{{ route('inventario.conteo') }}" class="row g-2 mb-3">
         <div class="col-md-6">
-            <select class="form-select" name="categoria_id" aria-label="Categoría" onchange="this.form.submit()">
+            <select class="form-select" name="categoria_id" aria-label="Categoría" data-envio-automatico>
                 @foreach ($categorias as $categoria)
                     <option value="{{ $categoria->id }}" @selected((string) $categoriaId === (string) $categoria->id)>{{ $categoria->nombre }}</option>
                 @endforeach

@@ -21,11 +21,8 @@
             .ticket .btn, .ticket a { display: none !important; }
         }
     </style>
-    @if ($imprimirAutomatico)
-        <script>window.addEventListener('load', () => window.print());</script>
-    @endif
 </head>
-<body>
+<body data-impresion-automatica="{{ $imprimirAutomatico ? '1' : '0' }}">
     <div class="container py-3">
         @if (session('success'))
             <div class="alert alert-success no-imprimir" role="alert">{{ session('success') }}</div>
@@ -78,19 +75,13 @@
         </div>
 
         <div class="text-center mt-3 no-imprimir">
-            <button type="button" class="btn btn-primary" onclick="window.print();">Imprimir</button>
+            <button type="button" class="btn btn-primary" data-imprimir>Imprimir</button>
             <a href="{{ route('ventas.nueva') }}" class="btn btn-success" id="btn-nueva" autofocus>Nueva venta</a>
         </div>
     </div>
 
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-    <script>
-        // Enter inicia la siguiente venta.
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('btn-nueva').click();
-            }
-        });
-    </script>
+    <script src="{{ asset('js/imprimir.js') }}"></script>
+    <script src="{{ asset('js/ticket.js') }}"></script>
 </body>
 </html>
