@@ -68,7 +68,8 @@
                                         <li><a class="dropdown-item {{ request()->routeIs('proveedores.*') ? 'active' : '' }}" href="{{ route('proveedores.index') }}">Proveedores</a></li>
                                     @endcan
                                     @can('gestionar-stock')
-                                        <li><a class="dropdown-item {{ request()->routeIs('inventario.*') ? 'active' : '' }}" href="{{ route('inventario.stock-bajo') }}">Stock bajo</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('inventario.stock-bajo') ? 'active' : '' }}" href="{{ route('inventario.stock-bajo') }}">Stock bajo</a></li>
+                                        <li><a class="dropdown-item {{ request()->routeIs('inventario.conteo*') ? 'active' : '' }}" href="{{ route('inventario.conteo') }}">Conteo físico</a></li>
                                     @endcan
                                 </ul>
                             </li>

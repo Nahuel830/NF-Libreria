@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\AjusteStockController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ConteoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ImportacionController;
@@ -105,6 +106,9 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/productos/{producto}/ajustar', [AjusteStockController::class, 'editar'])->name('productos.ajustar');
         Route::put('/productos/{producto}/ajustar', [AjusteStockController::class, 'actualizar'])->name('productos.ajustar.actualizar');
         Route::get('/inventario/stock-bajo', [ProductoController::class, 'stockBajo'])->name('inventario.stock-bajo');
+        Route::get('/inventario/conteo', [ConteoController::class, 'index'])->name('inventario.conteo');
+        Route::post('/inventario/conteo', [ConteoController::class, 'guardar'])->name('inventario.conteo.guardar');
+        Route::get('/inventario/conteo/hoja', [ConteoController::class, 'hoja'])->name('inventario.conteo.hoja');
     });
 
     Route::middleware('can:registrar-entradas')->prefix('entradas')->name('entradas.')->group(function (): void {
