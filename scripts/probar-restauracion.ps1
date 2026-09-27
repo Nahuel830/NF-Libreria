@@ -19,11 +19,19 @@ $ErrorActionPreference = 'Stop'
 
 . "$PSScriptRoot\backup.config.ps1"
 
+if (-not (Get-Variable -Name DbRestoreUser -ErrorAction SilentlyContinue) -or $DbRestoreUser -eq '') {
+    $DbRestoreUser = $DbUser
+}
+
 $Temporal = 'libreria_restore_test'
 $Tablas = @('productos', 'ventas', 'detalle_ventas', 'movimientos_stock', 'users')
 
 function Psql([string]$base, [string]$sql) {
     & "$PgBin\psql.exe" -h $DbHost -p $DbPort -U $DbUser -d $base -t -A -c $sql
+}
+
+function PsqlRestore([string]$base, [string]$sql) {
+    & "$PgBin\psql.exe" -h $DbHost -p $DbPort -U $DbRestoreUser -d $base -t -A -c $sql
 }
 
 try {
@@ -39,19 +47,19 @@ try {
 
     Write-Output "Backup: $Archivo"
 
-    Psql 'postgres' "DROP DATABASE IF EXISTS $Temporal;" | Out-Null
+    PsqlRestore 'postgres' "DROP DATABASE IF EXISTS $Temporal;" | Out-Null
 
     if ($LASTEXITCODE -ne 0) {
         throw 'No se pudo borrar/crear la base temporal. Verifica que el usuario tenga permiso CREATEDB (ver docs/backups.md).'
     }
 
-    Psql 'postgres' "CREATE DATABASE $Temporal OWNER $DbUser;" | Out-Null
+    PsqlRestore 'postgres' "CREATE DATABASE $Temporal OWNER $DbRestoreUser;" | Out-Null
 
     if ($LASTEXITCODE -ne 0) {
         throw 'No se pudo crear la base temporal. Verifica que el usuario tenga permiso CREATEDB (ver docs/backups.md).'
     }
 
-    & "$PgBin\pg_restore.exe" -h $DbHost -p $DbPort -U $DbUser -d $Temporal --no-owner --no-privileges $Archivo
+    & "$PgBin\pg_restore.exe" -h $DbHost -p $DbPort -U $DbRestoreUser -d $Temporal --no-owner --no-privileges $Archivo
 
     if ($LASTEXITCODE -ne 0) {
         throw "pg_restore terminó con código $LASTEXITCODE."
@@ -84,5 +92,5 @@ try {
     Write-Output "ERROR: $($_.Exception.Message)"
     exit 1
 } finally {
-    Psql 'postgres' "DROP DATABASE IF EXISTS $Temporal;" | Out-Null
+    PsqlRestore 'postgres' "DROP DATABASE IF EXISTS $Temporal;" | Out-Null
 }

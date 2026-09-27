@@ -7,6 +7,9 @@ $DbHost = "localhost"
 $DbPort = 5432
 $DbName = "libreria_dev"
 $DbUser = "libreria_dev"
+# Usuario solo para probar restauraciones (con CREATEDB, sin acceso a la base real).
+# En desarrollo puede ser el mismo; en producción usa libreria_restore.
+$DbRestoreUser = "libreria_dev"
 $CarpetaBackups = "D:\Backups\NF-Libreria"
 # Carpeta sincronizada (Google Drive, disco externo...). Vacío = no copiar.
 $CarpetaCopiaExterna = ""
