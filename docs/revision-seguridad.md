@@ -55,3 +55,20 @@ Revisión del 26/09/2026 sobre todo el código (rutas, controladores, servicios,
 | `/estilos` y `_dusk/*` fuera de local | `/estilos` aborta 404 (test); `_dusk/*` solo existe con el paquete dev instalado |
 | Rutas públicas | Solo login, TOTP (pendiente), `up` (health) y assets; el resto exige auth |
 | Códigos de recuperación | 8 por activación, hasheados, un solo uso (test) |
+
+## Anexo WEB-1 v2 — completado según spec 1.1–1.9 (27/09/2026)
+
+| Punto | Resultado |
+|---|---|
+| TOTP: secreto cifrado (`encrypted`), `totp_confirmado_en`, `totp_ultimo_paso` anti-reúso, ventana ±1 | Migración reescrita (no pusheada); tests de ventana y no-reutilización |
+| 10 códigos de recuperación hasheados, un solo uso, regenerables con password + código | Implementado + tests |
+| 5 intentos TOTP por sesión de login; al superar, cierra sesión | Implementado + test |
+| Sesión intermedia sin acceso a rutas protegidas | Test específico |
+| Admin obligado sin TOTP solo accede a activación (`ExigirTotp`) | Implementado + tests |
+| Encargado obligado configurable; con TOTP voluntario se le exige en login | Implementado + tests |
+| Mi seguridad: activar, regenerar, desactivar (no si es obligatorio) | Vistas + tests |
+| Reset por admin (con confirmación) y por consola (`totp:restablecer --motivo`) | Implementado + tests + manual |
+| Contraseñas: triviales rechazadas (`PasswordNoTrivial`), cajero con clave fija (403), cambio con actual | Implementado + tests |
+| Actividad reciente de accesos (`/auditoria/actividad`) | Implementado + test |
+| Test de rutas públicas (`RutasPublicasTest`) | Implementado |
+| Verificación final | 184 PHPUnit + 27 Dusk en verde, `stock:verificar` OK, pusheado a `main` |

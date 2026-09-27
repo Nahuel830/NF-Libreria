@@ -89,13 +89,13 @@ Módulos: usuarios y roles, categorías, productos, inventario (stock con kardex
 | Plan de pruebas manual | ⏭️ Reemplazado por verificación automática del prompt maestro |
 | **PROMPT MAESTRO** | ✅ **TERMINADO** en OpenCode el 27/09/2026 (~01:50). 158 PHPUnit + 26 Dusk en verde, tag `v1.0.0` en `main`. Detalle en `docs/progreso.md` |
 | Carga inicial de productos reales | ⏳ Prompt listo; ejecutar DESPUÉS del maestro |
-| Versión web (opción 2, VPS) | ⏳ `docs/prompt-web.md` redactado (WEB-1 a WEB-4); sin ejecutar (falta comprar VPS/dominio) |
+| Versión web (opción 2, VPS) | 🔄 `docs/prompt-web.md` v2 (WEB-1 a WEB-4) en el repo; **WEB-1 terminado** el 27/09/2026 (184 PHPUnit + 27 Dusk en verde, pusheado a `main`). Pendiente: comprar VPS/dominio para WEB-4; WEB-2 y WEB-3 sin ejecutar |
 
 ## 8. Pendientes (en orden)
 
 1. ✅ Prompt maestro terminado y revisado (158 + 26 en verde, tag v1.0.0).
 2. ✅ CONTEXTO-PROYECTO.md en el repo y con regla de mantenimiento en AGENTS.md.
-3. **Escribir y ejecutar el PROMPT WEB** (sección 9): ✅ redactado (`docs/prompt-web.md`); ⏳ ejecutar WEB-1 cuando confirmes. Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
+3. **Escribir y ejecutar el PROMPT WEB** (sección 9): ✅ redactado v2 (`docs/prompt-web.md`); ✅ WEB-1 ejecutado (TOTP completo, contraseñas, límites, actividad, rutas públicas, contingencia; 184 + 27 en verde, pusheado). ⏳ WEB-2 (scripts Linux + deploy) y WEB-3 (guías + ensayo VM/WSL2) cuando confirmes. Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
 4. Comprar dominio + VPS (el usuario pagará anual).
 5. Ejecutar **carga inicial** (PARTE 1–2 en la PC; PARTE 3 en el servidor web, adaptada a Linux/SSH).
 6. Conteo físico, usuarios reales (2 admins), logo y datos del negocio, impresora térmica y lector de barras en la PC de caja.
@@ -155,3 +155,14 @@ Requisitos y contenido del PROMPT WEB (a redactar en `docs/prompt-web.md`):
 - Creado `docs/prompt-web.md` desde la sección 9: WEB-1 (seguridad web, TOTP, cabeceras, límites), WEB-2 (scripts Linux backup/restore/deploy + Actions opcional), WEB-3 (despliegue-web.md, operacion-web.md, manuales, ensayo en VM/WSL2), WEB-4 (VPS real, carga inicial por SSH).
 - Actualizadas secciones 6, 7 y 8 de este documento.
 - Pendiente: confirmación para ejecutar WEB-1; compra de VPS + dominio para WEB-4.
+
+### 27/09/2026 — WEB-1 ejecutado (opción 2: mantener base y completar faltantes)
+- Reemplazado `docs/prompt-web.md` por la v2 (WEB-1 a WEB-4 detallado).
+- TOTP según spec 1.1: secreto cifrado, confirmado_en, anti-reúso por paso, ventana ±1, 10 códigos hash de un solo uso, 5 intentos por sesión, sesión intermedia sin acceso, flujo forzado (`ExigirTotp`), Mi seguridad (activar/regenerar/desactivar con password + código), reset por admin y por consola (`totp:restablecer --motivo`), config `totp_obligatorio_admin/encargado`.
+- Contraseñas (1.4): mín. 10/8, regla `PasswordNoTrivial`, cajero con clave fija (403 en /cambiar-password), cambio propio con actual, debe_cambiar solo admin/encargado.
+- Límites (1.5/1.6/1.7): login 5 intentos + 20 por IP, nota de dispositivo nuevo, IP cajero configurable, actividad reciente `/auditoria/actividad`, cookies documentadas en `.env.example`.
+- Rutas públicas (1.8): `RutasPublicasTest`; contingencia (1.9): comando + sección en manual-administrador.md.
+- `actingAs`/`loginAs` equivalen a sesión completa (flujo real cubierto en `LoginTest`); APP_KEY de testing en `phpunit.xml`.
+- Commits: `d71cb23`, `5808d0f`, `4d9b510`, `1321dc4`, `c6e5b32`, `3038c1f`, `b27a35b`, `f565066` — pusheados a `main`.
+- Verificación: 184 PHPUnit + 27 Dusk en verde, `stock:verificar` sin diferencias. (Un Dusk falló una vez por flake de timing y pasó al re-ejecutar.)
+- Pendiente: probar según guía del usuario; luego WEB-2/WEB-3; compra de VPS/dominio para WEB-4.
