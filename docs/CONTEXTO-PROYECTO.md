@@ -89,13 +89,13 @@ Módulos: usuarios y roles, categorías, productos, inventario (stock con kardex
 | Plan de pruebas manual | ⏭️ Reemplazado por verificación automática del prompt maestro |
 | **PROMPT MAESTRO** | ✅ **TERMINADO** en OpenCode el 27/09/2026 (~01:50). 158 PHPUnit + 26 Dusk en verde, tag `v1.0.0` en `main`. Detalle en `docs/progreso.md` |
 | Carga inicial de productos reales | ⏳ Prompt listo; ejecutar DESPUÉS del maestro |
-| Versión web (opción 2, VPS) | 🔄 `docs/prompt-web.md` v2 (WEB-1 a WEB-4) en el repo; **WEB-1 terminado** el 27/09/2026 (184 PHPUnit + 27 Dusk en verde, pusheado a `main`). Pendiente: comprar VPS/dominio para WEB-4; WEB-2 y WEB-3 sin ejecutar |
+| Versión web (opción 2, VPS) | 🔄 `docs/prompt-web.md` v2 (WEB-1 a WEB-4) en el repo; **WEB-1 (1.1–1.10) terminado** el 27/09/2026 (203 PHPUnit + 28 Dusk en verde, pusheado a `main`). Pendiente: probar según guía, comprar VPS/dominio para WEB-4; WEB-2 y WEB-3 sin ejecutar |
 
 ## 8. Pendientes (en orden)
 
 1. ✅ Prompt maestro terminado y revisado (158 + 26 en verde, tag v1.0.0).
 2. ✅ CONTEXTO-PROYECTO.md en el repo y con regla de mantenimiento en AGENTS.md.
-3. **Escribir y ejecutar el PROMPT WEB** (sección 9): ✅ redactado v2 (`docs/prompt-web.md`); ✅ WEB-1 ejecutado (TOTP completo, contraseñas, límites, actividad, rutas públicas, contingencia; 184 + 27 en verde, pusheado). ⏳ WEB-2 (scripts Linux + deploy) y WEB-3 (guías + ensayo VM/WSL2) cuando confirmes. Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
+3. **Escribir y ejecutar el PROMPT WEB** (sección 9): ✅ redactado v2; ✅ WEB-1 1.1–1.10 ejecutado y verificado (203 + 28 en verde, pusheado). ⏳ Probar con la guía del usuario; luego WEB-2 (scripts Linux + deploy) y WEB-3 (guías + ensayo VM/WSL2). Ajustar lo del maestro que asumía instalación local Windows (FASE 6) para que conviva o se reemplace por el despliegue en VPS.
 4. Comprar dominio + VPS (el usuario pagará anual).
 5. Ejecutar **carga inicial** (PARTE 1–2 en la PC; PARTE 3 en el servidor web, adaptada a Linux/SSH).
 6. Conteo físico, usuarios reales (2 admins), logo y datos del negocio, impresora térmica y lector de barras en la PC de caja.
@@ -166,3 +166,18 @@ Requisitos y contenido del PROMPT WEB (a redactar en `docs/prompt-web.md`):
 - Commits: `d71cb23`, `5808d0f`, `4d9b510`, `1321dc4`, `c6e5b32`, `3038c1f`, `b27a35b`, `f565066` — pusheados a `main`.
 - Verificación: 184 PHPUnit + 27 Dusk en verde, `stock:verificar` sin diferencias. (Un Dusk falló una vez por flake de timing y pasó al re-ejecutar.)
 - Pendiente: probar según guía del usuario; luego WEB-2/WEB-3; compra de VPS/dominio para WEB-4.
+
+### 27/09/2026 — WEB-1 v2 1.1–1.10 ejecutado (PHP volvió a funcionar)
+- 1.1: `.env.production.example` + excepción en `.gitignore` (la tabla `sessions` ya la cubre la migración base; se eliminó un duplicado que rompía `migrate:fresh`).
+- 1.2: `trustProxies` con `TRUSTED_PROXIES` vía middleware `ConfiarProxies` (hallazgo: el closure de bootstrap corre antes de cargar `.env`; verificado en vivo con `X-Forwarded-For`).
+- 1.3: CSP estricta global + 11 fragmentos JS movidos a `public/js` + `CspTest` Dusk (control negativo hecho y revertido).
+- 1.4: contraseñas unificadas (mín. 10 + letras + números, cajero incluido), `uncompromised()` configurable (fail-open), forzar cambio a todos, cierre de demás sesiones.
+- 1.5: IP 20/15 min + throttles (anular 30/min, importar 20/10 por min).
+- 1.6: gaps TOTP (imprimir códigos, auditoría por intento, test fuera de ventana, manual, justificación de dependencias).
+- 1.7: cookie `nf_dispositivo` + tabla + aviso en panel + Mi seguridad; restricción cajero por IP rehecha (switch + CIDR, rechazo en login; eliminado middleware viejo).
+- 1.8: whitelist automática de rutas, `_dusk` ausente en producción, páginas de error propias.
+- 1.9: ventas de contingencia + `docs/planilla-contingencia.md`.
+- 1.10: manuales, `usuarios-y-permisos.md`, pruebas-manuales "Versión web", bitácora.
+- Commits: `88af595`, `898c3c0`, `94f57a8`, `da21019`, `23840b8`, `d1ee4bd`, `3995b09`, `ef988b3`, `b6ab6d3`, `036bec5` — pusheados a `main`.
+- Verificación: 203 PHPUnit + 28 Dusk en verde (Dusk pasó a la primera, sin flakes), `stock:verificar` sin diferencias.
+- Pendiente: tu prueba manual (guía en el resumen); luego WEB-2/WEB-3; compra de VPS/dominio para WEB-4.
