@@ -1,12 +1,14 @@
 @extends('layouts.app')
 
-@section('titulo', 'Error del servidor')
+@section('titulo', 'Error interno')
 
 @section('contenido')
-    <div class="text-center mt-5">
-        <i class="bi bi-exclamation-octagon fs-1 text-danger"></i>
-        <h1>500 — Error del servidor</h1>
-        <p>Ocurrió un problema inesperado. Inténtalo de nuevo y avisa al administrador si continúa.</p>
-        <a href="{{ auth()->check() ? route('inicio') : route('login') }}" class="btn btn-primary">Volver</a>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6 text-center">
+            <p class="display-1 text-secondary">500</p>
+            <h1 class="h4">Ocurrió un error interno.</h1>
+            <p class="text-secondary">Inténtalo de nuevo; si sigue pasando, avisa al administrador.</p>
+            <a href="{{ route('inicio') }}" class="btn btn-primary">Ir al inicio</a>
+        </div>
     </div>
 @endsection
