@@ -29,6 +29,14 @@ class VentaRequest extends FormRequest
             'items' => ['required', 'array', 'min:1', 'max:200'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
             'items.*.cantidad' => ['required', 'integer', 'min:1'],
+            'es_contingencia' => ['nullable', 'boolean'],
+            'fecha_contingencia' => [
+                'nullable',
+                'date',
+                'required_if:es_contingencia,1,true',
+                'before_or_equal:now',
+                'after_or_equal:'.now()->subDays(7)->toDateTimeString(),
+            ],
         ];
     }
 
@@ -40,6 +48,9 @@ class VentaRequest extends FormRequest
         return [
             'items.required' => 'La venta debe tener al menos un producto.',
             'items.min' => 'La venta debe tener al menos un producto.',
+            'fecha_contingencia.required_if' => 'Indica la fecha y hora real de la venta en papel.',
+            'fecha_contingencia.before_or_equal' => 'La fecha de contingencia no puede ser futura.',
+            'fecha_contingencia.after_or_equal' => 'La fecha de contingencia no puede ser de más de 7 días atrás.',
         ];
     }
 }

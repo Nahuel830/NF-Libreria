@@ -46,7 +46,16 @@
             <dd class="col-sm-9">{{ $venta->observaciones ?? '—' }}</dd>
 
             <dt class="col-sm-3">Estado</dt>
-            <dd class="col-sm-9"><x-estado :estado="$venta->estado" /></dd>
+            <dd class="col-sm-9"><x-estado :estado="$venta->estado" />
+                @if ($venta->es_contingencia)
+                    <span class="badge bg-warning text-dark">Contingencia</span>
+                @endif
+            </dd>
+
+            @if ($venta->es_contingencia)
+                <dt class="col-sm-3">Fecha real</dt>
+                <dd class="col-sm-9">{{ $venta->fecha_contingencia->format('d/m/Y H:i') }} (registrada en papel durante un corte)</dd>
+            @endif
 
             @if ($venta->estado === 'ANULADA')
                 <dt class="col-sm-3">Anulada por</dt>

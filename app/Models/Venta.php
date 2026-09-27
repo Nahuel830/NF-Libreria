@@ -26,6 +26,8 @@ class Venta extends Model
         'anulada_por',
         'anulada_en',
         'motivo_anulacion',
+        'es_contingencia',
+        'fecha_contingencia',
     ];
 
     protected function casts(): array
@@ -38,6 +40,8 @@ class Venta extends Model
             'monto_recibido' => 'decimal:2',
             'cambio' => 'decimal:2',
             'anulada_en' => 'datetime',
+            'es_contingencia' => 'boolean',
+            'fecha_contingencia' => 'datetime',
         ];
     }
 

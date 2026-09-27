@@ -97,6 +97,17 @@
                         <input type="text" class="form-control" id="observaciones" name="observaciones">
                     </div>
 
+                    @can('ver-todas-las-ventas')
+                        <div class="mb-3 border rounded p-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="es_contingencia" name="es_contingencia" value="1">
+                                <label class="form-check-label" for="es_contingencia">Venta registrada en papel durante un corte</label>
+                            </div>
+                            <label for="fecha_contingencia" class="form-label mt-2">Fecha y hora real de la venta (máx. 7 días atrás)</label>
+                            <input type="datetime-local" class="form-control" id="fecha_contingencia" name="fecha_contingencia" max="{{ now()->format('Y-m-d\TH:i') }}">
+                        </div>
+                    @endcan
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success btn-lg" id="btn-cobrar"><i class="bi bi-check-circle"></i> COBRAR (F9)</button>
                         <button type="button" class="btn btn-outline-danger" id="btn-cancelar">Cancelar venta (Esc)</button>

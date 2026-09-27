@@ -45,6 +45,10 @@
                 <p class="text-center mb-1">Tel: {{ $telefono }}</p>
             @endif
             <p class="text-center mb-1">VENTA {{ $venta->numero() }}</p>
+            @if ($venta->es_contingencia)
+                <p class="text-center mb-1"><strong>VENTA DE CONTINGENCIA (papel)</strong></p>
+                <p class="mb-1">Fecha real: {{ $venta->fecha_contingencia->format('d/m/Y H:i') }}</p>
+            @endif
             <p class="mb-1">Fecha: {{ $venta->fecha->format('d/m/Y H:i') }}</p>
             <p class="mb-1">Cajero: {{ $venta->usuario->usuario }}</p>
             @if ($venta->cliente_nombre)

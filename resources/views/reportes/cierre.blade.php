@@ -42,6 +42,12 @@
                 <button type="submit" class="btn btn-secondary">Ver</button>
                 <button type="button" class="btn btn-primary" data-imprimir>Imprimir</button>
             </div>
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="por_fecha_real" name="por_fecha_real" value="1" @checked($porFechaReal) data-envio-automatico>
+                    <label class="form-check-label" for="por_fecha_real">Ver ventas por fecha real (incluye contingencias del día aunque se hayan cargado después)</label>
+                </div>
+            </div>
         </form>
 
         <div class="cierre">
@@ -53,7 +59,7 @@
                     <li>Sin ventas.</li>
                 @endforelse
             </ul>
-            <p>Cantidad de ventas: <strong>{{ $cantidad }}</strong></p>
+            <p>Cantidad de ventas: <strong>{{ $cantidad }}</strong>@if ($porFechaReal) <span class="text-secondary">(por fecha real)</span>@endif</p>
             <p>Total: <strong>{{ bs($total) }}</strong></p>
             <p>Efectivo esperado: <strong>{{ bs($efectivo) }}</strong></p>
             <p>Devoluciones: <strong>{{ bs($devTotal) }}</strong> (ya restadas)</p>
@@ -61,7 +67,7 @@
             <h2 class="h6">Ventas anuladas ({{ $anuladas->count() }})</h2>
             <ul>
                 @forelse ($anuladas as $venta)
-                    <li>{{ $venta->numero() }} — {{ bs($venta->total) }} — {{ $venta->motivo_anulacion }} ({{ $venta->usuario->usuario }})</li>
+                    <li>{{ $venta->numero() }} — {{ bs($venta->total) }} — {{ $venta->motivo_anulacion }} ({{ $venta->usuario->usuario }})@if ($venta->es_contingencia) [Contingencia: {{ $venta->fecha_contingencia->format('d/m/Y H:i') }}]@endif</li>
                 @empty
                     <li>Ninguna.</li>
                 @endforelse

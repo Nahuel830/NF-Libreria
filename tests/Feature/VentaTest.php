@@ -353,6 +353,99 @@ class VentaTest extends TestCase
         $this->servicio()->anular($venta, 'No me gusta', $cajero);
     }
 
+    public function test_venta_contingencia_solo_admin_o_encargado_y_fecha_valida(): void
+    {
+        $encargado = $this->vendedor(Rol::Encargado);
+        $cajero = $this->vendedor(Rol::Cajero);
+        $a = Producto::factory()->create(['precio_venta' => '10.00']);
+
+        $venta = $this->servicio()->registrar(
+            [['producto_id' => $a->id, 'cantidad' => 1]],
+            [
+                'token' => (string) Str::uuid(),
+                'metodo_pago' => 'EFECTIVO',
+                'es_contingencia' => true,
+                'fecha_contingencia' => now()->subDay()->format('Y-m-d H:i:s'),
+            ],
+            $encargado
+        );
+
+        $this->assertTrue($venta->fresh()->es_contingencia);
+        $this->assertNotNull($venta->fresh()->fecha_contingencia);
+        $this->assertDatabaseHas('auditoria', ['accion' => 'CREAR', 'entidad_id' => $venta->id]);
+
+        try {
+            $this->servicio()->registrar(
+                [['producto_id' => $a->id, 'cantidad' => 1]],
+                [
+                    'token' => (string) Str::uuid(),
+                    'metodo_pago' => 'EFECTIVO',
+                    'es_contingencia' => true,
+                    'fecha_contingencia' => now()->format('Y-m-d H:i:s'),
+                ],
+                $cajero
+            );
+            $this->fail('El cajero no puede registrar contingencias.');
+        } catch (\DomainException) {
+            $this->assertTrue(true);
+        }
+
+        foreach ([now()->addDay()->format('Y-m-d H:i:s'), now()->subDays(8)->format('Y-m-d H:i:s'), ''] as $mala) {
+            try {
+                $this->servicio()->registrar(
+                    [['producto_id' => $a->id, 'cantidad' => 1]],
+                    [
+                        'token' => (string) Str::uuid(),
+                        'metodo_pago' => 'EFECTIVO',
+                        'es_contingencia' => true,
+                        'fecha_contingencia' => $mala,
+                    ],
+                    $encargado
+                );
+                $this->fail("Fecha inválida aceptada: {$mala}.");
+            } catch (\DomainException) {
+                $this->assertTrue(true);
+            }
+        }
+    }
+
+    public function test_venta_contingencia_por_http_muestra_marca_y_cierre_por_fecha_real(): void
+    {
+        $encargado = $this->vendedor(Rol::Encargado);
+        $a = Producto::factory()->create(['precio_venta' => '10.00']);
+        $ayer = now()->subDay();
+
+        $this->actingAs($encargado)->post('/ventas', [
+            'token' => (string) Str::uuid(),
+            'metodo_pago' => 'EFECTIVO',
+            'monto_recibido' => '10.00',
+            'items' => [['producto_id' => $a->id, 'cantidad' => 1]],
+            'es_contingencia' => true,
+            'fecha_contingencia' => $ayer->format('Y-m-d H:i:s'),
+        ])->assertRedirect();
+
+        $venta = \App\Models\Venta::latest('id')->first();
+
+        $this->actingAs($encargado)->get('/ventas')
+            ->assertOk()
+            ->assertSee('Contingencia')
+            ->assertSee($ayer->format('d/m/Y'));
+
+        $this->actingAs($encargado)->get("/ventas/{$venta->id}/ticket")
+            ->assertOk()
+            ->assertSee('CONTINGENCIA');
+
+        $dia = $ayer->toDateString();
+
+        $this->actingAs($encargado)->get("/reportes/cierre?fecha={$dia}&por_fecha_real=1")
+            ->assertOk()
+            ->assertSee('(por fecha real)');
+
+        $this->actingAs($encargado)->get("/reportes/cierre?fecha={$dia}")
+            ->assertOk()
+            ->assertDontSee('(por fecha real)');
+    }
+
     public function test_anular_venta_con_limite_de_intentos(): void
     {
         $encargado = $this->vendedor(Rol::Encargado);

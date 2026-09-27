@@ -471,6 +471,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     cliente_id: document.getElementById('cliente_id').value || null,
                     cliente_nombre: document.getElementById('cliente_nombre').value,
                     observaciones: document.getElementById('observaciones').value,
+                    es_contingencia: document.getElementById('es_contingencia')?.checked ?? false,
+                    fecha_contingencia: document.getElementById('fecha_contingencia')?.value || null,
                     items,
                 }),
             });

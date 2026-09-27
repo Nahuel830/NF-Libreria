@@ -247,8 +247,13 @@ class ReporteController extends Controller
     {
         $fecha = (string) $request->input('fecha', today()->toDateString());
         $cajeroId = $request->input('cajero_id');
+        $porFechaReal = $request->boolean('por_fecha_real');
 
-        $base = Venta::where('estado', 'COMPLETADA')->whereDate('fecha', $fecha)
+        $columnaFecha = $porFechaReal
+            ? DB::raw('COALESCE(fecha_contingencia, fecha)::date')
+            : DB::raw('fecha::date');
+
+        $base = Venta::where('estado', 'COMPLETADA')->whereDate($columnaFecha, $fecha)
             ->when($cajeroId, fn ($c) => $c->where('user_id', $cajeroId));
 
         $porMetodo = (clone $base)->select('metodo_pago', DB::raw('COUNT(*) as cantidad'), DB::raw('SUM(total) as total'))
@@ -270,6 +275,7 @@ class ReporteController extends Controller
         return view('reportes.cierre', [
             'fecha' => $fecha,
             'cajeroId' => $cajeroId,
+            'porFechaReal' => $porFechaReal,
             'cajeros' => User::orderBy('nombre')->get(['id', 'nombre', 'usuario']),
             'porMetodo' => $porMetodo,
             'cantidad' => (clone $base)->count(),

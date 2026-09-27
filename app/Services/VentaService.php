@@ -88,7 +88,18 @@ class VentaService
             $cajaId = \App\Models\Caja::abiertaDe($usuario)?->id;
         }
 
-        return DB::transaction(function () use ($agrupados, $datos, $descuento, $metodo, $token, $usuario, $clienteId, $clienteNombre, $cajaId) {
+        $esContingencia = (bool) ($datos['es_contingencia'] ?? false);
+        $fechaContingencia = null;
+
+        if ($esContingencia) {
+            if (! $usuario->can('ver-todas-las-ventas')) {
+                throw new DomainException('Solo admin o encargado puede registrar ventas de contingencia.');
+            }
+
+            $fechaContingencia = $this->fechaContingencia($datos['fecha_contingencia'] ?? null);
+        }
+
+        return DB::transaction(function () use ($agrupados, $datos, $descuento, $metodo, $token, $usuario, $clienteId, $clienteNombre, $cajaId, $esContingencia, $fechaContingencia) {
             $productos = $this->stock->bloquearProductos(array_keys($agrupados))->keyBy('id');
 
             $lineas = [];
@@ -151,6 +162,8 @@ class VentaService
                 'cambio' => $cambio,
                 'estado' => 'COMPLETADA',
                 'observaciones' => $datos['observaciones'] ?? null,
+                'es_contingencia' => $esContingencia,
+                'fecha_contingencia' => $fechaContingencia,
             ]);
 
             foreach ($lineas as $id => $linea) {
@@ -176,8 +189,44 @@ class VentaService
                 );
             }
 
+            if ($esContingencia) {
+                $this->auditoria->registrar(
+                    'CREAR',
+                    "Venta {$venta->numero()} registrada como contingencia (fecha real {$fechaContingencia}).",
+                    $venta,
+                    null,
+                    ['es_contingencia' => true, 'fecha_contingencia' => $fechaContingencia]
+                );
+            }
+
             return $venta;
         });
+    }
+
+    /**
+     * Valida la fecha real de una venta de contingencia.
+     */
+    protected function fechaContingencia(mixed $valor): string
+    {
+        if (! is_string($valor) || trim($valor) === '') {
+            throw new DomainException('La venta de contingencia requiere la fecha real de la venta.');
+        }
+
+        try {
+            $fecha = \Carbon\Carbon::parse($valor);
+        } catch (\Throwable) {
+            throw new DomainException('La fecha de contingencia no es válida.');
+        }
+
+        if ($fecha->isFuture()) {
+            throw new DomainException('La fecha de contingencia no puede ser futura.');
+        }
+
+        if ($fecha->lt(now()->subDays(7))) {
+            throw new DomainException('La fecha de contingencia no puede ser de más de 7 días atrás.');
+        }
+
+        return $fecha->toDateTimeString();
     }
 
     public function anular(Venta $venta, string $motivo, User $usuario): Venta

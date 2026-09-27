@@ -77,7 +77,13 @@
                 @forelse ($ventas as $venta)
                     <tr>
                         <td><a href="{{ route('ventas.ver', $venta) }}">{{ $venta->numero() }}</a></td>
-                        <td>{{ $venta->fecha->format('d/m/Y H:i') }}</td>
+                        <td>
+                            {{ $venta->fecha->format('d/m/Y H:i') }}
+                            @if ($venta->es_contingencia)
+                                <br><span class="badge bg-warning text-dark">Contingencia</span>
+                                <small class="text-secondary">{{ $venta->fecha_contingencia->format('d/m/Y H:i') }}</small>
+                            @endif
+                        </td>
                         <td>{{ $venta->usuario->usuario }}</td>
                         <td>{{ $venta->cliente_nombre ?? '—' }}</td>
                         <td>{{ $venta->detalles_count }}</td>
