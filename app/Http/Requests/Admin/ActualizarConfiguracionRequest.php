@@ -28,6 +28,7 @@ class ActualizarConfiguracionRequest extends FormRequest
             'ips_cajero' => ['nullable', 'string', 'max:255'],
             'totp_obligatorio_admin' => ['nullable', 'boolean'],
             'totp_obligatorio_encargado' => ['nullable', 'boolean'],
+            'forzar_cambio_password' => ['nullable', 'boolean'],
             'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:1024'],
             'quitar_logo' => ['nullable', 'boolean'],
         ];

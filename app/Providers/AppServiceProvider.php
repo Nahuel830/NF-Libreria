@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        // WEB-1 1.4: regla central de contraseñas para todos los roles.
+        Password::defaults(function () {
+            $regla = Password::min(10)->letters()->numbers();
+
+            if (config('seguridad.password_verificar_filtradas')) {
+                $regla->uncompromised();
+            }
+
+            return $regla;
+        });
 
         $soloAdmin = fn (User $user) => $user->rol === Rol::Admin;
         $adminOEncargado = fn (User $user) => in_array($user->rol, [Rol::Admin, Rol::Encargado], true);

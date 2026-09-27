@@ -28,6 +28,7 @@ class ConfiguracionController extends Controller
         'ips_cajero',
         'totp_obligatorio_admin',
         'totp_obligatorio_encargado',
+        'forzar_cambio_password',
     ];
 
     public function editar(ConfiguracionService $configuracion): View
@@ -58,6 +59,13 @@ class ConfiguracionController extends Controller
         $datos['exigir_caja_abierta'] = $request->boolean('exigir_caja_abierta') ? '1' : '0';
         $datos['totp_obligatorio_admin'] = $request->boolean('totp_obligatorio_admin') ? '1' : '0';
         $datos['totp_obligatorio_encargado'] = $request->boolean('totp_obligatorio_encargado') ? '1' : '0';
+
+        // Una sola vez: obliga a todos los usuarios activos a cambiar su contraseña.
+        if ($request->boolean('forzar_cambio_password')) {
+            \App\Models\User::where('activo', true)->update(['debe_cambiar_password' => true]);
+        }
+
+        $datos['forzar_cambio_password'] = '0';
 
         if ($request->boolean('quitar_logo')) {
             $anterior = $configuracion->get('logo_negocio');

@@ -60,21 +60,25 @@ class DiaCompletoTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $admin = User::where('usuario', 'admin')->firstOrFail();
 
-            // 1. Admin crea un cajero (contraseña fija, no debe cambiarla).
+            // 1. Admin crea un cajero.
             $browser->loginAs($this->totpConfirmado($admin))->visit('/usuarios/crear')
                 ->type('#nombre', 'Cajero Día')
                 ->type('#usuario', 'cajerodia')
                 ->select('#rol', 'cajero')
-                ->type('#password', 'cajero12345')
-                ->type('#password_confirmation', 'cajero12345')
+                ->type('#password', 'temporal123')
+                ->type('#password_confirmation', 'temporal123')
                 ->press('Guardar')
                 ->waitForText('creado', 10);
 
-            // 2. El cajero entra directo a vender.
+            // 2. El cajero cambia su contraseña.
             $browser->loginAs(User::where('usuario', 'cajerodia')->firstOrFail())
                 ->visit('/')
-                ->assertPathIs('/')
-                ->assertSee('Bienvenido');
+                ->assertPathIs('/cambiar-password')
+                ->type('#actual', 'temporal123')
+                ->type('#nueva', 'cajero12345')
+                ->type('#nueva_confirmation', 'cajero12345')
+                ->press('Guardar')
+                ->waitForText('Bienvenido', 10);
 
             // 3. Abre caja con 50.
             $browser->visit('/caja/abrir')

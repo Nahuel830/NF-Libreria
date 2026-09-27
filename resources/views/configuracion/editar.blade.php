@@ -101,6 +101,11 @@
                 <label class="form-check-label" for="totp_obligatorio_encargado">Exigir verificación en dos pasos a encargados</label>
             </div>
 
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="forzar_cambio_password" name="forzar_cambio_password" value="1">
+                <label class="form-check-label" for="forzar_cambio_password">Forzar cambio de contraseña a todos los usuarios activos al guardar (útil al pasar a producción)</label>
+            </div>
+
             <button type="submit" class="btn btn-primary">Guardar</button>
         </form>
     </x-card>

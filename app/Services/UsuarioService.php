@@ -12,16 +12,13 @@ class UsuarioService
 
     public function crear(array $datos): User
     {
-        // El cajero mantiene contraseña fija: solo admin/encargado deben cambiarla al entrar.
-        $debeCambiar = Rol::from($datos['rol']) !== Rol::Cajero;
-
         $usuario = User::create([
             'nombre' => $datos['nombre'],
             'usuario' => $datos['usuario'],
             'password' => $datos['password'],
             'rol' => $datos['rol'],
             'activo' => true,
-            'debe_cambiar_password' => $debeCambiar,
+            'debe_cambiar_password' => true,
         ]);
 
         $this->auditoria->registrar(
@@ -61,17 +58,14 @@ class UsuarioService
 
     public function restablecerPassword(User $usuario, string $nueva): void
     {
-        $debeCambiar = $usuario->rol !== Rol::Cajero;
-
         $usuario->forceFill([
             'password' => $nueva,
-            'debe_cambiar_password' => $debeCambiar,
+            'debe_cambiar_password' => true,
         ])->save();
 
         $this->auditoria->registrar(
             'CAMBIO_PASSWORD',
-            "El administrador restableció la contraseña del usuario '{$usuario->usuario}'."
-                .($debeCambiar ? ' Debe cambiarla al entrar.' : ''),
+            "El administrador restableció la contraseña del usuario '{$usuario->usuario}'. Debe cambiarla al entrar.",
             $usuario
         );
     }

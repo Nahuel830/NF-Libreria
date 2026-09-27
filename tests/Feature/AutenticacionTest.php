@@ -104,14 +104,13 @@ class AutenticacionTest extends TestCase
     public function test_usuario_con_debe_cambiar_password_es_redirigido(): void
     {
         $user = User::factory()->create([
-            'usuario' => 'encargado-cambio',
+            'usuario' => 'cajero-cambio',
             'password' => 'secreta123',
-            'rol' => Rol::Encargado,
             'debe_cambiar_password' => true,
         ]);
 
         $this->post('/login', [
-            'usuario' => 'encargado-cambio',
+            'usuario' => 'cajero-cambio',
             'password' => 'secreta123',
         ])->assertRedirect('/');
 
@@ -123,9 +122,8 @@ class AutenticacionTest extends TestCase
     public function test_cambiar_password_funciona_y_exige_la_actual(): void
     {
         $user = User::factory()->create([
-            'usuario' => 'encargado-pass',
+            'usuario' => 'cajero-pass',
             'password' => 'actual123',
-            'rol' => Rol::Encargado,
             'debe_cambiar_password' => true,
         ]);
 
@@ -259,7 +257,7 @@ class AutenticacionTest extends TestCase
 
     public function test_cambiar_password_exige_minimo_y_confirmacion(): void
     {
-        $user = User::factory()->create(['password' => 'actual123', 'rol' => Rol::Encargado]);
+        $user = User::factory()->create(['password' => 'actual123']);
 
         $this->actingAs($user)->put('/cambiar-password', [
             'actual' => 'actual123',
@@ -274,16 +272,38 @@ class AutenticacionTest extends TestCase
         ])->assertSessionHasErrors('nueva');
     }
 
-    public function test_cajero_no_puede_cambiar_su_password(): void
+    public function test_cambiar_password_cierra_las_demas_sesiones(): void
     {
-        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
+        config()->set('session.driver', 'database');
 
-        $this->actingAs($cajero)->get('/cambiar-password')->assertForbidden();
-        $this->actingAs($cajero)->put('/cambiar-password', [
-            'actual' => 'password',
+        $user = User::factory()->create(['password' => 'actual123']);
+
+        $this->actingAs($user)->put('/cambiar-password', [
+            'actual' => 'actual123',
             'nueva' => 'nueva12345',
             'nueva_confirmation' => 'nueva12345',
-        ])->assertForbidden();
+        ])->assertRedirect('/');
+
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'sesion-vieja-otra-pc',
+            'user_id' => $user->id,
+            'ip_address' => '10.0.0.9',
+            'user_agent' => 'otra pc',
+            'payload' => 'x',
+            'last_activity' => now()->timestamp,
+        ]);
+
+        $this->actingAs($user)->put('/cambiar-password', [
+            'actual' => 'nueva12345',
+            'nueva' => 'nueva67890',
+            'nueva_confirmation' => 'nueva67890',
+        ])->assertRedirect('/');
+
+        $this->assertDatabaseMissing('sessions', ['id' => 'sesion-vieja-otra-pc']);
+        $this->assertDatabaseHas('auditoria', [
+            'accion' => 'CAMBIO_PASSWORD',
+            'user_id' => $user->id,
+        ]);
     }
 
     public function test_cambiar_password_rechaza_triviales(): void

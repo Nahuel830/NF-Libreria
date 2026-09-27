@@ -21,6 +21,7 @@
         <env name="APP_ENV" value="testing"/>
         <env name="APP_KEY" value="base64:dQtofRVvRJSW7pGoqn/gf3+ZJO2UhmpNv67Mzlls6UY="/>
         <env name="TRUSTED_PROXIES" value="127.0.0.1"/>
+        <env name="PASSWORD_VERIFICAR_FILTRADAS" value="false"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

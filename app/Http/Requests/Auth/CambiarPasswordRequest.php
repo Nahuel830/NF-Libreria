@@ -2,15 +2,16 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Enums\Rol;
 use App\Rules\PasswordNoTrivial;
+use App\Services\ConfiguracionService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class CambiarPasswordRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return in_array($this->user()?->rol, [Rol::Admin, Rol::Encargado], true);
+        return true;
     }
 
     /**
@@ -18,21 +19,11 @@ class CambiarPasswordRequest extends FormRequest
      */
     public function rules(): array
     {
-        $minimo = $this->user()?->rol?->value === 'cajero' ? 8 : 10;
+        $negocio = app(ConfiguracionService::class)->get('nombre_negocio', '');
 
         return [
             'actual' => ['required', 'string', 'current_password'],
-            'nueva' => ['required', 'string', "min:{$minimo}", 'confirmed', new PasswordNoTrivial($this->user()?->usuario)],
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'nueva.min' => 'La contraseña debe tener al menos :min caracteres.',
+            'nueva' => ['required', 'string', Password::defaults(), 'confirmed', new PasswordNoTrivial($this->user()?->usuario, $negocio)],
         ];
     }
 }

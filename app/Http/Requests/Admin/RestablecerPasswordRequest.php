@@ -3,7 +3,9 @@
 namespace App\Http\Requests\Admin;
 
 use App\Rules\PasswordNoTrivial;
+use App\Services\ConfiguracionService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class RestablecerPasswordRequest extends FormRequest
 {
@@ -17,21 +19,10 @@ class RestablecerPasswordRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rol = $this->route('usuario')?->rol?->value ?? 'cajero';
-        $minimo = $rol === 'cajero' ? 8 : 10;
+        $negocio = app(ConfiguracionService::class)->get('nombre_negocio', '');
 
         return [
-            'password' => ['required', 'string', "min:{$minimo}", 'confirmed', new PasswordNoTrivial($this->route('usuario')?->usuario)],
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'password.min' => 'La contraseña debe tener al menos :min caracteres.',
+            'password' => ['required', 'string', Password::defaults(), 'confirmed', new PasswordNoTrivial($this->route('usuario')?->usuario, $negocio)],
         ];
     }
 }

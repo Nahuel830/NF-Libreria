@@ -42,7 +42,7 @@ class AdministracionTest extends TestCase
 
         $creado = User::where('usuario', 'cajero.nuevo')->first();
         $this->assertNotNull($creado);
-        $this->assertFalse($creado->debe_cambiar_password);
+        $this->assertTrue($creado->debe_cambiar_password);
         $this->assertTrue(Hash::check('temporal123', $creado->password));
 
         $this->assertDatabaseHas('auditoria', [
@@ -166,7 +166,7 @@ class AdministracionTest extends TestCase
     public function test_restablecer_password_deja_debe_cambiar_en_true(): void
     {
         $admin = $this->admin();
-        $usuario = User::factory()->create(['rol' => Rol::Encargado, 'debe_cambiar_password' => false]);
+        $usuario = User::factory()->create(['rol' => Rol::Cajero, 'debe_cambiar_password' => false]);
 
         $this->actingAs($admin)->put("/usuarios/{$usuario->id}/password", [
             'password' => 'temporal999',
@@ -181,21 +181,6 @@ class AdministracionTest extends TestCase
             'user_id' => $admin->id,
             'entidad_id' => $usuario->id,
         ]);
-    }
-
-    public function test_restablecer_password_de_cajero_no_exige_cambio(): void
-    {
-        $admin = $this->admin();
-        $cajero = User::factory()->create(['rol' => Rol::Cajero, 'debe_cambiar_password' => false]);
-
-        $this->actingAs($admin)->put("/usuarios/{$cajero->id}/password", [
-            'password' => 'fija12345',
-            'password_confirmation' => 'fija12345',
-        ])->assertRedirect(route('usuarios.index'));
-
-        $cajero->refresh();
-        $this->assertFalse($cajero->debe_cambiar_password);
-        $this->assertTrue(Hash::check('fija12345', $cajero->password));
     }
 
     public function test_password_trivial_se_rechaza_al_crear_y_restablecer(): void
@@ -224,6 +209,56 @@ class AdministracionTest extends TestCase
             'password' => 'encargado9',
             'password_confirmation' => 'encargado9',
         ])->assertSessionHasErrors('password');
+    }
+
+    public function test_password_exige_letras_y_numeros_y_no_nombre_del_negocio(): void
+    {
+        app(\App\Services\ConfiguracionService::class)->set('nombre_negocio', 'NF Librería');
+
+        foreach (['abcdefghij', '1234567890', 'corta123'] as $debil) {
+            $this->actingAs($this->admin())->post('/usuarios', [
+                'nombre' => 'Débil',
+                'usuario' => 'debil.'.mb_strlen($debil),
+                'rol' => 'cajero',
+                'password' => $debil,
+                'password_confirmation' => $debil,
+            ])->assertSessionHasErrors('password');
+        }
+
+        $this->actingAs($this->admin())->post('/usuarios', [
+            'nombre' => 'Negocio',
+            'usuario' => 'negocio1',
+            'rol' => 'cajero',
+            'password' => 'xlibrería12',
+            'password_confirmation' => 'xlibrería12',
+        ])->assertSessionHasErrors('password');
+
+        $this->actingAs($this->admin())->post('/usuarios', [
+            'nombre' => 'Fuerte',
+            'usuario' => 'fuerte1',
+            'rol' => 'cajero',
+            'password' => 'fuerte12345',
+            'password_confirmation' => 'fuerte12345',
+        ])->assertRedirect(route('usuarios.index'));
+    }
+
+    public function test_forzar_cambio_password_marca_a_todos(): void
+    {
+        $admin = $this->admin();
+        $cajero = User::factory()->create(['rol' => Rol::Cajero, 'debe_cambiar_password' => false]);
+
+        $valores = [
+            'nombre_negocio' => 'NF Librería',
+            'mensaje_ticket' => 'Gracias',
+            'minutos_inactividad' => 60,
+            'forzar_cambio_password' => '1',
+        ];
+
+        $this->actingAs($admin)->put('/configuracion', $valores)
+            ->assertRedirect(route('configuracion.editar'));
+
+        $this->assertTrue($cajero->fresh()->debe_cambiar_password);
+        $this->assertTrue($admin->fresh()->debe_cambiar_password);
     }
 
     public function test_encargado_y_cajero_reciben_403(): void

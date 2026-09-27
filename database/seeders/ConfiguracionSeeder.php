@@ -22,6 +22,7 @@ class ConfiguracionSeeder extends Seeder
         'ips_cajero' => '',
         'totp_obligatorio_admin' => '1',
         'totp_obligatorio_encargado' => '0',
+        'forzar_cambio_password' => '0',
     ];
 
     public function run(): void
