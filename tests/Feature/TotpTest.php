@@ -317,6 +317,23 @@ class TotpTest extends TestCase
         $this->assertStringContainsString('perdió el teléfono', $registro->descripcion);
     }
 
+    public function test_codigo_fuera_de_ventana_se_rechaza(): void
+    {
+        $admin = $this->adminSinTotp('admintotp10');
+        $this->activarTotp($admin);
+
+        $this->post('/login', ['usuario' => 'admintotp10', 'password' => 'secreta12345'])
+            ->assertRedirect(route('totp.verificar'));
+
+        $google = new Google2FA();
+        $codigoLejos = $google->oathTotp($admin->fresh()->totp_secreto, $google->getTimestamp() - 2);
+
+        $this->post('/totp/verificar', ['codigo' => $codigoLejos])
+            ->assertSessionHasErrors('codigo');
+        $this->assertGuest();
+        $this->assertDatabaseHas('auditoria', ['accion' => 'LOGIN_FALLIDO', 'user_id' => $admin->id]);
+    }
+
     public function test_bloqueo_por_ip_tras_20_fallos(): void
     {
         foreach (['blq1', 'blq2', 'blq3', 'blq4'] as $usuario) {

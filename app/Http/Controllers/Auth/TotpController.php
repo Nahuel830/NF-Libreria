@@ -37,6 +37,15 @@ class TotpController extends Controller
 
     protected function cerrarPorIntentos(Request $request, AuditoriaService $auditoria, User $usuario): RedirectResponse
     {
+        $auditoria->registrar(
+            'LOGIN_FALLIDO',
+            "Código de verificación incorrecto para '{$usuario->usuario}'.",
+            $usuario,
+            null,
+            null,
+            $usuario
+        );
+
         $intentos = (int) $request->session()->get('totp_intentos', 0) + 1;
         $request->session()->put('totp_intentos', $intentos);
 

@@ -6,13 +6,23 @@
     <x-page-header titulo="Mi seguridad" :migas="['Inicio' => route('inicio'), 'Mi seguridad' => null]" />
 
     @if (session('codigos_recuperacion'))
+        <style>
+            @media print {
+                body * { visibility: hidden; }
+                #codigos-recuperacion, #codigos-recuperacion * { visibility: visible; }
+                #codigos-recuperacion { position: absolute; top: 0; left: 0; width: 100%; }
+            }
+        </style>
         <x-card titulo="Códigos de recuperación (guárdalos ahora)">
-            <p class="text-danger">Se muestran una sola vez. Cada uno sirve para entrar una vez si pierdes el teléfono.</p>
-            <ul>
-                @foreach (session('codigos_recuperacion') as $codigo)
-                    <li><code>{{ $codigo }}</code></li>
-                @endforeach
-            </ul>
+            <div id="codigos-recuperacion">
+                <p class="text-danger">Se muestran una sola vez. Cada uno sirve para entrar una vez si pierdes el teléfono.</p>
+                <ul>
+                    @foreach (session('codigos_recuperacion') as $codigo)
+                        <li><code>{{ $codigo }}</code></li>
+                    @endforeach
+                </ul>
+            </div>
+            <button type="button" class="btn btn-outline-primary" data-imprimir><i class="bi bi-printer"></i> Imprimir</button>
         </x-card>
     @endif
 
