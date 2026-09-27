@@ -42,7 +42,7 @@
                             </li>
                         @endcan
 
-                        @canany(['gestionar-categorias', 'ver-productos', 'registrar-entradas'])
+                        @canany(['gestionar-categorias', 'ver-productos', 'registrar-entradas', 'gestionar-proveedores'])
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle {{ request()->routeIs('categorias.*', 'productos.*', 'entradas.*', 'inventario.*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-boxes"></i> Inventario
@@ -56,6 +56,9 @@
                                     @endcan
                                     @can('registrar-entradas')
                                         <li><a class="dropdown-item {{ request()->routeIs('entradas.*') ? 'active' : '' }}" href="{{ route('entradas.index') }}">Entradas de mercadería</a></li>
+                                    @endcan
+                                    @can('gestionar-proveedores')
+                                        <li><a class="dropdown-item {{ request()->routeIs('proveedores.*') ? 'active' : '' }}" href="{{ route('proveedores.index') }}">Proveedores</a></li>
                                     @endcan
                                     @can('gestionar-stock')
                                         <li><a class="dropdown-item {{ request()->routeIs('inventario.*') ? 'active' : '' }}" href="{{ route('inventario.stock-bajo') }}">Stock bajo</a></li>

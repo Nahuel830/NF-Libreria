@@ -380,3 +380,14 @@ Anota aquí lo que no es un error pero quieres distinto (textos, orden de column
 - [ ] **CB-07** Importar CSV con columna codigo_barras → se guarda; duplicado → error claro.
 - [ ] **CB-08** Pantalla Etiquetas: imprime hojas A4 con códigos Code128 (nombre + código); filtro por categoría y "solo sin código".
 - [ ] **CB-09** Después de cambiar cantidad, quitar ítem o cancelar con el modal, el foco vuelve al buscador.
+
+---
+
+## 20. Proveedores
+
+- [ ] **PV-01** Listado con búsqueda, cantidad de entradas y estado.
+- [ ] **PV-02** Crear proveedor (nombre obligatorio y único); editar; desactivar/reactivar; todo auditado.
+- [ ] **PV-03** Cajero recibe 403.
+- [ ] **PV-04** Detalle: datos, historial de entradas con filtro de fechas, total comprado y productos que suele proveer con último costo.
+- [ ] **PV-05** Nueva entrada: selector de proveedor con búsqueda + "Crear proveedor rápido".
+- [ ] **PV-06** Reporte Compras por proveedor con CSV.

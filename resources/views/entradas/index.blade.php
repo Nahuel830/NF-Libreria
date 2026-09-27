@@ -48,7 +48,7 @@
                     <tr>
                         <td><a href="{{ route('entradas.ver', $entrada) }}">{{ $entrada->numero() }}</a></td>
                         <td>{{ $entrada->fecha->format('d/m/Y H:i') }}</td>
-                        <td>{{ $entrada->proveedor ?? '—' }}</td>
+                        <td>{{ $entrada->proveedorVinculado?->nombre ?? $entrada->getRawOriginal('proveedor') ?? '—' }}</td>
                         <td>{{ $entrada->documento_referencia ?? '—' }}</td>
                         <td>{{ $entrada->detalles_count }}</td>
                         <td class="monto"><x-dinero :monto="$entrada->total" /></td>

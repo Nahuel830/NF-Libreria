@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categoria;
+use App\Models\EntradaStock;
 use App\Models\MovimientoStock;
 use App\Models\Producto;
 use App\Models\User;
@@ -275,5 +276,28 @@ class ReporteController extends Controller
             'usuarios' => User::orderBy('nombre')->get(['id', 'nombre', 'usuario']),
             'tipos' => MovimientoStock::distinct()->orderBy('tipo')->pluck('tipo'),
         ]);
+    }
+
+    public function compras(Request $request): View|\Illuminate\Http\Response
+    {
+        [$desde, $hasta] = $this->rango($request);
+
+        $filas = EntradaStock::leftJoin('proveedores as p', 'p.id', '=', 'entradas_stock.proveedor_id')
+            ->where('entradas_stock.estado', 'REGISTRADA')
+            ->whereDate('fecha', '>=', $desde)->whereDate('fecha', '<=', $hasta)
+            ->selectRaw("COALESCE(p.nombre, entradas_stock.proveedor, '—') as proveedor")
+            ->selectRaw('COUNT(*) as cantidad')
+            ->selectRaw('SUM(total) as total')
+            ->groupByRaw("COALESCE(p.nombre, entradas_stock.proveedor, '—')")
+            ->orderByDesc('total')
+            ->get();
+
+        if ($this->quiereCsv($request)) {
+            return $this->csv('compras-por-proveedor.csv',
+                ['proveedor', 'cantidad', 'total'],
+                $filas->map(fn ($f) => [$f->proveedor, $f->cantidad, $this->monedaCsv($f->total)]));
+        }
+
+        return view('reportes.compras', ['filas' => $filas, 'desde' => $desde, 'hasta' => $hasta]);
     }
 }

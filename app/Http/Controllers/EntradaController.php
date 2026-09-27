@@ -18,7 +18,7 @@ class EntradaController extends Controller
     public function index(Request $request): View
     {
         $entradas = EntradaStock::query()
-            ->with('usuario')
+            ->with(['usuario', 'proveedorVinculado'])
             ->withCount('detalles')
             ->when($request->input('desde'), fn ($consulta, $desde) => $consulta->whereDate('fecha', '>=', $desde))
             ->when($request->input('hasta'), fn ($consulta, $hasta) => $consulta->whereDate('fecha', '<=', $hasta))
@@ -40,7 +40,7 @@ class EntradaController extends Controller
     {
         try {
             $entrada = $servicio->registrar(
-                $request->only(['proveedor', 'documento_referencia', 'observaciones']) + [
+                $request->only(['proveedor', 'proveedor_id', 'documento_referencia', 'observaciones']) + [
                     'actualizar_precio_compra' => $request->boolean('actualizar_precio_compra'),
                 ],
                 $request->input('items'),

@@ -22,7 +22,13 @@
             <dd class="col-sm-9">{{ $entrada->fecha->format('d/m/Y H:i') }}</dd>
 
             <dt class="col-sm-3">Proveedor</dt>
-            <dd class="col-sm-9">{{ $entrada->proveedor ?? '—' }}</dd>
+            <dd class="col-sm-9">
+                @if ($entrada->proveedorVinculado)
+                    <a href="{{ route('proveedores.ver', $entrada->proveedorVinculado) }}">{{ $entrada->proveedorVinculado->nombre }}</a>
+                @else
+                    {{ $entrada->getRawOriginal('proveedor') ?? '—' }}
+                @endif
+            </dd>
 
             <dt class="col-sm-3">Documento</dt>
             <dd class="col-sm-9">{{ $entrada->documento_referencia ?? '—' }}</dd>

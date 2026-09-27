@@ -12,8 +12,13 @@
         <x-card titulo="Datos de la entrada">
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label for="proveedor" class="form-label">Proveedor</label>
-                    <input type="text" class="form-control" id="proveedor" name="proveedor" value="{{ old('proveedor') }}" maxlength="150">
+                    <label for="proveedor_nombre" class="form-label">Proveedor</label>
+                    <input type="text" class="form-control" id="proveedor_nombre" autocomplete="off" placeholder="Buscar proveedor...">
+                    <input type="hidden" id="proveedor_id" name="proveedor_id" value="{{ old('proveedor_id') }}">
+                    <div id="proveedores-resultados" class="list-group mt-1"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-bs-toggle="modal" data-bs-target="#modal-proveedor">
+                        Crear proveedor rápido
+                    </button>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="documento_referencia" class="form-label">Documento de referencia</label>
@@ -25,11 +30,36 @@
                 </div>
             </div>
 
+            <div class="mb-3">
+                <label for="proveedor" class="form-label">Proveedor (texto libre, opcional si eliges arriba)</label>
+                <input type="text" class="form-control" id="proveedor" name="proveedor" value="{{ old('proveedor') }}" maxlength="150">
+            </div>
+
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="actualizar_precio_compra" name="actualizar_precio_compra" value="1" checked>
                 <label class="form-check-label" for="actualizar_precio_compra">Actualizar precio de compra de los productos</label>
             </div>
         </x-card>
+
+        <div class="modal fade" id="modal-proveedor" tabindex="-1" aria-labelledby="modal-proveedor-titulo" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modal-proveedor-titulo">Crear proveedor rápido</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="proveedor-rapido-nombre" class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" id="proveedor-rapido-nombre" maxlength="150">
+                        <div class="text-danger small mt-1 d-none" id="proveedor-rapido-error"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="proveedor-rapido-guardar">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <x-card titulo="Productos">
             <div class="mb-3">

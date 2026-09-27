@@ -7,6 +7,7 @@ use App\Http\Controllers\EntradaController;
 use App\Http\Controllers\ImportacionController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\Admin\ConfiguracionController;
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/cierre', [ReporteController::class, 'cierre'])->name('cierre');
         Route::get('/inventario', [ReporteController::class, 'inventario'])->name('inventario');
         Route::get('/movimientos', [ReporteController::class, 'movimientos'])->name('movimientos');
+        Route::get('/compras', [ReporteController::class, 'compras'])->name('compras');
     });
 
     Route::middleware('can:gestionar-usuarios')->prefix('usuarios')->name('usuarios.')->group(function (): void {
@@ -107,6 +109,18 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/', [EntradaController::class, 'guardar'])->name('guardar');
         Route::get('/{entrada}', [EntradaController::class, 'ver'])->name('ver');
         Route::post('/{entrada}/anular', [EntradaController::class, 'anular'])->name('anular');
+    });
+
+    Route::middleware('can:gestionar-proveedores')->prefix('proveedores')->name('proveedores.')->group(function (): void {
+        Route::get('/', [ProveedorController::class, 'index'])->name('index');
+        Route::get('/crear', [ProveedorController::class, 'crear'])->name('crear');
+        Route::post('/', [ProveedorController::class, 'guardar'])->name('guardar');
+        Route::get('/buscar', [ProveedorController::class, 'buscar'])->name('buscar');
+        Route::post('/rapido', [ProveedorController::class, 'guardarRapido'])->name('rapido');
+        Route::get('/{proveedor}', [ProveedorController::class, 'ver'])->name('ver');
+        Route::get('/{proveedor}/editar', [ProveedorController::class, 'editar'])->name('editar');
+        Route::put('/{proveedor}', [ProveedorController::class, 'actualizar'])->name('actualizar');
+        Route::patch('/{proveedor}/estado', [ProveedorController::class, 'estado'])->name('estado');
     });
 
     Route::middleware('can:ver-productos')->prefix('api-interna')->name('api-interna.')->group(function (): void {

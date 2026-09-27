@@ -11,6 +11,7 @@ class EntradaStock extends Model
     protected $fillable = [
         'fecha',
         'proveedor',
+        'proveedor_id',
         'documento_referencia',
         'observaciones',
         'total',
@@ -38,6 +39,11 @@ class EntradaStock extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function proveedorVinculado()
+    {
+        return $this->belongsTo(Proveedor::class, 'proveedor_id');
     }
 
     public function anuladaPor()

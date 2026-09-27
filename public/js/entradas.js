@@ -189,4 +189,84 @@ document.addEventListener('DOMContentLoaded', () => {
         boton.disabled = true;
         setTimeout(() => { boton.disabled = false; }, 3000);
     });
+
+    // Selector de proveedor con búsqueda + creación rápida.
+    const provNombre = document.getElementById('proveedor_nombre');
+    const provId = document.getElementById('proveedor_id');
+    const provResultados = document.getElementById('proveedores-resultados');
+
+    if (provNombre && provId && provResultados) {
+        let temporizadorProv = null;
+
+        provNombre.addEventListener('input', () => {
+            clearTimeout(temporizadorProv);
+            provId.value = '';
+
+            const texto = provNombre.value.trim();
+
+            if (texto.length < 1) {
+                provResultados.innerHTML = '';
+                return;
+            }
+
+            temporizadorProv = setTimeout(async () => {
+                const respuesta = await fetch(`/proveedores/buscar?q=${encodeURIComponent(texto)}`, {
+                    headers: { Accept: 'application/json' },
+                });
+
+                if (!respuesta.ok) {
+                    return;
+                }
+
+                const proveedores = await respuesta.json();
+                provResultados.innerHTML = '';
+
+                proveedores.forEach((proveedor) => {
+                    const boton = document.createElement('button');
+                    boton.type = 'button';
+                    boton.className = 'list-group-item list-group-item-action';
+                    boton.textContent = proveedor.nombre;
+                    boton.addEventListener('click', () => {
+                        provId.value = proveedor.id;
+                        provNombre.value = proveedor.nombre;
+                        provResultados.innerHTML = '';
+                    });
+                    provResultados.appendChild(boton);
+                });
+            }, 250);
+        });
+
+        const rapidoGuardar = document.getElementById('proveedor-rapido-guardar');
+
+        if (rapidoGuardar) {
+            rapidoGuardar.addEventListener('click', async () => {
+                const nombreEl = document.getElementById('proveedor-rapido-nombre');
+                const errorEl = document.getElementById('proveedor-rapido-error');
+                const token = document.querySelector('meta[name="csrf-token"]').content;
+
+                const respuesta = await fetch('/proveedores/rapido', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: JSON.stringify({ nombre: nombreEl.value }),
+                });
+
+                const datos = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    errorEl.textContent = datos.message || 'No se pudo crear el proveedor.';
+                    errorEl.classList.remove('d-none');
+                    return;
+                }
+
+                provId.value = datos.id;
+                provNombre.value = datos.nombre;
+                errorEl.classList.add('d-none');
+                bootstrap.Modal.getInstance(document.getElementById('modal-proveedor')).hide();
+            });
+        }
+    }
 });

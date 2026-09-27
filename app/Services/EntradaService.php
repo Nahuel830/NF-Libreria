@@ -60,6 +60,7 @@ class EntradaService
             $entrada = EntradaStock::create([
                 'fecha' => now(),
                 'proveedor' => $datos['proveedor'] ?? null,
+                'proveedor_id' => $datos['proveedor_id'] ?? null,
                 'documento_referencia' => $datos['documento_referencia'] ?? null,
                 'observaciones' => $datos['observaciones'] ?? null,
                 'total' => $total,

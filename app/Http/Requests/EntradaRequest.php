@@ -18,6 +18,7 @@ class EntradaRequest extends FormRequest
     {
         return [
             'proveedor' => ['nullable', 'string', 'max:150'],
+            'proveedor_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('proveedores', 'id')->where('activo', true)],
             'documento_referencia' => ['nullable', 'string', 'max:50'],
             'observaciones' => ['nullable', 'string'],
             'actualizar_precio_compra' => ['nullable', 'boolean'],
