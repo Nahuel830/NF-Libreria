@@ -25,7 +25,7 @@ class LoginController extends Controller
 
     protected int $maxIntentosIp = 20;
 
-    protected int $segundosBloqueoIp = 600;
+    protected int $segundosBloqueoIp = 900;
 
     public function mostrarFormulario(): View
     {

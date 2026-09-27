@@ -107,8 +107,8 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/etiquetas', [ProductoController::class, 'etiquetas'])->name('etiquetas');
         Route::get('/importar', [ImportacionController::class, 'importar'])->name('importar');
         Route::get('/importar/plantilla', [ImportacionController::class, 'plantilla'])->name('importar.plantilla');
-        Route::post('/importar/vista-previa', [ImportacionController::class, 'vistaPrevia'])->name('importar.vista-previa');
-        Route::post('/importar/confirmar', [ImportacionController::class, 'confirmar'])->name('importar.confirmar');
+        Route::post('/importar/vista-previa', [ImportacionController::class, 'vistaPrevia'])->name('importar.vista-previa')->middleware('throttle:20,1');
+        Route::post('/importar/confirmar', [ImportacionController::class, 'confirmar'])->name('importar.confirmar')->middleware('throttle:10,1');
         Route::get('/{producto}/editar', [ProductoController::class, 'editar'])->name('editar');
         Route::put('/{producto}', [ProductoController::class, 'actualizar'])->name('actualizar');
         Route::patch('/{producto}/estado', [ProductoController::class, 'estado'])->name('estado');
@@ -168,7 +168,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/', [VentaController::class, 'index'])->name('index');
         Route::get('/{venta}', [VentaController::class, 'ver'])->name('ver')->whereNumber('venta');
         Route::get('/{venta}/ticket', [VentaController::class, 'ticket'])->name('ticket')->whereNumber('venta');
-        Route::post('/{venta}/anular', [VentaController::class, 'anular'])->name('anular')->middleware('can:anular-ventas');
+        Route::post('/{venta}/anular', [VentaController::class, 'anular'])->name('anular')->middleware(['can:anular-ventas', 'throttle:30,1']);
     });
 
     Route::middleware('can:anular-ventas')->group(function (): void {

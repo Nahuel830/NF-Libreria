@@ -353,6 +353,31 @@ class VentaTest extends TestCase
         $this->servicio()->anular($venta, 'No me gusta', $cajero);
     }
 
+    public function test_anular_venta_con_limite_de_intentos(): void
+    {
+        $encargado = $this->vendedor(Rol::Encargado);
+        $a = Producto::factory()->create(['precio_venta' => '10.00']);
+        $venta = $this->servicio()->registrar(
+            [['producto_id' => $a->id, 'cantidad' => 1]],
+            ['token' => (string) Str::uuid(), 'metodo_pago' => 'QR'],
+            $encargado
+        );
+
+        $this->actingAs($encargado)
+            ->post("/ventas/{$venta->id}/anular", ['motivo' => 'Error de cobro'])
+            ->assertRedirect();
+
+        for ($i = 0; $i < 29; $i++) {
+            $this->actingAs($encargado)
+                ->post("/ventas/{$venta->id}/anular", ['motivo' => 'Error de cobro'])
+                ->assertSessionHasErrors('motivo');
+        }
+
+        $this->actingAs($encargado)
+            ->post("/ventas/{$venta->id}/anular", ['motivo' => 'Error de cobro'])
+            ->assertStatus(429);
+    }
+
     public function test_concurrencia_simulada_segunda_venta_falla(): void
     {
         // Con stock negativo desactivado, dos ventas seguidas del último ítem:

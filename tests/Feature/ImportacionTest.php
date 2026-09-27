@@ -146,6 +146,17 @@ class ImportacionTest extends TestCase
         $this->actingAs($cajero)->post('/productos/importar/vista-previa', [])->assertForbidden();
     }
 
+    public function test_confirmar_importacion_con_limite_de_intentos(): void
+    {
+        $this->actingAs($this->admin());
+
+        for ($i = 0; $i < 10; $i++) {
+            $this->post('/productos/importar/confirmar', [])->assertStatus(419);
+        }
+
+        $this->post('/productos/importar/confirmar', [])->assertStatus(429);
+    }
+
     public function test_archivo_que_no_es_csv_se_rechaza(): void
     {
         $this->actingAs($this->admin())->post('/productos/importar/vista-previa', [
