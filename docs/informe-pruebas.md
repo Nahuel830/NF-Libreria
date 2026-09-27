@@ -4,6 +4,8 @@ Verificación del 26/09/2026. Suite: **121 tests PHPUnit en verde (476 asercione
 + **21 tests Dusk en verde** (Edge headless). `stock:verificar` sin diferencias.
 BD de pruebas verificada con psql tras los flujos (ver evidencias).
 
+> Actualización FASE 3: **148 PHPUnit + 24 Dusk en verde**. Secciones nuevas 18–22 abajo.
+
 Leyenda: OK = pasa; CORREGIDO = fallaba y se corrigió; MANUAL = lo prueba el usuario.
 
 ## 0. Preparación
@@ -205,6 +207,56 @@ Leyenda: OK = pasa; CORREGIDO = fallaba y se corrigió; MANUAL = lo prueba el us
 | DS-02–DS-12, DS-14–DS-16 | Revisión visual general | MANUAL |
 | DS-13 | InterfazDuskTest: título con negocio + favicon presente | OK |
 | DS-17 | /estilos 200 como admin en local (serve); 404 fuera de local (ReporteTest) | OK |
+
+## 18. Caja
+
+| Código | Verificación | Resultado |
+|---|---|---|
+| CJ-01 | CajaModuloTest: sin caja redirige/error; con opción off vende sin caja | OK |
+| CJ-02 | CajaModuloTest: no abre dos | OK |
+| CJ-03 | CajaModuloTest + InterfazDuskTest: Mi caja con resumen | OK |
+| CJ-04 | CajaModuloTest: concepto obligatorio; egreso mayor pide confirmación | OK |
+| CJ-05 | CajaModuloTest: conteo, sobrante/faltante, observaciones con diferencia | OK |
+| CJ-06 | CajaModuloTest: cerrada bloquea ventas y movimientos | OK |
+| CJ-07 | CajaModuloTest: encargado cierra ajena; cajero no | OK |
+| CJ-08 | Venta ver: badge "anulada después del cierre" (lógica en vista) | MANUAL |
+| CJ-09 | ReporteTest cierre incluye cajas (estructura); datos | MANUAL |
+| CJ-10 | Barra con estado (visible en capturas Dusk) | OK |
+
+## 19. Código de barras
+
+| Código | Verificación | Resultado |
+|---|---|---|
+| CB-01/02 | ProductoTest: campo, Enter no envía (productos.js), unicidad | OK |
+| CB-03 | VentaDuskTest: 3 escaneos → cantidad 3, cobro y BD | OK |
+| CB-04 | ventas.js/entradas.js: aviso + sonido (sin archivos) | MANUAL |
+| CB-05 | Redirección de escaneos rápidos documentada en plan | MANUAL |
+| CB-06 | entradas.js: mismo flujo que ventas | MANUAL |
+| CB-07 | ImportacionTest: columna y duplicado | OK |
+| CB-08 | Etiquetas 200 con SVG (serve) | OK |
+| CB-09 | Foco al buscador tras acciones (código) | MANUAL |
+
+## 20. Proveedores
+
+| Código | Verificación | Resultado |
+|---|---|---|
+| PV-01–PV-06 | ProveedorTest: CRUD, permisos, detalle, entrada vinculada, buscador, rápido, reporte | OK |
+
+## 21. Clientes
+
+| Código | Verificación | Resultado |
+|---|---|---|
+| CL-01–CL-07 | ClienteTest: CRUD, permisos, venta con/sin/cliente inválido, rápido+buscar por cajero, detalle, reporte | OK |
+
+## 22. Devoluciones
+
+| Código | Verificación | Resultado |
+|---|---|---|
+| DV-01–DV-04 | DevolucionTest: parcial, stock, EGRESO en caja, ticket | OK |
+| DV-05 | DevolucionTest + vista con lista y ticket | OK |
+| DV-06 | DevolucionTest: resumen neto; criterio documentado en ReporteController | OK |
+| DV-07 | DevolucionTest: anular revierte solo lo neto | OK |
+| DV-08 | DevolucionTest: cajero 403 | OK |
 
 ## Correcciones aplicadas durante la fase (con prueba y error real)
 
