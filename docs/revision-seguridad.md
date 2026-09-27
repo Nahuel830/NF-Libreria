@@ -72,3 +72,18 @@ Revisión del 26/09/2026 sobre todo el código (rutas, controladores, servicios,
 | Actividad reciente de accesos (`/auditoria/actividad`) | Implementado + test |
 | Test de rutas públicas (`RutasPublicasTest`) | Implementado |
 | Verificación final | 184 PHPUnit + 27 Dusk en verde, `stock:verificar` OK, pusheado a `main` |
+
+## Anexo WEB-1 v2 — ítems 1.1–1.10 del spec (27/09/2026)
+
+| Ítem | Resultado |
+|---|---|
+| 1.1 `.env.production.example` (17 claves, sin secretos) | Creado; excepción en `.gitignore`; tabla `sessions` ya cubierta por la migración base |
+| 1.2 `trustProxies` con `TRUSTED_PROXIES` | `ConfiarProxies` antepuesto (el closure de bootstrap corre antes de cargar `.env`); verificado en vivo con `X-Forwarded-For` |
+| 1.3 CSP estricta + sin JS inline + Dusk | Valores exactos del spec, flags de emergencia, 11 fragmentos movidos a `public/js`, `CspTest` verde |
+| 1.4 contraseñas unificadas + `uncompromised()` + forzar cambio + cierre de sesiones | `Password::defaults()`, `PASSWORD_VERIFICAR_FILTRADAS`, fail-open documentado |
+| 1.5 límites 20 IP/15 min + throttles | `ventas.anular` 30/min, importar 20/10 por min; bloqueos auditados |
+| 1.6 TOTP completo | Imprimir códigos, auditoría por intento, test fuera de ventana, manual |
+| 1.7 dispositivos + IP cajero | Cookie + tabla + aviso panel + Mi seguridad; restricción opcional con CIDR en el login |
+| 1.8 rutas + errores | Whitelist automática, sin `_dusk` en prod, páginas propias |
+| 1.9 contingencia | Columnas, flujo, reportes, planilla |
+| 1.10 cierre | Tests verdes, docs, push, bitácora |

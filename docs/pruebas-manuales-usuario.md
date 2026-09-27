@@ -25,3 +25,15 @@ tests automáticos (`docs/informe-pruebas.md`).
 11. **Imprimir el cierre del día** en A4 y en la térmica.
 12. **Corte de luz simulado** (apagar y encender): verifica ventas y stock
     contra el papel del día.
+
+## Versión web (solo lo imposible de automatizar)
+
+13. **Activar TOTP con un celular real**: entra como admin, escanea el QR
+    con Google Authenticator (o Microsoft Authenticator, Aegis, 2FAS),
+    confirma con el código e imprime los 10 códigos de recuperación.
+    Esperado: el login pide el código; un código de recuperación entra una
+    sola vez.
+14. **Imprimir la planilla de contingencia** (`docs/planilla-contingencia.md`)
+    y verificar que cabe legible en una hoja.
+15. **Probar en el celular con datos** (fuera del WiFi): abrir el dominio,
+    login y una consulta. Esperado: carga con HTTPS válido.
