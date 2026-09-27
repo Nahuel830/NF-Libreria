@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/totp', [TotpController::class, 'estado'])->name('totp.estado');
     Route::post('/totp/regenerar', [TotpController::class, 'regenerar'])->name('totp.regenerar');
     Route::post('/totp/desactivar', [TotpController::class, 'desactivar'])->name('totp.desactivar');
+    Route::post('/totp/otros-cierre', [TotpController::class, 'cerrarOtros'])->name('totp.otros-cierre');
 
     Route::get('/', [InicioController::class, 'index'])->name('inicio');
 

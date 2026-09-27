@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use App\Services\AuditoriaService;
+use App\Services\DispositivoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,8 @@ trait CompletaLogin
             ->exists();
 
         $usuario->forceFill(['ultimo_acceso' => now()])->save();
+
+        app(DispositivoService::class)->registrarUso($usuario->fresh(), $request);
 
         $auditoria->registrar(
             'LOGIN',

@@ -13,6 +13,14 @@
             </div>
         @endif
 
+        @if (($nuevosDispositivos ?? 0) > 0)
+            <div class="alert alert-info" role="alert">
+                <i class="bi bi-phone"></i>
+                {{ $nuevosDispositivos }} inicio(s) de sesión desde dispositivos nuevos en los últimos 7 días.
+                <a href="{{ route('auditoria.index', ['accion' => 'LOGIN_NUEVO_DISPOSITIVO']) }}" class="alert-link">Ver en auditoría</a>
+            </div>
+        @endif
+
         <p class="text-secondary">Último backup: {{ $ultimoBackupFecha ?? 'nunca' }}{{ $ultimoBackupResultado ? ' — '.$ultimoBackupResultado : '' }}</p>
 
         <div class="row mb-3">

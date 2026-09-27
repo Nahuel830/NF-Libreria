@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\Rol;
 use App\Http\Controllers\Controller;
+use App\Models\DispositivoUsuario;
 use App\Models\User;
 use App\Services\AuditoriaService;
+use App\Services\DispositivoService;
 use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TotpController extends Controller
@@ -77,7 +80,7 @@ class TotpController extends Controller
         return max(0, $this->maxIntentosTotp - $intentos);
     }
 
-    public function estado(Request $request, TotpService $totp): View
+    public function estado(Request $request, TotpService $totp, DispositivoService $dispositivos): View
     {
         $usuario = $request->user()?->fresh();
 
@@ -86,7 +89,31 @@ class TotpController extends Controller
         return view('auth.totp-estado', [
             'usuario' => $usuario,
             'obligatorio' => $totp->obligatorioPara($usuario),
+            'dispositivos' => DispositivoUsuario::where('user_id', $usuario->id)->orderByDesc('ultimo_uso')->get(),
+            'hashActual' => $dispositivos->hashActual($request),
         ]);
+    }
+
+    public function cerrarOtros(Request $request, AuditoriaService $auditoria): RedirectResponse
+    {
+        $usuario = $request->user()?->fresh();
+
+        abort_unless($usuario, 404);
+
+        if (config('session.driver') === 'database') {
+            DB::table('sessions')
+                ->where('user_id', $usuario->id)
+                ->where('id', '!=', $request->session()->getId())
+                ->delete();
+        }
+
+        $auditoria->registrar(
+            'CAMBIO_PASSWORD',
+            "El usuario '{$usuario->usuario}' cerró sesión en sus demás dispositivos.",
+            $usuario
+        );
+
+        return redirect()->route('totp.estado')->with('success', 'Sesión cerrada en los demás dispositivos.');
     }
 
     public function configurar(Request $request, TotpService $totp): View|RedirectResponse

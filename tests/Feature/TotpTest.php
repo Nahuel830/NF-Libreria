@@ -371,17 +371,31 @@ class TotpTest extends TestCase
 
     public function test_restriccion_de_ip_para_cajero(): void
     {
-        $cajero = User::factory()->create(['rol' => Rol::Cajero]);
-        $encargado = User::factory()->create(['rol' => Rol::Encargado]);
+        $config = app(\App\Services\ConfiguracionService::class);
+        $config->set('restringir_cajero_por_ip', '1');
+        $config->set('ips_permitidas_cajero', '10.0.0.1, 192.168.1.0/24');
 
-        app(\App\Services\ConfiguracionService::class)->set('ips_cajero', '10.0.0.1');
+        $cajero = User::factory()->create(['usuario' => 'cajeroip', 'password' => 'secreta12345', 'rol' => Rol::Cajero]);
+        $encargado = User::factory()->create(['usuario' => 'encargadoip', 'password' => 'secreta12345', 'rol' => Rol::Encargado]);
 
-        $this->actingAs($cajero)->get('/')->assertForbidden();
-        $this->actingAs($encargado)->get('/')->assertOk();
+        $this->post('/login', ['usuario' => 'cajeroip', 'password' => 'secreta12345'])
+            ->assertSessionHasErrors('usuario');
+        $this->assertGuest();
+        $this->assertDatabaseHas('auditoria', ['accion' => 'LOGIN_FALLIDO', 'user_id' => $cajero->id]);
 
-        app(\App\Services\ConfiguracionService::class)->set('ips_cajero', '');
+        $this->post('/login', ['usuario' => 'encargadoip', 'password' => 'secreta12345'])
+            ->assertRedirect('/');
+        $this->assertAuthenticatedAs($encargado);
+        $this->post('/logout');
 
-        $this->actingAs($cajero)->get('/')->assertOk();
+        $this->assertTrue(\App\Support\Redes::ipPermitida('192.168.1.50', ['192.168.1.0/24']));
+        $this->assertFalse(\App\Support\Redes::ipPermitida('192.168.2.50', ['192.168.1.0/24']));
+        $this->assertTrue(\App\Support\Redes::ipPermitida('10.0.0.1', []));
+
+        $config->set('restringir_cajero_por_ip', '0');
+
+        $this->post('/login', ['usuario' => 'cajeroip', 'password' => 'secreta12345'])
+            ->assertRedirect('/');
     }
 
 }

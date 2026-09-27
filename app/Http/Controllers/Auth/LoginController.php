@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use App\Services\AuditoriaService;
+use App\Services\ConfiguracionService;
 use App\Services\TotpService;
+use App\Support\Redes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +34,7 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function entrar(LoginRequest $request, AuditoriaService $auditoria, TotpService $totp): RedirectResponse
+    public function entrar(LoginRequest $request, AuditoriaService $auditoria, TotpService $totp, ConfiguracionService $configuracion): RedirectResponse
     {
         $usuario = $request->input('usuario');
         $clave = $this->claveLimite($usuario, $request);
@@ -72,6 +74,26 @@ class LoginController extends Controller
 
         RateLimiter::clear($clave);
         $request->session()->forget('totp_intentos');
+
+        if ($user->rol === Rol::Cajero
+            && $configuracion->get('restringir_cajero_por_ip', '0') === '1'
+            && ! Redes::ipPermitida($request->ip(), Redes::listaDesdeTexto($configuracion->get('ips_permitidas_cajero', '')))
+        ) {
+            RateLimiter::hit($claveIp, $this->segundosBloqueoIp);
+
+            $auditoria->registrar(
+                'LOGIN_FALLIDO',
+                "Acceso de cajero '{$user->usuario}' rechazado por IP no autorizada ({$request->ip()}).",
+                $user,
+                null,
+                null,
+                $user
+            );
+
+            return back()
+                ->withInput($request->only('usuario'))
+                ->withErrors(['usuario' => 'Tu IP no está autorizada para el rol cajero. Pide al administrador que la agregue.']);
+        }
 
         if (in_array($user->rol, [Rol::Admin, Rol::Encargado], true)) {
             if ($totp->obligatorioPara($user) && ! $totp->activoPara($user)) {

@@ -25,7 +25,8 @@ class ConfiguracionController extends Controller
         'imprimir_automatico',
         'logo_negocio',
         'exigir_caja_abierta',
-        'ips_cajero',
+        'restringir_cajero_por_ip',
+        'ips_permitidas_cajero',
         'totp_obligatorio_admin',
         'totp_obligatorio_encargado',
         'forzar_cambio_password',
@@ -38,6 +39,8 @@ class ConfiguracionController extends Controller
         foreach ($this->claves as $clave) {
             $valores[$clave] = $configuracion->get($clave, '');
         }
+
+        $valores['ip_actual'] = request()->ip();
 
         return view('configuracion.editar', ['valores' => $valores]);
     }
@@ -57,6 +60,7 @@ class ConfiguracionController extends Controller
         $datos['permitir_stock_negativo'] = $request->boolean('permitir_stock_negativo') ? '1' : '0';
         $datos['imprimir_automatico'] = $request->boolean('imprimir_automatico') ? '1' : '0';
         $datos['exigir_caja_abierta'] = $request->boolean('exigir_caja_abierta') ? '1' : '0';
+        $datos['restringir_cajero_por_ip'] = $request->boolean('restringir_cajero_por_ip') ? '1' : '0';
         $datos['totp_obligatorio_admin'] = $request->boolean('totp_obligatorio_admin') ? '1' : '0';
         $datos['totp_obligatorio_encargado'] = $request->boolean('totp_obligatorio_encargado') ? '1' : '0';
 

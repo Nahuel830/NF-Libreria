@@ -100,6 +100,9 @@ class InicioController extends Controller
             'alertaBackup' => $alertaBackup,
             'ultimoBackupFecha' => $ultimoBackupFecha,
             'ultimoBackupResultado' => $ultimoBackupResultado,
+            'nuevosDispositivos' => \App\Models\Auditoria::where('accion', 'LOGIN_NUEVO_DISPOSITIVO')
+                ->where('created_at', '>=', now()->subDays(7))
+                ->count(),
             'porMetodo' => $porMetodo,
             'graficoEtiquetas' => $etiquetas,
             'graficoValores' => $valores,

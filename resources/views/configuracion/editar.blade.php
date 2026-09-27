@@ -81,12 +81,19 @@
                 <label class="form-check-label" for="exigir_caja_abierta">Exigir caja abierta para vender</label>
             </div>
 
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="restringir_cajero_por_ip" name="restringir_cajero_por_ip" value="1"
+                    @checked(old('restringir_cajero_por_ip', $valores['restringir_cajero_por_ip'] ?? '0') === '1')>
+                <label class="form-check-label" for="restringir_cajero_por_ip">Restringir cajeros por IP</label>
+            </div>
+
             <div class="mb-3">
-                <label for="ips_cajero" class="form-label">IPs autorizadas para cajeros (separadas por coma; vacío = sin restricción)</label>
-                <input type="text" class="form-control @error('ips_cajero') is-invalid @enderror" id="ips_cajero" name="ips_cajero" value="{{ old('ips_cajero', $valores['ips_cajero'] ?? '') }}" maxlength="255" placeholder="Ej: 192.168.1.50, 192.168.1.51">
-                @error('ips_cajero')
+                <label for="ips_permitidas_cajero" class="form-label">IPs o rangos CIDR permitidos para cajeros (separados por coma o espacio)</label>
+                <input type="text" class="form-control @error('ips_permitidas_cajero') is-invalid @enderror" id="ips_permitidas_cajero" name="ips_permitidas_cajero" value="{{ old('ips_permitidas_cajero', $valores['ips_permitidas_cajero'] ?? '') }}" maxlength="500" placeholder="Ej: 192.168.1.50, 192.168.1.0/24">
+                @error('ips_permitidas_cajero')
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
+                <div class="form-text text-warning">Cuidado: muchas conexiones en Bolivia tienen IP dinámica; activar esto puede dejar al cajero afuera. Tu IP actual es <strong>{{ $valores['ip_actual'] }}</strong>.</div>
             </div>
 
             <div class="form-check form-switch mb-3">

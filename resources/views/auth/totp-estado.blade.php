@@ -87,4 +87,46 @@
             <a href="{{ route('totp.configurar') }}" class="btn btn-primary">Activar</a>
         @endif
     </x-card>
+
+    <x-card titulo="Mis dispositivos">
+        <p class="text-secondary">Si ves un dispositivo que no reconoces, cambia tu contraseña y cierra las demás sesiones.</p>
+
+        <div class="table-responsive">
+            <table class="table table-striped tabla-nf">
+                <thead>
+                    <tr>
+                        <th>Navegador</th>
+                        <th>IP</th>
+                        <th>Primer uso</th>
+                        <th>Último uso</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($dispositivos as $dispositivo)
+                        <tr>
+                            <td>{{ $dispositivo->user_agent ?? '—' }}</td>
+                            <td>{{ $dispositivo->ip ?? '—' }}</td>
+                            <td>{{ $dispositivo->primer_uso->format('d/m/Y H:i') }}</td>
+                            <td>{{ $dispositivo->ultimo_uso->format('d/m/Y H:i') }}</td>
+                            <td>
+                                @if ($dispositivo->hash === $hashActual)
+                                    <span class="badge bg-success">Este dispositivo</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5"><x-empty-state mensaje="Sin dispositivos registrados." /></td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <form method="POST" action="{{ route('totp.otros-cierre') }}" data-confirm="¿Cerrar sesión en los demás dispositivos?">
+            @csrf
+            <button type="submit" class="btn btn-outline-warning">Cerrar sesión en los demás</button>
+        </form>
+    </x-card>
 @endsection

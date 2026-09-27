@@ -41,6 +41,64 @@ class AutenticacionTest extends TestCase
         $this->get('/login')->assertOk()->assertSee('dispositivo');
     }
 
+    public function test_primer_login_registra_dispositivo_y_avisa_a_admin(): void
+    {
+        $cajero = User::factory()->create(['usuario' => 'cajerodisp', 'password' => 'secreta12345', 'rol' => Rol::Cajero]);
+        $admin = User::factory()->create(['rol' => Rol::Admin]);
+
+        $primero = $this->post('/login', ['usuario' => 'cajerodisp', 'password' => 'secreta12345'])
+            ->assertRedirect('/')
+            ->assertCookie('nf_dispositivo');
+
+        $galleta = $primero->getCookie('nf_dispositivo')->getValue();
+
+        $this->assertDatabaseHas('auditoria', [
+            'accion' => 'LOGIN_NUEVO_DISPOSITIVO',
+            'user_id' => $cajero->id,
+        ]);
+        $this->assertDatabaseHas('dispositivos_usuario', ['user_id' => $cajero->id]);
+
+        $this->post('/logout');
+
+        $this->withCookie('nf_dispositivo', $galleta)
+            ->post('/login', ['usuario' => 'cajerodisp', 'password' => 'secreta12345'])
+            ->assertRedirect('/');
+        $this->assertEquals(1, \App\Models\DispositivoUsuario::where('user_id', $cajero->id)->count());
+        $this->assertEquals(1, \App\Models\Auditoria::where('accion', 'LOGIN_NUEVO_DISPOSITIVO')->count());
+
+        $this->actingAs($admin)->get('/')
+            ->assertOk()
+            ->assertSee('dispositivos nuevos');
+    }
+
+    public function test_mi_seguridad_muestra_dispositivos_y_cierra_los_demas(): void
+    {
+        config()->set('session.driver', 'database');
+
+        $cajero = User::factory()->create(['usuario' => 'cajerodisp2', 'password' => 'secreta12345', 'rol' => Rol::Cajero]);
+
+        $this->post('/login', ['usuario' => 'cajerodisp2', 'password' => 'secreta12345'])
+            ->assertRedirect('/');
+
+        $this->actingAs($cajero)->get('/totp')
+            ->assertOk()
+            ->assertSee('Mis dispositivos');
+
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'sesion-otra-pc',
+            'user_id' => $cajero->id,
+            'ip_address' => '10.0.0.9',
+            'user_agent' => 'otra pc',
+            'payload' => 'x',
+            'last_activity' => now()->timestamp,
+        ]);
+
+        $this->actingAs($cajero)->post('/totp/otros-cierre')
+            ->assertRedirect(route('totp.estado'));
+
+        $this->assertDatabaseMissing('sessions', ['id' => 'sesion-otra-pc']);
+    }
+
     public function test_login_con_password_incorrecta_falla_y_registra_fallido(): void
     {
         $user = User::factory()->create([
